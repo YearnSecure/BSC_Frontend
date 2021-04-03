@@ -1,0 +1,112 @@
+[
+  {
+    "id": 1,
+    "name": "YSEC ",
+    "subname": "ysec.finance",
+    "liquidity": "75%",
+    "tokensLocked": "500,000.00 YSEC (50%)",
+    "coinPrice": "$0.700",
+    "valueLocked": "$222,246.629",
+    "softcap": "500.00 ETH",
+    "hardcap": "2500.00 ETH "
+  },
+  {
+    "id": 2,
+    "name": "futoku ",
+    "subname": "futoku.finance",
+    "liquidity": "25%",
+    "tokensLocked": "66,231.00 FTK (58%)",
+    "coinPrice": "$0.536",
+    "valueLocked": "$32,247.382",
+    "softcap": "250.00 ETH",
+    "hardcap": "500.00 ETH "
+  },
+  {
+    "id": 3,
+    "name": "bukio ",
+    "subname": "bukio.finance",
+    "liquidity": "22%",
+    "tokensLocked": "77,425.00 BKO (65%)",
+    "coinPrice": "$0.002",
+    "valueLocked": "$56,285.681",
+    "softcap": "110.00 ETH",
+    "hardcap": "550.00 ETH "
+  },
+  {
+    "id": 4,
+    "name": "lobo ",
+    "subname": "lobo.finance",
+    "liquidity": "77%",
+    "tokensLocked": "221,332.00 LBO (45%)",
+    "coinPrice": "$0.220",
+    "valueLocked": "$112,354.761",
+    "softcap": "211.00 ETH",
+    "hardcap": "1366.00 ETH "
+  },
+  {
+    "id": 5,
+    "name": "kiroji ",
+    "subname": "kiroji.finance",
+    "liquidity": "58%",
+    "tokensLocked": "321,750.00 KJI (12%)",
+    "coinPrice": "$0.364",
+    "valueLocked": "$766,124.485",
+    "softcap": "66.00 ETH",
+    "hardcap": "250.00 ETH "
+  },
+  {
+    "id": 6,
+    "name": "butora ",
+    "subname": "butora.finance",
+    "liquidity": "61%",
+    "tokensLocked": "47,250.00 BTR (24%)",
+    "coinPrice": "$0.691",
+    "valueLocked": "$85,285.123",
+    "softcap": "15.00 ETH",
+    "hardcap": "123.00 ETH "
+  },
+  {
+    "id": 7,
+    "name": "mukage ",
+    "subname": "mukage.finance",
+    "liquidity": "35%",
+    "tokensLocked": "123,000.00 MKG (55%)",
+    "coinPrice": "$0.251",
+    "valueLocked": "$369,486.421",
+    "softcap": "999.00 ETH",
+    "hardcap": "4999.00 ETH "
+  },
+  {
+    "id": 8,
+    "name": "yamaki ",
+    "subname": "yamaki.finance",
+    "liquidity": "68%",
+    "tokensLocked": "213,500.00 YMK (12%)",
+    "coinPrice": "$0.259",
+    "valueLocked": "$246,124.780",
+    "softcap": "654.00 ETH",
+    "hardcap": "853.00 ETH "
+  },
+  {
+    "id": 9,
+    "name": "reirime ",
+    "subname": "reirime.finance",
+    "liquidity": "55%",
+    "tokensLocked": "123,852.00 RRM (24%)",
+    "coinPrice": "$0.346",
+    "valueLocked": "$125,581.120",
+    "softcap": "169.00 ETH",
+    "hardcap": "998.00 ETH "
+  },
+  {
+    "id": 10,
+    "name": "kayuki ",
+    "subname": "kayuki.finance",
+    "liquidity": "57%",
+    "tokensLocked": "1,250.00 KYK (35%)",
+    "coinPrice": "$0.200",
+    "valueLocked": "$692,652.350",
+    "softcap": "412.00 ETH",
+    "hardcap": "1337.00 ETH "
+  }
+]

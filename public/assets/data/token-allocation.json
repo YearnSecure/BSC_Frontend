@@ -1,0 +1,22 @@
+[
+  {
+    "title": "uniswap",
+    "liquidity": 55
+  },
+  {
+    "title": "marketing",
+    "liquidity": 20
+  },
+  {
+  "title": "team",
+  "liquidity": 20
+  },
+  {
+    "title": "farming",
+      "liquidity": 10
+  },
+  {
+    "title": "presale",
+    "liquidity": 5
+  }
+]
