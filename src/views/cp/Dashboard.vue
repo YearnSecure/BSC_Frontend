@@ -108,7 +108,7 @@ export default {
   },
   methods: {
     getPresales: async function () {
-      await axios.get(`${process.env.VUE_APP_SERVICE}/getall`)
+      await axios.get(`${process.env.VUE_APP_SERVICE_GETALL}`)
         .then((response) => {
           if (response.status === 200) {
             this.presales = response.data.items;
