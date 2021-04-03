@@ -305,7 +305,7 @@
             </div>
             <div v-if="this.presale.CurrentStep == 1 && !this.presale.SoftcapMet && this.presale.finished">
               <div class="block text-center mt-10">
-                <button v-on:click="retrieveEth()" class="py-2 px-8 bg-yellow-500 text-white rounded-3xl">
+                <button v-on:click="retrieveBNB()" class="py-2 px-8 bg-yellow-500 text-white rounded-3xl">
                   Retrieve Eth
                 </button>
               </div>
@@ -327,7 +327,7 @@
 
             <div v-if="this.presale.CurrentStep == 2">
               <div class="block text-center mt-10">
-                <button v-on:click="addUniswapLiquidity()" class="py-2 px-8 bg-yellow-500 text-white rounded-3xl">
+                <button v-on:click="addLiquidity()" class="py-2 px-8 bg-yellow-500 text-white rounded-3xl">
                   Add Uniswap Liquidity
                 </button>
               </div>
@@ -339,9 +339,9 @@
                 </button>
               </div>
             </div>
-            <div v-if="this.presale.CurrentStep == 3 && this.presale.EthDistributable">
+            <div v-if="this.presale.CurrentStep == 3 && this.presale.BNBDistributable">
               <div class="block text-center mt-10">
-                <button v-on:click="distributeEth()" class="py-2 px-8 bg-yellow-500 text-white rounded-3xl">
+                <button v-on:click="distributeBNB()" class="py-2 px-8 bg-yellow-500 text-white rounded-3xl">
                   Distribute ETH
                 </button>
               </div>
@@ -378,6 +378,37 @@ export default {
       tokensInPresale: 0,
       liquidityTokens: 0,
       presale: {
+        Name: '',
+        StartDate: null,
+        EndDate: null,
+        SoftCap: null,
+        HardCap: null,
+        TokenAddress: null,
+        LiquidityLocked: null,
+        TotalSupply: null,
+        TotalTokenAmount: null,
+        TokensInPresale: null,
+        RawTokensInPresale: null,
+        TokenLiquidity: null,
+        TokenPrice: null,
+        TotalContributed: null,
+        TokenOwnerAddress: 0,
+        BNBDistributable: null,
+        TokenTimeLock: null,
+        CurrentStep: 0,
+        Github: null,
+        Medium: null,
+        Telegram: null,
+        Website: null,
+        Twitter: null,
+        allocations: [],
+        UserContribution: null,
+        Roi: null,
+        TokenName: null,
+        finished: false,
+        started: false,
+        SoftCapMet: false,
+        listingPrice: null,
         chartData: {
           datasets: [
             {
@@ -441,7 +472,7 @@ export default {
 
     this.web3 = new Web3(this.provider);
     await this.getPresaleData();
-    await this.getContributedEth();
+    await this.getContributedBNB();
     await this.getSoftcapMet();
     if (this.account.toLowerCase() === this.presale.TokenOwnerAddress.toLowerCase()){
       await this.getAllowance();
@@ -453,7 +484,6 @@ export default {
       }
     }
 
-    await this.getEthPrice();
     await this.getTokenAllocations();
 
     this.setProgressBar();
@@ -485,9 +515,9 @@ export default {
           this.presale.TokenLiquidity = this.readableFormatNumbers(web3.utils.fromWei(response.TokenLiqAmount));
           this.liquidityTokens = web3.utils.fromWei(response.TokenLiqAmount);
           this.presale.TokenPrice = this.getTokenPrice();
-          this.presale.TotalContributed = web3.utils.fromWei(response.State.ContributedEth);
+          this.presale.TotalContributed = web3.utils.fromWei(response.State.ContributedBNB);
           this.presale.TokenOwnerAddress = response.Addresses.TokenOwnerAddress;
-          this.presale.EthDistributable = (response.State.ContributedEth - response.State.RetrievedEthAmount) > 0;
+          this.presale.BNBDistributable = (response.State.ContributedBNB - response.State.RetrievedBNBAmount) > 0;
           this.presale.TokenTimeLock = response.Addresses.TokenTimeLock;
 
           const presalePrice = web3.utils.fromWei(response.TokenPresaleAllocation)/web3.utils.fromWei(response.Hardcap);
@@ -540,13 +570,13 @@ export default {
             console.log('error:' + e);
           });
     },
-    getContributedEth: async function() {
+    getContributedBNB: async function() {
       const presaleContractAbi = this.contractAbi;
       const web3 = new Web3(this.provider);
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
       
       presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-        await presaleContractInterface.methods.GetEthContributedForAddress(this.id, this.account).call().then((response) => {
+        await presaleContractInterface.methods.GetBNBContributedForAddress(this.id, this.account).call().then((response) => {
           if (response == 0){
             this.presale.UserContribution = 0;
             this.presale.Roi = 0;
@@ -574,7 +604,6 @@ export default {
             });
     
     },
-
     getRoi: async function() {
       const presaleContractAbi = this.contractAbi;
       const web3 = new Web3(this.provider);
@@ -589,30 +618,6 @@ export default {
               console.log('error:' + e);
             });
     },
-    
-    queryPresaleData: async function() {
-      const response = await axios.get(`${process.env.VUE_APP_SERVICE_PHP}/presale/${this.id}`);
-      if (response.status !== 200)
-        return this.showError(response);
-
-      const presale = response.data.presale;
-      presale.chartData = {};
-      presale.chartData.datasets = [];
-      const dataset = {
-        data: [],
-        backgroundColor: [
-          '#db7d02',
-          '#f78c00',
-          '#f49d2c',
-          '#f2a541',
-          '#f9af4d',
-          '#f9b761',
-        ],
-      }
-      presale.chartData.datasets.push(dataset);
-
-      this.presale = presale;
-    },
     getPresalesGraph: async function() {
       if (this.presale.tokens && this.presale.tokens.length > 0) {
         for (let index = 0; index < this.presale.tokens.length; index++) {
@@ -620,25 +625,14 @@ export default {
         }
       }
     },
-    getEthPrice: async function() {
-      const response = await axios.get(process.env.VUE_APP_KRAKEN_API);
-
-      if (response.status === 200)
-        return response.data.result.XETHZUSD.c[0];
-      else
-        this.showError('Ethereum price not fetched.',
-            'Something went wrong fetching Ethereum price, please try again');
-    },
     getTokenPrice: function() {
       return parseInt(this.presale.Hardcap)/(parseInt(this.presale.RawTokensInPresale));
     },
-
     getAllowance: async function (){
       const tokenContractAbi = this.tokenAbi;
       const web3 = new Web3(this.provider);
       const tokenContractInterface = new web3.eth.Contract(tokenContractAbi);
 
-      
       tokenContractInterface.options.address = this.presale.TokenAddress;
       await tokenContractInterface.methods.allowance(this.account, process.env.VUE_APP_PRESALE_CONTRACT).call().then((response) => {
         console.log(response);
@@ -695,25 +689,13 @@ export default {
               console.log('error:' + e);
             });
     },
-    // getEthDistributable: async function() {
-    //   const presaleContractAbi = this.contractAbi;
-    //   const web3 = new Web3(this.provider);
-    //   const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
-      
-    //   presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-    //     await presaleContractInterface.methods.EthDistributable(this.id).call({from: this.account}).then((response) => {
-    //       this.presale.EthDistributable = response
-    //     }).catch((e) => {
-    //           console.log('error:' + e);
-    //         });
-    // },
-    addUniswapLiquidity: async function () {
+    addLiquidity: async function () {
       const presaleContractAbi = this.contractAbi;
       const web3 = new Web3(this.provider);
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
       
       presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-        await presaleContractInterface.methods.AddUniswapLiquidity(this.id).send({from: this.account}).then().catch((e) => {
+        await presaleContractInterface.methods.AddLiquidity(this.id).send({from: this.account}).then().catch((e) => {
               console.log('error:' + e);
             });
 
@@ -728,23 +710,23 @@ export default {
               console.log('error:' + e);
             });
     },
-    distributeEth: async function() {
+    distributeBNB: async function() {
       const presaleContractAbi = this.contractAbi;
       const web3 = new Web3(this.provider);
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
       
       presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-        await presaleContractInterface.methods.DistributeEth(this.id).send({from: this.account}).then().catch((e) => {
+        await presaleContractInterface.methods.DistributeBNB(this.id).send({from: this.account}).then().catch((e) => {
               console.log('error:' + e);
             });
     },
-    retrieveEth: async function() {
+    retrieveBNB: async function() {
       const presaleContractAbi = this.contractAbi;
       const web3 = new Web3(this.provider);
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
       
       presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-        await presaleContractInterface.methods.RetrieveEth(this.id, this.account).send({from: this.account}).then().catch((e) => {
+        await presaleContractInterface.methods.RetrieveBNB(this.id, this.account).send({from: this.account}).then().catch((e) => {
               console.log('error:' + e);
             });
     },
