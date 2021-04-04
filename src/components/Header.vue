@@ -2,7 +2,9 @@
   <div id="header">
     <!-- Page title & actions -->
     <div class="border-b border-gray-200 dark:bg-gray-900 px-4 py-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
-      <div class="flex-0 min-w-0"></div>
+      <div class="flex-0 min-w-0">
+        <a :href="switchPlatformUrl" class="py-2 px-3 bg-yellow-500 text-white rounded hover:bg-yellow-600" target="_blank">ERC Chain</a>
+      </div>
       <div class="flex-1 min-w-0 text-center">
         <h1 class="text-lg font-medium leading-6 text-gray-900 dark:text-white sm:truncate">
           YSEC Token address: <a :href="`https://etherscan.io/address/${contractAddress}`" target="_blank" class="text-blue-500 hover:text-yellow-600 transiation duration-300">{{ contractAddress }}</a>
@@ -72,6 +74,11 @@ export default {
     isConnected: Boolean,
     account: String,
     chainId: String
+  },
+  data() {
+    return {
+      switchPlatformUrl: process.env.VUE_APP_ERC
+    }
   },
   beforeMount: function(){
     this.$store.dispatch("initTheme");
