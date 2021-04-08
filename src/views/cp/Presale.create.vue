@@ -20,10 +20,80 @@
               :title="title" />
 
           <div class="block px-4 mt-6 sm:px-6 lg:px-8">
+            <div class="my-8">
+              <div class="grid grid-cols-2">
+                <div class="col-span-1 text-center">
+                  <button
+                  v-if="divideTokens"
+                  v-on:click="selectDivideTokens"
+                  class="
+                    text-white
+                    px-3
+                    py-2
+                    bg-yellow-500
+                    border
+                    border-yellow-500
+                    hover:bg-yellow-600
+                    hover:border-yellow-600
+                    rounded">
+                      Devide tokens
+                  </button>
+                  <button
+                    v-if="!divideTokens"
+                    v-on:click="selectDivideTokens"
+                    class="
+                    text-white
+                    px-3
+                    py-2
+                    border
+                    border-white
+                    bg-transparent
+                    hover:bg-yellow-500
+                    hover:border-yellow-500
+                    rounded">
+                      Devide tokens
+                  </button>
+                </div>
+                <div class="col-span-1 text-center">
+                  <button
+                    v-if="!burnTokens"
+                    v-on:click="selectBurnTokens"
+                    class="
+                    text-white
+                    px-3
+                    py-2
+                    border
+                    border-white
+                    bg-transparent
+                    hover:bg-yellow-500
+                    hover:border-yellow-500
+                    rounded">
+                      Burn tokens
+                  </button>
+                  <button
+                    v-if="burnTokens"
+                    v-on:click="selectBurnTokens"
+                    class="
+                    text-white
+                    px-3
+                    py-2
+                    bg-yellow-500
+                    border
+                    border-yellow-500
+                    hover:bg-yellow-600
+                    hover:border-yellow-600
+                    rounded">
+                    Burn tokens
+                  </button>
+                </div>
+              </div>
+            </div>
             <div class="my-8 text-center">
               <PresaleInformation
                 :account="account"
                 :token="settings"
+                :divideTokens="divideTokens"
+                :burnTokens="burnTokens"
                 :key="key"
               />
             </div>
@@ -36,6 +106,8 @@
                   :totalTokens="settings.totalTokens"
                   :presaleTokens="settings.tokenPresaleAllocation"
                   :tokensPerEth="settings.tokensPerEth"
+                  :devideTokens="divideTokens"
+                  :burnTokens="burnTokens"
                   :key="key"
               />
 
@@ -139,22 +211,24 @@ export default {
       account: this.$store.state.account,
       provider: window.ethereum,
       chainId: null,
+      divideTokens: true, // Divide tokens is default selected
+      burnTokens: false, // Burn tokens is not default selected
       settings: {
-        address: '',
-        name: '',
-        softcap: "",
-        hardcap: "",
-        totalTokens: null,
-        tokenPresaleAllocation: null,
+        address: '0x',
+        name: 'Dilithium',
+        softcap: "50",
+        hardcap: "100",
+        totalTokens: 100000000,
+        tokenPresaleAllocation: 25000,
         startDate: null,
         startDateTime: {
-          HH: null,
+          HH: 10,
           mm: "00",
           ss: "00"
         },
         endDate: null,
         endDateTime: {
-          HH: null,
+          HH: 10,
           mm: "00",
           ss: "00"
         },
@@ -163,9 +237,9 @@ export default {
       settingsIsValid: false,
       liquidityIsValid: false,
       liquidity: {
-        amount: null,
-        percentage: null,
-        locked: false,
+        amount: 50000,
+        percentage: 10,
+        locked: true,
         permaBurn: false,
         timeLocked: false,
         releaseDate: null,
@@ -188,10 +262,10 @@ export default {
       tokenomicsIsValid: false,
       tokenomics: [],
       setAllocationsPressed: false,
-      socialsIsValid: false,
+      socialsIsValid: true,
       socials: [
         {
-          url: '',
+          url: 'https://website.com',
           type: 0,
         },
         {
@@ -340,6 +414,15 @@ export default {
         Telegram: this.socials[2].url,
         Github: this.socials[3].url,
         Medium: this.socials[4].url,
+      }
+
+      if (this.divideTokens && !this.burnTokens) {
+        presaleDto.PresaleTokenPrice = 0;
+        presaleDto.ListingTokenPrice = 0;
+        presaleDto.IsBurnUnsold = false;
+        presaleDto.UnsoldTransferAddress = 0x000000000000000000000000000000000000dEaD;
+      } else if (!this.divideTokens && this.burnTokens) {
+        presaleDto.IsBurnUnsold = true;
       }
 
       if (this.account !== null && this.account !== '') {
@@ -513,6 +596,24 @@ export default {
         this.account = accounts[0];
         // show user that MetaMask is connected
         this.isConnected = true;
+      }
+    },
+    selectDivideTokens: function() {
+      if (this.divideTokens) {
+        this.divideTokens = false;
+        this.burnTokens = true;
+      } else {
+        this.divideTokens = true;
+        this.burnTokens = false;
+      }
+    },
+    selectBurnTokens: function() {
+      if (this.burnTokens) {
+        this.burnTokens = false;
+        this.divideTokens = true;
+      } else {
+        this.burnTokens = true;
+        this.divideTokens = false;
       }
     },
     resetPage: function() {
