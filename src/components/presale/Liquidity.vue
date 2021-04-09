@@ -6,7 +6,7 @@
     <div class="mt-10">
       <div class="dark:bg-gray-800 bg-gray-50 px-5 py-5 rounded-lg border border-gray-200">
         <div class="block">
-          <div class="block">
+          <div v-if="divideTokens" class="block">
             <label
                 :for="liquidity.amount"
                 class="block text-left text-sm font-medium text-gray-700 dark:text-gray-200">
@@ -29,6 +29,28 @@
               <p class="text-red-500 my-2 text-left">
                 {{error.liquidity.maxAmount}}
               </p>
+            </div>
+          </div>
+          <div v-if="burnTokens" class="block">
+            <label
+                :for="liquidity.listingTokenPrice"
+                class="block text-left text-sm font-medium text-gray-700 dark:text-gray-200">
+              Listing token price
+            </label>
+            <div class="mt-1 flex rounded-md">
+              <input
+                  type="number"
+                  :max="remainingTokens"
+                  v-model="liquidity.listingTokenPrice"
+                  placeholder="Listing token price"
+                  class="w-full mt-2 mb-2 px-3 py-1 rounded-lg
+                  text-gray-600 dark:text-gray-300
+                  border border-transparent
+                  focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:border-transparent
+                  bg-gray-100 dark:bg-gray-700">
+            </div>
+            <div v-if="listingTokenPrice" class="block mt-1 text-left text-yellow-500">
+              <p>{{listingTokenPrice}}</p>
             </div>
           </div>
           <div class="block mt-4">
@@ -204,6 +226,9 @@ export default {
     tokensPerEth: [String, Number],
     totalTokens: [String, Number],
     presaleTokens: [String, Number],
+    presaleTokenPrice: [String, Number],
+    divideTokens: Boolean,
+    burnTokens: Boolean,
   },
   components: {
     VueTimepicker
@@ -211,7 +236,7 @@ export default {
   data: () => ({
     tokensPerEthStr: null,
     listingPrice: null,
-
+    listingTokenPrice: null,
     error: {
       liquidity: {
         maxAmount: ''
@@ -275,6 +300,11 @@ export default {
         } else {
           this.remainingTokens -= this.liquidity.amount;
           this.error.liquidity.maxAmount = '';
+        }
+
+        if (this.liquidity.listingTokenPrice !== null) {
+          const listingPrice = this.liquidity.listingTokenPrice / this.presaleTokenPrice;
+          this.listingTokenPrice = `Listing token price is ~ ${listingPrice}`;
         }
       },
       deep: true

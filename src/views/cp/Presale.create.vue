@@ -36,7 +36,7 @@
                     hover:bg-yellow-600
                     hover:border-yellow-600
                     rounded">
-                      Devide tokens
+                      Divide tokens
                   </button>
                   <button
                     v-if="!divideTokens"
@@ -51,7 +51,7 @@
                     hover:bg-yellow-500
                     hover:border-yellow-500
                     rounded">
-                      Devide tokens
+                      Divide tokens
                   </button>
                 </div>
                 <div class="col-span-1 text-center">
@@ -106,6 +106,7 @@
                   :totalTokens="settings.totalTokens"
                   :presaleTokens="settings.tokenPresaleAllocation"
                   :tokensPerEth="settings.tokensPerEth"
+                  :presaleTokenPrice="settings.presaleTokenPrice"
                   :devideTokens="divideTokens"
                   :burnTokens="burnTokens"
                   :key="key"
@@ -215,11 +216,13 @@ export default {
       burnTokens: false, // Burn tokens is not default selected
       settings: {
         address: '0x',
+        burnTokenAddress: null,
         name: 'Dilithium',
         softcap: "50",
         hardcap: "100",
         totalTokens: 100000000,
-        tokenPresaleAllocation: 25000,
+        tokenPresaleAllocation: null,
+        presaleTokenPrice: null,
         startDate: null,
         startDateTime: {
           HH: 10,
@@ -237,7 +240,8 @@ export default {
       settingsIsValid: false,
       liquidityIsValid: false,
       liquidity: {
-        amount: 50000,
+        amount: null,
+        listingTokenPrice: null,
         percentage: 10,
         locked: true,
         permaBurn: false,
@@ -417,16 +421,22 @@ export default {
       }
 
       if (this.divideTokens && !this.burnTokens) {
-        presaleDto.PresaleTokenPrice = 0;
-        presaleDto.ListingTokenPrice = 0;
         presaleDto.IsBurnUnsold = false;
         presaleDto.UnsoldTransferAddress = 0x000000000000000000000000000000000000dEaD;
+        presaleDto.PresaleTokenPrice = 0;
+        presaleDto.ListingTokenPrice = 0;
       } else if (!this.divideTokens && this.burnTokens) {
         presaleDto.IsBurnUnsold = true;
+        presaleDto.UnsoldTransferAddress = this.settings.burnTokenAddress;
+        presaleDto.PresaleTokenPrice = this.settings.presaleTokenPrice;
+        presaleDto.ListingTokenPrice = this.liquidity.listingTokenPrice;
+        presaleDto.TokenPresaleAllocation = 0; // set to 0 for burnTokens, is set when divideToken is selected
+        presaleDto.TokenLiqAmount = 0; // set to 0 for burnTokens, is set when divideToken is selected
       }
 
       if (this.account !== null && this.account !== '') {
-        await this.sendPresaleToContract(presaleContractInterface, presaleDto);
+        console.log(presaleDto);
+        // await this.sendPresaleToContract(presaleContractInterface, presaleDto);
       }
     },
     addLiquidityAllocation: function() {
@@ -654,44 +664,62 @@ export default {
   watch: {
     settings: {
       handler: function() {
-        this.settingsIsValid = this.settings.address !== null &&
-            this.settings.name !== null &&
-            this.settings.softcap !== null &&
-            this.settings.hardcap !== null &&
-            this.settings.totalTokens !== null &&
-            this.settings.tokenPresaleAllocation !== null &&
-            this.settings.startDate !== null &&
-            this.settings.endDate !== null &&
-            this.settings.startDateTime.HH !== null &&
-            this.settings.endDateTime.HH !== null;
+        if (this.divideTokens) {
+          this.settingsIsValid = this.settings.address !== null &&
+              this.settings.name !== null &&
+              this.settings.softcap !== null &&
+              this.settings.hardcap !== null &&
+              this.settings.totalTokens !== null &&
+              this.settings.tokenPresaleAllocation !== null &&
+              this.settings.startDate !== null &&
+              this.settings.endDate !== null &&
+              this.settings.startDateTime.HH !== null &&
+              this.settings.endDateTime.HH !== null;
+        } else if (this.burnTokens) {
+          this.settingsIsValid = this.settings.address !== null &&
+              this.settings.burnTokenAddress !== null &&
+              this.settings.name !== null &&
+              this.settings.softcap !== null &&
+              this.settings.hardcap !== null &&
+              this.settings.totalTokens !== null &&
+              this.settings.presaleTokenPrice !== null &&
+              this.settings.startDate !== null &&
+              this.settings.endDate !== null &&
+              this.settings.startDateTime.HH !== null &&
+              this.settings.endDateTime.HH !== null;
+        }
       },
       deep: true
     },
     liquidity: {
       handler: function() {
-        if (this.liquidity.amount !== null) {
-          this.remainingAmount = (this.settings.totalTokens - this.settings.tokenPresaleAllocation - this.liquidity.amount);
-        }
-
-        if (this.liquidity.percentage !== null && this.liquidity.amount !== null) {
-          if (this.liquidity.permaBurn) {
-            // all values are filled so liquidity is valid
-            this.liquidityIsValid = true;
-          } else if (this.liquidity.locked && this.liquidity.timeLocked) {
-            // when timelocked is selected check releasedate
-            if (this.liquidity.releaseDate !== null && this.liquidity.releaseDateTime.HH !== null)
-              this.liquidityIsValid = true;
-          } else if (this.liquidity.locked && this.liquidity.interval) {
-            // When interval is selected check interval values
-            if (this.liquidity.intervalStartDate !== null &&
-                this.liquidity.intervalStartDateTime.HH !== null &&
-                this.liquidity.intervalInDays !== null &&
-                this.liquidity.intervalPercentage !== null) {
-              this.liquidityIsValid = true;
-            }
-          } else {
-            this.liquidityIsValid = false;
+        if (this.divideTokens) {
+          if (this.liquidity.amount !== null) {
+            this.remainingAmount = (this.settings.totalTokens - this.settings.tokenPresaleAllocation - this.liquidity.amount);
           }
+
+          if (this.liquidity.percentage !== null && this.liquidity.amount !== null) {
+            if (this.liquidity.permaBurn) {
+              // all values are filled so liquidity is valid
+              this.liquidityIsValid = true;
+            } else if (this.liquidity.locked && this.liquidity.timeLocked) {
+              // when timelocked is selected check releasedate
+              if (this.liquidity.releaseDate !== null && this.liquidity.releaseDateTime.HH !== null)
+                this.liquidityIsValid = true;
+            } else if (this.liquidity.locked && this.liquidity.interval) {
+              // When interval is selected check interval values
+              if (this.liquidity.intervalStartDate !== null &&
+                  this.liquidity.intervalStartDateTime.HH !== null &&
+                  this.liquidity.intervalInDays !== null &&
+                  this.liquidity.intervalPercentage !== null) {
+                this.liquidityIsValid = true;
+              }
+            } else {
+              this.liquidityIsValid = false;
+            }
+          }
+        } else if (this.burnTokens && this.liquidity.listingTokenPrice !== null) {
+          this.liquidityIsValid = true;
         }
       },
       deep: true
