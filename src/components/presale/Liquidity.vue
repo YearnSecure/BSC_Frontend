@@ -6,7 +6,7 @@
     <div class="mt-10">
       <div class="dark:bg-gray-800 bg-gray-50 px-5 py-5 rounded-lg border border-gray-200">
         <div class="block">
-          <div class="block">
+          <div v-if="divideTokens" class="block">
             <label
                 :for="liquidity.amount"
                 class="block text-left text-sm font-medium text-gray-700 dark:text-gray-200">
@@ -31,6 +31,28 @@
               </p>
             </div>
           </div>
+          <div v-if="burnTokens" class="block">
+            <label
+                :for="liquidity.listingTokenPrice"
+                class="block text-left text-sm font-medium text-gray-700 dark:text-gray-200">
+              Listing token price
+            </label>
+            <div class="mt-1 flex rounded-md">
+              <input
+                  type="number"
+                  :max="remainingTokens"
+                  v-model="liquidity.listingTokenPrice"
+                  placeholder="Listing token price"
+                  class="w-full mt-2 mb-2 px-3 py-1 rounded-lg
+                  text-gray-600 dark:text-gray-300
+                  border border-transparent
+                  focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:border-transparent
+                  bg-gray-100 dark:bg-gray-700">
+            </div>
+            <div v-if="listingTokenPrice" class="block mt-1 text-left text-yellow-500">
+              <p>{{listingTokenPrice}}</p>
+            </div>
+          </div>
           <div class="block mt-4">
             <label
                 :for="liquidity.percentage"
@@ -42,20 +64,20 @@
                   type="number"
                   max="100"
                   v-model="liquidity.percentage"
-                  placeholder="Precentage of raised ETH that will be added as liquidity"
+                  placeholder="Percentage of raised ETH that will be added as liquidity"
                   class="w-full mt-2 mb-2 px-3 py-1 rounded-lg
                   text-gray-600 dark:text-gray-300
                   border border-transparent
                   focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:border-transparent
                   bg-gray-100 dark:bg-gray-700">
             </div>
-            <div v-if="tokensPerEthStr" class="block mt-5 text-left">
-              <span class="text-gray-700 dark:text-gray-200">
+            <div v-if="tokensPerEthStr" class="block mt-1 text-left">
+              <span class="text-yellow-500">
                 {{tokensPerEthStr}}
               </span>
             </div>
-            <div v-if="listingPrice" class="block mt-5 text-left">
-              <span class="text-gray-700 dark:text-gray-200">
+            <div v-if="listingPrice" class="block mt-1 text-left">
+              <span class="text-yellow-500">
                 {{listingPrice}}
               </span>
             </div>
@@ -204,6 +226,9 @@ export default {
     tokensPerEth: [String, Number],
     totalTokens: [String, Number],
     presaleTokens: [String, Number],
+    presaleTokenPrice: [String, Number],
+    divideTokens: Boolean,
+    burnTokens: Boolean,
   },
   components: {
     VueTimepicker
@@ -211,7 +236,7 @@ export default {
   data: () => ({
     tokensPerEthStr: null,
     listingPrice: null,
-
+    listingTokenPrice: null,
     error: {
       liquidity: {
         maxAmount: ''
@@ -262,6 +287,7 @@ export default {
             this.liquidity.amount !== null &&
             this.liquidity.percentage !== null)
         {
+          this.liquidity.percentage = this.liquidity.percentage.toFixed(0);
           const liquidityAmount = Number(this.hardCap*0.95) / 100 * this.liquidity.percentage;
           const tokensPerETHLiq = this.liquidity.amount / liquidityAmount;
           this.tokensPerEthStr = `${tokensPerETHLiq} tokens per ETH`;
@@ -275,6 +301,16 @@ export default {
         } else {
           this.remainingTokens -= this.liquidity.amount;
           this.error.liquidity.maxAmount = '';
+        }
+
+        if (this.liquidity.listingTokenPrice !== null) {
+          const listingTimes = this.liquidity.listingTokenPrice / this.presaleTokenPrice;
+          this.listingTokenPrice = `listing price is ~ ${listingTimes} times presale price`;
+        }
+
+        if (this.liquidity.listingTokenPrice !== null && this.liquidity.percentage !== null) {
+          const tokenLiqAmount = parseFloat(this.liquidity.percentage / this.liquidity.listingTokenPrice).toFixed(2);
+          this.listingPrice = `${tokenLiqAmount} tokens will be added as liquidity`;
         }
       },
       deep: true

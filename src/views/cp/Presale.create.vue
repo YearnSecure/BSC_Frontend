@@ -20,10 +20,80 @@
               :title="title" />
 
           <div class="block px-4 mt-6 sm:px-6 lg:px-8">
+            <div class="my-8">
+              <div class="grid grid-cols-2">
+                <div class="col-span-1 text-center">
+                  <button
+                  v-if="divideTokens"
+                  v-on:click="selectDivideTokens"
+                  class="
+                    text-white
+                    px-3
+                    py-2
+                    bg-yellow-500
+                    border
+                    border-yellow-500
+                    hover:bg-yellow-600
+                    hover:border-yellow-600
+                    rounded">
+                      Divide tokens
+                  </button>
+                  <button
+                    v-if="!divideTokens"
+                    v-on:click="selectDivideTokens"
+                    class="
+                    text-white
+                    px-3
+                    py-2
+                    border
+                    border-white
+                    bg-transparent
+                    hover:bg-yellow-500
+                    hover:border-yellow-500
+                    rounded">
+                      Divide tokens
+                  </button>
+                </div>
+                <div class="col-span-1 text-center">
+                  <button
+                    v-if="!burnTokens"
+                    v-on:click="selectBurnTokens"
+                    class="
+                    text-white
+                    px-3
+                    py-2
+                    border
+                    border-white
+                    bg-transparent
+                    hover:bg-yellow-500
+                    hover:border-yellow-500
+                    rounded">
+                      Burn tokens
+                  </button>
+                  <button
+                    v-if="burnTokens"
+                    v-on:click="selectBurnTokens"
+                    class="
+                    text-white
+                    px-3
+                    py-2
+                    bg-yellow-500
+                    border
+                    border-yellow-500
+                    hover:bg-yellow-600
+                    hover:border-yellow-600
+                    rounded">
+                    Burn tokens
+                  </button>
+                </div>
+              </div>
+            </div>
             <div class="my-8 text-center">
               <PresaleInformation
                 :account="account"
                 :token="settings"
+                :divideTokens="divideTokens"
+                :burnTokens="burnTokens"
                 :key="key"
               />
             </div>
@@ -36,6 +106,9 @@
                   :totalTokens="settings.totalTokens"
                   :presaleTokens="settings.tokenPresaleAllocation"
                   :tokensPerEth="settings.tokensPerEth"
+                  :presaleTokenPrice="settings.presaleTokenPrice"
+                  :devideTokens="divideTokens"
+                  :burnTokens="burnTokens"
                   :key="key"
               />
 
@@ -139,22 +212,26 @@ export default {
       account: this.$store.state.account,
       provider: window.ethereum,
       chainId: null,
+      divideTokens: true, // Divide tokens is default selected
+      burnTokens: false, // Burn tokens is not default selected
       settings: {
-        address: '',
-        name: '',
-        softcap: "",
-        hardcap: "",
-        totalTokens: null,
+        address: '0x',
+        burnTokenAddress: '0x',
+        name: 'Dilithium',
+        softcap: "50",
+        hardcap: "100",
+        totalTokens: 1000000,
         tokenPresaleAllocation: null,
+        presaleTokenPrice: 0.1,
         startDate: null,
         startDateTime: {
-          HH: null,
+          HH: 10,
           mm: "00",
           ss: "00"
         },
         endDate: null,
         endDateTime: {
-          HH: null,
+          HH: 10,
           mm: "00",
           ss: "00"
         },
@@ -164,9 +241,10 @@ export default {
       liquidityIsValid: false,
       liquidity: {
         amount: null,
-        percentage: null,
+        listingTokenPrice: 0.2,
+        percentage: 10,
         locked: false,
-        permaBurn: false,
+        permaBurn: true,
         timeLocked: false,
         releaseDate: null,
         releaseDateTime: {
@@ -185,13 +263,14 @@ export default {
         intervalPercentage: null,
       },
       remainingAmount: null,
+      remainingTokensAmount: null,
       tokenomicsIsValid: false,
       tokenomics: [],
       setAllocationsPressed: false,
-      socialsIsValid: false,
+      socialsIsValid: true,
       socials: [
         {
-          url: '',
+          url: 'https://website.com',
           type: 0,
         },
         {
@@ -248,7 +327,7 @@ export default {
         msg: ''
       },
       key: 0,
-      contractAbi: [{"inputs":[{"internalType":"address","name":"timelockFactoryAddress","type":"address"},{"internalType":"address","name":"yieldFeeAddress","type":"address"},{"internalType":"address","name":"feeAddress","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"},{"indexed":false,"internalType":"address","name":"reciever","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"BNBDistributed","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"},{"indexed":false,"internalType":"address","name":"reciever","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"BNBFeeDistributed","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"},{"indexed":false,"internalType":"address","name":"reciever","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"BNBYieldFeeDistributed","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"},{"indexed":false,"internalType":"address","name":"claimer","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"ClaimedTokens","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"},{"indexed":false,"internalType":"address","name":"contributor","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Contributed","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"NoTokensTransferedToLocks","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"},{"indexed":false,"internalType":"bool","name":"permaLockedLiq","type":"bool"},{"indexed":false,"internalType":"uint256","name":"amountOfBNB","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amountOfTokens","type":"uint256"}],"name":"PancakeswapLiquidityAdded","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"},{"indexed":false,"internalType":"address","name":"contributor","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"RetrievedBNB","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"RetrievedTokens","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"TokensTransfered","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"TokensTransferedToLocks","type":"event"},{"inputs":[],"name":"FeeAddress","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"PancakeswapFactoryAddress","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"PancakeswapRouterAddress","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"PresaleIndexer","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"Presales","outputs":[{"components":[{"internalType":"string","name":"Name","type":"string"},{"internalType":"string","name":"Website","type":"string"},{"internalType":"string","name":"Telegram","type":"string"},{"internalType":"string","name":"Twitter","type":"string"},{"internalType":"string","name":"Github","type":"string"},{"internalType":"string","name":"Medium","type":"string"}],"internalType":"struct PresaleInfo","name":"Info","type":"tuple"},{"internalType":"uint256","name":"StartDate","type":"uint256"},{"internalType":"uint256","name":"EndDate","type":"uint256"},{"internalType":"uint256","name":"Softcap","type":"uint256"},{"internalType":"uint256","name":"Hardcap","type":"uint256"},{"internalType":"uint256","name":"TokenLiqAmount","type":"uint256"},{"internalType":"uint256","name":"LiqPercentage","type":"uint256"},{"internalType":"uint256","name":"TokenPresaleAllocation","type":"uint256"},{"internalType":"bool","name":"PermalockLiq","type":"bool"},{"components":[{"internalType":"string","name":"Name","type":"string"},{"internalType":"uint256","name":"Amount","type":"uint256"},{"internalType":"uint256","name":"RemainingAmount","type":"uint256"},{"internalType":"uint256","name":"ReleaseDate","type":"uint256"},{"internalType":"bool","name":"IsInterval","type":"bool"},{"internalType":"uint256","name":"PercentageOfRelease","type":"uint256"},{"internalType":"uint256","name":"IntervalOfRelease","type":"uint256"},{"internalType":"bool","name":"Exists","type":"bool"},{"internalType":"address","name":"Token","type":"address"}],"internalType":"struct TokenAllocation","name":"LiquidityTokenAllocation","type":"tuple"},{"components":[{"internalType":"address","name":"TokenOwnerAddress","type":"address"},{"internalType":"address","name":"TokenAddress","type":"address"},{"internalType":"address","name":"TokenTimeLock","type":"address"}],"internalType":"struct PresaleDataAddresses","name":"Addresses","type":"tuple"},{"components":[{"internalType":"uint256","name":"TotalTokenAmount","type":"uint256"},{"internalType":"uint256","name":"Step","type":"uint256"},{"internalType":"uint256","name":"ContributedBNB","type":"uint256"},{"internalType":"uint256","name":"RaisedFeeBNB","type":"uint256"},{"internalType":"bool","name":"Exists","type":"bool"},{"internalType":"uint256","name":"RetrievedTokenAmount","type":"uint256"},{"internalType":"uint256","name":"RetrievedBNBAmount","type":"uint256"},{"internalType":"uint256","name":"NumberOfContributors","type":"uint256"}],"internalType":"struct PresaleDataState","name":"State","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"TimelockFactoryAddress","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"YieldFeeAddress","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"timelockFactoryAddress","type":"address"}],"name":"SetTimelockFactory","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"yieldFeeAddress","type":"address"}],"name":"SetYieldFeeAddress","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"feeAddress","type":"address"}],"name":"SetFeeAddress","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"router","type":"address"}],"name":"SetPancakeswapRouterAddress","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"router","type":"address"}],"name":"SetPancakeswapFactoryAddress","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"components":[{"internalType":"string","name":"Name","type":"string"},{"internalType":"uint256","name":"StartDate","type":"uint256"},{"internalType":"uint256","name":"EndDate","type":"uint256"},{"internalType":"uint256","name":"Softcap","type":"uint256"},{"internalType":"uint256","name":"Hardcap","type":"uint256"},{"internalType":"uint256","name":"TokenLiqAmount","type":"uint256"},{"internalType":"uint256","name":"LiqPercentage","type":"uint256"},{"internalType":"uint256","name":"TokenPresaleAllocation","type":"uint256"},{"internalType":"bool","name":"PermalockLiq","type":"bool"},{"components":[{"internalType":"string","name":"Name","type":"string"},{"internalType":"uint256","name":"Amount","type":"uint256"},{"internalType":"uint256","name":"RemainingAmount","type":"uint256"},{"internalType":"uint256","name":"ReleaseDate","type":"uint256"},{"internalType":"bool","name":"IsInterval","type":"bool"},{"internalType":"uint256","name":"PercentageOfRelease","type":"uint256"},{"internalType":"uint256","name":"IntervalOfRelease","type":"uint256"},{"internalType":"bool","name":"Exists","type":"bool"},{"internalType":"address","name":"Token","type":"address"}],"internalType":"struct TokenAllocation[]","name":"TokenAllocations","type":"tuple[]"},{"components":[{"internalType":"string","name":"Name","type":"string"},{"internalType":"uint256","name":"Amount","type":"uint256"},{"internalType":"uint256","name":"RemainingAmount","type":"uint256"},{"internalType":"uint256","name":"ReleaseDate","type":"uint256"},{"internalType":"bool","name":"IsInterval","type":"bool"},{"internalType":"uint256","name":"PercentageOfRelease","type":"uint256"},{"internalType":"uint256","name":"IntervalOfRelease","type":"uint256"},{"internalType":"bool","name":"Exists","type":"bool"},{"internalType":"address","name":"Token","type":"address"}],"internalType":"struct TokenAllocation","name":"LiquidityTokenAllocation","type":"tuple"},{"internalType":"address","name":"Token","type":"address"},{"internalType":"string","name":"Website","type":"string"},{"internalType":"string","name":"Telegram","type":"string"},{"internalType":"string","name":"Twitter","type":"string"},{"internalType":"string","name":"Github","type":"string"},{"internalType":"string","name":"Medium","type":"string"}],"internalType":"struct PresaleSettings","name":"settings","type":"tuple"}],"name":"CreatePresale","outputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"TransferTokens","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"Contribute","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"},{"internalType":"address","name":"contributor","type":"address"}],"name":"RetrieveBNB","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"RetrieveTokens","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"TransferTokensToLocks","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"AddLiquidity","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"ClaimTokens","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"DistributeBNB","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"PresaleStarted","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"PresaleFinished","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"SoftcapMet","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"HardcapMet","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"PresaleIndexerLength","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"GetTokenAllocations","outputs":[{"components":[{"internalType":"string","name":"Name","type":"string"},{"internalType":"uint256","name":"Amount","type":"uint256"},{"internalType":"uint256","name":"RemainingAmount","type":"uint256"},{"internalType":"uint256","name":"ReleaseDate","type":"uint256"},{"internalType":"bool","name":"IsInterval","type":"bool"},{"internalType":"uint256","name":"PercentageOfRelease","type":"uint256"},{"internalType":"uint256","name":"IntervalOfRelease","type":"uint256"},{"internalType":"bool","name":"Exists","type":"bool"},{"internalType":"address","name":"Token","type":"address"}],"internalType":"struct TokenAllocation[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"},{"internalType":"address","name":"forAddress","type":"address"}],"name":"GetBNBContributedForAddress","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"},{"internalType":"address","name":"forAddress","type":"address"}],"name":"GetAmountOfTokensForAddress","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"},{"internalType":"address","name":"forAddress","type":"address"}],"name":"GetHardcapAmountOfTokensForAddress","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"GetRatio","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"GetNumberOfContributors","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]
+      contractAbi: [{ "inputs": [ { "internalType": "address", "name": "timelockFactoryAddress", "type": "address" }, { "internalType": "address", "name": "yieldFeeAddress", "type": "address" }, { "internalType": "address", "name": "feeAddress", "type": "address" } ], "stateMutability": "nonpayable", "type": "constructor" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "uint256", "name": "presaleId", "type": "uint256" }, { "indexed": false, "internalType": "address", "name": "reciever", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "BNBDistributed", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "uint256", "name": "presaleId", "type": "uint256" }, { "indexed": false, "internalType": "address", "name": "reciever", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "BNBFeeDistributed", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "uint256", "name": "presaleId", "type": "uint256" }, { "indexed": false, "internalType": "address", "name": "reciever", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "BNBYieldFeeDistributed", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "uint256", "name": "presaleId", "type": "uint256" }, { "indexed": false, "internalType": "address", "name": "claimer", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "ClaimedTokens", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "uint256", "name": "presaleId", "type": "uint256" }, { "indexed": false, "internalType": "address", "name": "contributor", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "Contributed", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "uint256", "name": "presaleId", "type": "uint256" } ], "name": "NoTokensTransferedToLocks", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "previousOwner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "newOwner", "type": "address" } ], "name": "OwnershipTransferred", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "uint256", "name": "presaleId", "type": "uint256" }, { "indexed": false, "internalType": "bool", "name": "permaLockedLiq", "type": "bool" }, { "indexed": false, "internalType": "uint256", "name": "amountOfBNB", "type": "uint256" }, { "indexed": false, "internalType": "uint256", "name": "amountOfTokens", "type": "uint256" } ], "name": "PancakeswapLiquidityAdded", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "uint256", "name": "presaleId", "type": "uint256" }, { "indexed": false, "internalType": "address", "name": "contributor", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "RetrievedBNB", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "uint256", "name": "presaleId", "type": "uint256" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "RetrievedTokens", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "uint256", "name": "presaleId", "type": "uint256" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "TokensTransfered", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "uint256", "name": "presaleId", "type": "uint256" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "TokensTransferedToLocks", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "uint256", "name": "presaleId", "type": "uint256" }, { "indexed": false, "internalType": "address", "name": "reciever", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "UnliqedTokensTransfered", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "uint256", "name": "presaleId", "type": "uint256" }, { "indexed": false, "internalType": "address", "name": "reciever", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "UnsoldTokensTransfered", "type": "event" }, { "inputs": [], "name": "FeeAddress", "outputs": [ { "internalType": "address", "name": "", "type": "address" } ], "stateMutability": "view", "type": "function", "constant": true }, { "inputs": [], "name": "PancakeswapFactoryAddress", "outputs": [ { "internalType": "address", "name": "", "type": "address" } ], "stateMutability": "view", "type": "function", "constant": true }, { "inputs": [], "name": "PancakeswapRouterAddress", "outputs": [ { "internalType": "address", "name": "", "type": "address" } ], "stateMutability": "view", "type": "function", "constant": true }, { "inputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "name": "PresaleIndexer", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function", "constant": true }, { "inputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "name": "Presales", "outputs": [ { "components": [ { "internalType": "string", "name": "Name", "type": "string" }, { "internalType": "string", "name": "Website", "type": "string" }, { "internalType": "string", "name": "Telegram", "type": "string" }, { "internalType": "string", "name": "Twitter", "type": "string" }, { "internalType": "string", "name": "Github", "type": "string" }, { "internalType": "string", "name": "Medium", "type": "string" } ], "internalType": "struct PresaleInfo", "name": "Info", "type": "tuple" }, { "internalType": "uint256", "name": "StartDate", "type": "uint256" }, { "internalType": "uint256", "name": "EndDate", "type": "uint256" }, { "internalType": "uint256", "name": "Softcap", "type": "uint256" }, { "internalType": "uint256", "name": "Hardcap", "type": "uint256" }, { "internalType": "uint256", "name": "TokenLiqAmount", "type": "uint256" }, { "internalType": "uint256", "name": "LiqPercentage", "type": "uint256" }, { "internalType": "uint256", "name": "TokenPresaleAllocation", "type": "uint256" }, { "internalType": "bool", "name": "PermalockLiq", "type": "bool" }, { "components": [ { "internalType": "string", "name": "Name", "type": "string" }, { "internalType": "uint256", "name": "Amount", "type": "uint256" }, { "internalType": "uint256", "name": "RemainingAmount", "type": "uint256" }, { "internalType": "uint256", "name": "ReleaseDate", "type": "uint256" }, { "internalType": "bool", "name": "IsInterval", "type": "bool" }, { "internalType": "uint256", "name": "PercentageOfRelease", "type": "uint256" }, { "internalType": "uint256", "name": "IntervalOfRelease", "type": "uint256" }, { "internalType": "bool", "name": "Exists", "type": "bool" }, { "internalType": "address", "name": "Token", "type": "address" } ], "internalType": "struct TokenAllocation", "name": "LiquidityTokenAllocation", "type": "tuple" }, { "components": [ { "internalType": "address", "name": "TokenOwnerAddress", "type": "address" }, { "internalType": "address", "name": "TokenAddress", "type": "address" }, { "internalType": "address", "name": "TokenTimeLock", "type": "address" }, { "internalType": "address", "name": "UnsoldTransferAddress", "type": "address" } ], "internalType": "struct PresaleDataAddresses", "name": "Addresses", "type": "tuple" }, { "components": [ { "internalType": "uint256", "name": "TotalTokenAmount", "type": "uint256" }, { "internalType": "uint256", "name": "Step", "type": "uint256" }, { "internalType": "uint256", "name": "ContributedBNB", "type": "uint256" }, { "internalType": "uint256", "name": "RaisedFeeBNB", "type": "uint256" }, { "internalType": "bool", "name": "Exists", "type": "bool" }, { "internalType": "uint256", "name": "RetrievedTokenAmount", "type": "uint256" }, { "internalType": "uint256", "name": "RetrievedBNBAmount", "type": "uint256" }, { "internalType": "uint256", "name": "NumberOfContributors", "type": "uint256" }, { "internalType": "uint256", "name": "PresaleTokenPrice", "type": "uint256" }, { "internalType": "uint256", "name": "ListingTokenPrice", "type": "uint256" }, { "internalType": "bool", "name": "IsBurnUnsold", "type": "bool" }, { "internalType": "uint256", "name": "TransferedBurnUnsold", "type": "uint256" } ], "internalType": "struct PresaleDataState", "name": "State", "type": "tuple" } ], "stateMutability": "view", "type": "function", "constant": true }, { "inputs": [], "name": "TimelockFactoryAddress", "outputs": [ { "internalType": "address", "name": "", "type": "address" } ], "stateMutability": "view", "type": "function", "constant": true }, { "inputs": [], "name": "YieldFeeAddress", "outputs": [ { "internalType": "address", "name": "", "type": "address" } ], "stateMutability": "view", "type": "function", "constant": true }, { "inputs": [], "name": "owner", "outputs": [ { "internalType": "address", "name": "", "type": "address" } ], "stateMutability": "view", "type": "function", "constant": true }, { "inputs": [], "name": "renounceOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "newOwner", "type": "address" } ], "name": "transferOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "timelockFactoryAddress", "type": "address" } ], "name": "SetTimelockFactory", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "yieldFeeAddress", "type": "address" } ], "name": "SetYieldFeeAddress", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "feeAddress", "type": "address" } ], "name": "SetFeeAddress", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "router", "type": "address" } ], "name": "SetPancakeswapRouterAddress", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "router", "type": "address" } ], "name": "SetPancakeswapFactoryAddress", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "components": [ { "internalType": "string", "name": "Name", "type": "string" }, { "internalType": "uint256", "name": "StartDate", "type": "uint256" }, { "internalType": "uint256", "name": "EndDate", "type": "uint256" }, { "internalType": "uint256", "name": "Softcap", "type": "uint256" }, { "internalType": "uint256", "name": "Hardcap", "type": "uint256" }, { "internalType": "uint256", "name": "TokenLiqAmount", "type": "uint256" }, { "internalType": "uint256", "name": "LiqPercentage", "type": "uint256" }, { "internalType": "uint256", "name": "TokenPresaleAllocation", "type": "uint256" }, { "internalType": "bool", "name": "PermalockLiq", "type": "bool" }, { "components": [ { "internalType": "string", "name": "Name", "type": "string" }, { "internalType": "uint256", "name": "Amount", "type": "uint256" }, { "internalType": "uint256", "name": "RemainingAmount", "type": "uint256" }, { "internalType": "uint256", "name": "ReleaseDate", "type": "uint256" }, { "internalType": "bool", "name": "IsInterval", "type": "bool" }, { "internalType": "uint256", "name": "PercentageOfRelease", "type": "uint256" }, { "internalType": "uint256", "name": "IntervalOfRelease", "type": "uint256" }, { "internalType": "bool", "name": "Exists", "type": "bool" }, { "internalType": "address", "name": "Token", "type": "address" } ], "internalType": "struct TokenAllocation[]", "name": "TokenAllocations", "type": "tuple[]" }, { "components": [ { "internalType": "string", "name": "Name", "type": "string" }, { "internalType": "uint256", "name": "Amount", "type": "uint256" }, { "internalType": "uint256", "name": "RemainingAmount", "type": "uint256" }, { "internalType": "uint256", "name": "ReleaseDate", "type": "uint256" }, { "internalType": "bool", "name": "IsInterval", "type": "bool" }, { "internalType": "uint256", "name": "PercentageOfRelease", "type": "uint256" }, { "internalType": "uint256", "name": "IntervalOfRelease", "type": "uint256" }, { "internalType": "bool", "name": "Exists", "type": "bool" }, { "internalType": "address", "name": "Token", "type": "address" } ], "internalType": "struct TokenAllocation", "name": "LiquidityTokenAllocation", "type": "tuple" }, { "internalType": "address", "name": "Token", "type": "address" }, { "internalType": "string", "name": "Website", "type": "string" }, { "internalType": "string", "name": "Telegram", "type": "string" }, { "internalType": "string", "name": "Twitter", "type": "string" }, { "internalType": "string", "name": "Github", "type": "string" }, { "internalType": "string", "name": "Medium", "type": "string" }, { "internalType": "uint256", "name": "PresaleTokenPrice", "type": "uint256" }, { "internalType": "uint256", "name": "ListingTokenPrice", "type": "uint256" }, { "internalType": "bool", "name": "IsBurnUnsold", "type": "bool" }, { "internalType": "address", "name": "UnsoldTransferAddress", "type": "address" } ], "internalType": "struct PresaleSettings", "name": "settings", "type": "tuple" } ], "name": "CreatePresale", "outputs": [ { "internalType": "uint256", "name": "presaleId", "type": "uint256" } ], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "uint256", "name": "presaleId", "type": "uint256" } ], "name": "TransferTokens", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "uint256", "name": "presaleId", "type": "uint256" } ], "name": "Contribute", "outputs": [], "stateMutability": "payable", "type": "function", "payable": true }, { "inputs": [ { "internalType": "uint256", "name": "presaleId", "type": "uint256" }, { "internalType": "address", "name": "contributor", "type": "address" } ], "name": "RetrieveBNB", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "uint256", "name": "presaleId", "type": "uint256" } ], "name": "RetrieveTokens", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "uint256", "name": "presaleId", "type": "uint256" } ], "name": "TransferTokensToLocks", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "uint256", "name": "presaleId", "type": "uint256" } ], "name": "AddLiquidity", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "uint256", "name": "presaleId", "type": "uint256" } ], "name": "ClaimTokens", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "uint256", "name": "presaleId", "type": "uint256" } ], "name": "DistributeBNB", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "uint256", "name": "presaleId", "type": "uint256" } ], "name": "PresaleStarted", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "view", "type": "function", "constant": true }, { "inputs": [ { "internalType": "uint256", "name": "presaleId", "type": "uint256" } ], "name": "PresaleFinished", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "view", "type": "function", "constant": true }, { "inputs": [ { "internalType": "uint256", "name": "presaleId", "type": "uint256" } ], "name": "SoftcapMet", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "view", "type": "function", "constant": true }, { "inputs": [ { "internalType": "uint256", "name": "presaleId", "type": "uint256" } ], "name": "HardcapMet", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "view", "type": "function", "constant": true }, { "inputs": [], "name": "PresaleIndexerLength", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function", "constant": true }, { "inputs": [ { "internalType": "uint256", "name": "presaleId", "type": "uint256" } ], "name": "GetTokenAllocations", "outputs": [ { "components": [ { "internalType": "string", "name": "Name", "type": "string" }, { "internalType": "uint256", "name": "Amount", "type": "uint256" }, { "internalType": "uint256", "name": "RemainingAmount", "type": "uint256" }, { "internalType": "uint256", "name": "ReleaseDate", "type": "uint256" }, { "internalType": "bool", "name": "IsInterval", "type": "bool" }, { "internalType": "uint256", "name": "PercentageOfRelease", "type": "uint256" }, { "internalType": "uint256", "name": "IntervalOfRelease", "type": "uint256" }, { "internalType": "bool", "name": "Exists", "type": "bool" }, { "internalType": "address", "name": "Token", "type": "address" } ], "internalType": "struct TokenAllocation[]", "name": "", "type": "tuple[]" } ], "stateMutability": "view", "type": "function", "constant": true }, { "inputs": [ { "internalType": "uint256", "name": "presaleId", "type": "uint256" }, { "internalType": "address", "name": "forAddress", "type": "address" } ], "name": "GetBNBContributedForAddress", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function", "constant": true }, { "inputs": [ { "internalType": "uint256", "name": "presaleId", "type": "uint256" }, { "internalType": "address", "name": "forAddress", "type": "address" } ], "name": "GetAmountOfTokensForAddress", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function", "constant": true }, { "inputs": [ { "internalType": "uint256", "name": "presaleId", "type": "uint256" }, { "internalType": "address", "name": "forAddress", "type": "address" } ], "name": "GetHardcapAmountOfTokensForAddress", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function", "constant": true }, { "inputs": [ { "internalType": "uint256", "name": "presaleId", "type": "uint256" } ], "name": "GetRatio", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function", "constant": true }, { "inputs": [ { "internalType": "uint256", "name": "presaleId", "type": "uint256" } ], "name": "GetNumberOfContributors", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function", "constant": true } ],
     }
   },
   mounted: async function () {
@@ -279,12 +358,27 @@ export default {
           this.chartData.datasets[0].data.push(Number(allocation.percentage));
       });
 
+      // presale allocation
       this.chartData.labels.push('Presale');
-      const presaleAllocationPercentage = this.settings.tokenPresaleAllocation / this.settings.totalTokens * 100;
-      this.chartData.datasets[0].data.push(Number(presaleAllocationPercentage));
+      if (this.divideTokens) {
+        const presaleAllocationPercentage = this.settings.tokenPresaleAllocation / this.settings.totalTokens * 100;
+        this.chartData.datasets[0].data.push(Number(presaleAllocationPercentage));
+      } else if (this.burnTokens) {
+        const presaleTokens = this.settings.hardcap / this.settings.presaleTokenPrice;
+        const presaleAllocationPercentage = presaleTokens / this.settings.totalTokens * 100;
+        this.chartData.datasets[0].data.push(Number(presaleAllocationPercentage));
+      }
+
+      // liquidity allocation
       this.chartData.labels.push('Liquidity');
-      const liquidityPercentage = this.liquidity.amount / this.settings.totalTokens * 100;
-      this.chartData.datasets[0].data.push(Number(liquidityPercentage));
+      if (this.divideTokens) {
+        const liquidityPercentage = this.liquidity.amount / this.settings.totalTokens * 100;
+        this.chartData.datasets[0].data.push(Number(liquidityPercentage));
+      } else if (this.burnTokens) {
+        const liquidityTokens = this.liquidity.percentage / this.liquidity.listingTokenPrice;
+        const liquidityPercentage = liquidityTokens.toFixed() / this.settings.totalTokens * 100;
+        this.chartData.datasets[0].data.push(Number(liquidityPercentage));
+      }
 
       this.setAllocationsPressed = true;
       this.tokenomicsIsValid = true;
@@ -329,8 +423,6 @@ export default {
         EndDate: (new Date(endDate).getTime()/1000),
         Softcap: `${softCap}`,
         Hardcap: `${hardCap}`,
-        TokenPresaleAllocation: web3.utils.toWei(this.settings.tokenPresaleAllocation),
-        TokenLiqAmount: web3.utils.toWei(this.liquidity.amount),
         LiqPercentage: `${this.liquidity.percentage}`,
         PermalockLiq: this.liquidity.permaBurn,
         LiquidityTokenAllocation: liqTokenAllocation,
@@ -340,6 +432,22 @@ export default {
         Telegram: this.socials[2].url,
         Github: this.socials[3].url,
         Medium: this.socials[4].url,
+      }
+
+      if (this.divideTokens && !this.burnTokens) {
+        presaleDto.IsBurnUnsold = false;
+        presaleDto.UnsoldTransferAddress = "0x000000000000000000000000000000000000dEaD";
+        presaleDto.PresaleTokenPrice = 0;
+        presaleDto.ListingTokenPrice = 0;
+        presaleDto.TokenPresaleAllocation = web3.utils.toWei(this.settings.tokenPresaleAllocation);
+        presaleDto.TokenLiqAmount = web3.utils.toWei(this.liquidity.amount);
+      } else if (!this.divideTokens && this.burnTokens) {
+        presaleDto.IsBurnUnsold = true;
+        presaleDto.UnsoldTransferAddress = this.settings.burnTokenAddress;
+        presaleDto.PresaleTokenPrice = this.settings.presaleTokenPrice;
+        presaleDto.ListingTokenPrice = this.liquidity.listingTokenPrice;
+        presaleDto.TokenPresaleAllocation = 0; // set to 0 for burnTokens, is set when divideToken is selected
+        presaleDto.TokenLiqAmount = 0; // set to 0 for burnTokens, is set when divideToken is selected
       }
 
       if (this.account !== null && this.account !== '') {
@@ -381,7 +489,7 @@ export default {
         PercentageOfRelease: intervalPercentage,
         IntervalOfRelease: intervalOfRelease,
         Exists: true,
-        Token: '0x000000000000000000000000000000000000dead'//not relevant
+        Token: '0x000000000000000000000000000000000000dEaD'//not relevant
       };
     },
     addTokenAllocation: function() {
@@ -515,6 +623,24 @@ export default {
         this.isConnected = true;
       }
     },
+    selectDivideTokens: function() {
+      if (this.divideTokens) {
+        this.divideTokens = false;
+        this.burnTokens = true;
+      } else {
+        this.divideTokens = true;
+        this.burnTokens = false;
+      }
+    },
+    selectBurnTokens: function() {
+      if (this.burnTokens) {
+        this.burnTokens = false;
+        this.divideTokens = true;
+      } else {
+        this.burnTokens = true;
+        this.divideTokens = false;
+      }
+    },
     resetPage: function() {
       this.settings = {
         address: '',
@@ -553,26 +679,67 @@ export default {
   watch: {
     settings: {
       handler: function() {
-        this.settingsIsValid = this.settings.address !== null &&
-            this.settings.name !== null &&
-            this.settings.softcap !== null &&
-            this.settings.hardcap !== null &&
-            this.settings.totalTokens !== null &&
-            this.settings.tokenPresaleAllocation !== null &&
-            this.settings.startDate !== null &&
-            this.settings.endDate !== null &&
-            this.settings.startDateTime.HH !== null &&
-            this.settings.endDateTime.HH !== null;
+        if (this.divideTokens) {
+          this.settingsIsValid = this.settings.address !== null &&
+              this.settings.name !== null &&
+              this.settings.softcap !== null &&
+              this.settings.hardcap !== null &&
+              this.settings.totalTokens !== null &&
+              this.settings.tokenPresaleAllocation !== null &&
+              this.settings.startDate !== null &&
+              this.settings.endDate !== null &&
+              this.settings.startDateTime.HH !== null &&
+              this.settings.endDateTime.HH !== null;
+        } else if (this.burnTokens) {
+          this.settingsIsValid = this.settings.address !== null &&
+              this.settings.burnTokenAddress !== null &&
+              this.settings.name !== null &&
+              this.settings.softcap !== null &&
+              this.settings.hardcap !== null &&
+              this.settings.totalTokens !== null &&
+              this.settings.presaleTokenPrice !== null &&
+              this.settings.startDate !== null &&
+              this.settings.endDate !== null &&
+              this.settings.startDateTime.HH !== null &&
+              this.settings.endDateTime.HH !== null;
+
+          if (this.settingsIsValid) {
+            // added presale allocation
+            const presaleTokens = this.settings.hardcap / this.settings.presaleTokenPrice;
+            this.remainingTokensAmount = this.settings.totalTokens - presaleTokens;
+          }
+        }
       },
       deep: true
     },
     liquidity: {
       handler: function() {
-        if (this.liquidity.amount !== null) {
-          this.remainingAmount = (this.settings.totalTokens - this.settings.tokenPresaleAllocation - this.liquidity.amount);
-        }
+        if (this.divideTokens) {
+          if (this.liquidity.amount !== null) {
+            this.remainingAmount = (this.settings.totalTokens - this.settings.tokenPresaleAllocation - this.liquidity.amount);
+          }
 
-        if (this.liquidity.percentage !== null && this.liquidity.amount !== null) {
+          if (this.liquidity.percentage !== null && this.liquidity.amount !== null) {
+            if (this.liquidity.permaBurn) {
+              // all values are filled so liquidity is valid
+              this.liquidityIsValid = true;
+            } else if (this.liquidity.locked && this.liquidity.timeLocked) {
+              // when timelocked is selected check releasedate
+              if (this.liquidity.releaseDate !== null && this.liquidity.releaseDateTime.HH !== null)
+                this.liquidityIsValid = true;
+            } else if (this.liquidity.locked && this.liquidity.interval) {
+              // When interval is selected check interval values
+              if (this.liquidity.intervalStartDate !== null &&
+                  this.liquidity.intervalStartDateTime.HH !== null &&
+                  this.liquidity.intervalInDays !== null &&
+                  this.liquidity.intervalPercentage !== null) {
+                this.liquidityIsValid = true;
+              }
+            } else {
+              this.liquidityIsValid = false;
+            }
+          }
+        } else if (this.burnTokens && this.liquidity.listingTokenPrice !== null) {
           if (this.liquidity.permaBurn) {
             // all values are filled so liquidity is valid
             this.liquidityIsValid = true;
@@ -590,6 +757,15 @@ export default {
             }
           } else {
             this.liquidityIsValid = false;
+          }
+
+          // if liquidity is valid calculate remainingTokens for tokenomics
+          if (this.liquidityIsValid) {
+            if (this.liquidity.listingTokenPrice !== null && this.liquidity.percentage !== null) {
+              const liquidityTokens = this.liquidity.percentage / this.liquidity.listingTokenPrice;
+              // remaining amount of tokens for tokenomics
+              this.remainingAmount = this.remainingTokensAmount - liquidityTokens.toFixed();
+            }
           }
         }
       },

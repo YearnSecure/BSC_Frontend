@@ -31,6 +31,32 @@
               </span>
             </label>
           </div>
+          <div v-if="burnTokens" class="block mt-4">
+            <label
+                :for="token.burnTokenAddress"
+                class="block text-left text-sm font-medium text-gray-700 dark:text-gray-200">
+              Burn token address
+            </label>
+            <div class="mt-1 flex rounded-md">
+              <input
+                  type="text"
+                  v-model="token.burnTokenAddress"
+                  placeholder="Token address"
+                  class="w-full mt-2 mb-2 px-3 py-1 rounded-lg
+                  text-gray-600 dark:text-gray-300
+                  border border-transparent
+                  focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:border-transparent
+                  bg-gray-100 dark:bg-gray-700">
+            </div>
+            <label
+                v-if="error.burnTokenAddress !== ''"
+                class="block text-left text-sm font-medium text-gray-200">
+              <span class="text-red-500 text-xs">
+                {{ error.burnTokenAddress }}
+              </span>
+            </label>
+          </div>
+
           <div class="block mt-4">
             <label
                 :for="token.name"
@@ -110,7 +136,7 @@
                   bg-gray-100 dark:bg-gray-700">
             </div>
           </div>
-          <div class="block mt-4">
+          <div v-if="divideTokens" class="block mt-4">
             <label
                 :for="token.tokenPresaleAllocation"
                 class="block text-left text-sm font-medium text-gray-700 dark:text-gray-200">
@@ -126,6 +152,27 @@
                   border border-transparent
                   focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:border-transparent
                   bg-gray-100 dark:bg-gray-700">
+            </div>
+          </div>
+          <div v-if="burnTokens" class="block mt-4">
+            <label
+                :for="token.presaleTokenPrice"
+                class="block text-left text-sm font-medium text-gray-700 dark:text-gray-200">
+              Presale token price
+            </label>
+            <div class="mt-1 flex rounded-md">
+              <input
+                  type="number"
+                  v-model="token.presaleTokenPrice"
+                  placeholder="Presale token price"
+                  class="w-full mt-2 mb-2 px-3 py-1 rounded-lg
+                  text-gray-600 dark:text-gray-300
+                  border border-transparent
+                  focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:border-transparent
+                  bg-gray-100 dark:bg-gray-700">
+            </div>
+            <div v-if="maxAmountOfTokens" class="block mt-1 text-left text-yellow-500">
+              <p>{{maxAmountOfTokens}}</p>
             </div>
           </div>
           <div class="block mt-4">
@@ -178,11 +225,11 @@
                   v-model="token.endDateTime"/>
             </div>
           </div>
-          <div v-if="tokensPerEth" class="block mt-5  text-left">
-            <span class="text-white">
+          <div v-if="tokensPerEth" class="block mt-5 text-left">
+            <span class="text-yellow-500">
               {{tokensPerEth}}
             </span>
-            <span class="block mt-3 text-white">
+            <span class="block mt-1 text-yellow-500">
               {{ethPerToken}}
             </span>
           </div>
@@ -197,7 +244,9 @@ export default {
   name: 'presale.TokenAddress.components',
   props: {
     account: String,
-    token: Object
+    token: Object,
+    divideTokens: Boolean,
+    burnTokens: Boolean,
   },
   components: {
     VueTimepicker
@@ -205,8 +254,10 @@ export default {
   data: () => ({
     tokensPerEth: null,
     ethPerToken: null,
+    maxAmountOfTokens: null,
     error: {
       tokenAddress: '',
+      burnTokenAddress: '',
       tokenName: '',
     }
   }),
@@ -222,6 +273,15 @@ export default {
           this.ethPerToken =`${ethPerToken} ETH per token`;
         } else {
           this.tokensPerEth = null;
+        }
+
+        if (this.token.hardcap !== null && this.token.presaleTokenPrice !== null) {
+          const maxTokens = this.token.hardcap / this.token.presaleTokenPrice;
+
+          if (maxTokens !== Infinity)
+            this.maxAmountOfTokens = `Max amount of tokens that will be sold: ${maxTokens}`;
+          else
+            this.maxAmountOfTokens = `Max amount of tokens that will be sold: 0`;
         }
       },
       deep: true
