@@ -451,8 +451,7 @@ export default {
       }
 
       if (this.account !== null && this.account !== '') {
-        console.log(presaleDto);
-        // await this.sendPresaleToContract(presaleContractInterface, presaleDto);
+        await this.sendPresaleToContract(presaleContractInterface, presaleDto);
       }
     },
     addLiquidityAllocation: function() {
