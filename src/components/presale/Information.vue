@@ -225,11 +225,11 @@
                   v-model="token.endDateTime"/>
             </div>
           </div>
-          <div v-if="tokensPerEth" class="block mt-5  text-left">
-            <span class="text-white">
+          <div v-if="tokensPerEth" class="block mt-5 text-left">
+            <span class="text-yellow-500">
               {{tokensPerEth}}
             </span>
-            <span class="block mt-3 text-white">
+            <span class="block mt-1 text-yellow-500">
               {{ethPerToken}}
             </span>
           </div>

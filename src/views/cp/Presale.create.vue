@@ -216,13 +216,13 @@ export default {
       burnTokens: false, // Burn tokens is not default selected
       settings: {
         address: '0x',
-        burnTokenAddress: null,
+        burnTokenAddress: '0x',
         name: 'Dilithium',
         softcap: "50",
         hardcap: "100",
-        totalTokens: 100000000,
+        totalTokens: 1000000,
         tokenPresaleAllocation: null,
-        presaleTokenPrice: null,
+        presaleTokenPrice: 0.1,
         startDate: null,
         startDateTime: {
           HH: 10,
@@ -241,10 +241,10 @@ export default {
       liquidityIsValid: false,
       liquidity: {
         amount: null,
-        listingTokenPrice: null,
+        listingTokenPrice: 0.2,
         percentage: 10,
-        locked: true,
-        permaBurn: false,
+        locked: false,
+        permaBurn: true,
         timeLocked: false,
         releaseDate: null,
         releaseDateTime: {
@@ -263,6 +263,7 @@ export default {
         intervalPercentage: null,
       },
       remainingAmount: null,
+      remainingTokensAmount: null,
       tokenomicsIsValid: false,
       tokenomics: [],
       setAllocationsPressed: false,
@@ -357,12 +358,27 @@ export default {
           this.chartData.datasets[0].data.push(Number(allocation.percentage));
       });
 
+      // presale allocation
       this.chartData.labels.push('Presale');
-      const presaleAllocationPercentage = this.settings.tokenPresaleAllocation / this.settings.totalTokens * 100;
-      this.chartData.datasets[0].data.push(Number(presaleAllocationPercentage));
+      if (this.divideTokens) {
+        const presaleAllocationPercentage = this.settings.tokenPresaleAllocation / this.settings.totalTokens * 100;
+        this.chartData.datasets[0].data.push(Number(presaleAllocationPercentage));
+      } else if (this.burnTokens) {
+        const presaleTokens = this.settings.hardcap / this.settings.presaleTokenPrice;
+        const presaleAllocationPercentage = presaleTokens / this.settings.totalTokens * 100;
+        this.chartData.datasets[0].data.push(Number(presaleAllocationPercentage));
+      }
+
+      // liquidity allocation
       this.chartData.labels.push('Liquidity');
-      const liquidityPercentage = this.liquidity.amount / this.settings.totalTokens * 100;
-      this.chartData.datasets[0].data.push(Number(liquidityPercentage));
+      if (this.divideTokens) {
+        const liquidityPercentage = this.liquidity.amount / this.settings.totalTokens * 100;
+        this.chartData.datasets[0].data.push(Number(liquidityPercentage));
+      } else if (this.burnTokens) {
+        const liquidityTokens = this.liquidity.percentage / this.liquidity.listingTokenPrice;
+        const liquidityPercentage = liquidityTokens.toFixed() / this.settings.totalTokens * 100;
+        this.chartData.datasets[0].data.push(Number(liquidityPercentage));
+      }
 
       this.setAllocationsPressed = true;
       this.tokenomicsIsValid = true;
@@ -407,8 +423,6 @@ export default {
         EndDate: (new Date(endDate).getTime()/1000),
         Softcap: `${softCap}`,
         Hardcap: `${hardCap}`,
-        TokenPresaleAllocation: web3.utils.toWei(this.settings.tokenPresaleAllocation),
-        TokenLiqAmount: web3.utils.toWei(this.liquidity.amount),
         LiqPercentage: `${this.liquidity.percentage}`,
         PermalockLiq: this.liquidity.permaBurn,
         LiquidityTokenAllocation: liqTokenAllocation,
@@ -422,9 +436,11 @@ export default {
 
       if (this.divideTokens && !this.burnTokens) {
         presaleDto.IsBurnUnsold = false;
-        presaleDto.UnsoldTransferAddress = 0x000000000000000000000000000000000000dEaD;
+        presaleDto.UnsoldTransferAddress = "0x000000000000000000000000000000000000dEaD";
         presaleDto.PresaleTokenPrice = 0;
         presaleDto.ListingTokenPrice = 0;
+        presaleDto.TokenPresaleAllocation = web3.utils.toWei(this.settings.tokenPresaleAllocation);
+        presaleDto.TokenLiqAmount = web3.utils.toWei(this.liquidity.amount);
       } else if (!this.divideTokens && this.burnTokens) {
         presaleDto.IsBurnUnsold = true;
         presaleDto.UnsoldTransferAddress = this.settings.burnTokenAddress;
@@ -474,7 +490,7 @@ export default {
         PercentageOfRelease: intervalPercentage,
         IntervalOfRelease: intervalOfRelease,
         Exists: true,
-        Token: '0x000000000000000000000000000000000000dead'//not relevant
+        Token: '0x000000000000000000000000000000000000dEaD'//not relevant
       };
     },
     addTokenAllocation: function() {
@@ -687,6 +703,12 @@ export default {
               this.settings.endDate !== null &&
               this.settings.startDateTime.HH !== null &&
               this.settings.endDateTime.HH !== null;
+
+          if (this.settingsIsValid) {
+            // added presale allocation
+            const presaleTokens = this.settings.hardcap / this.settings.presaleTokenPrice;
+            this.remainingTokensAmount = this.settings.totalTokens - presaleTokens;
+          }
         }
       },
       deep: true
@@ -719,7 +741,33 @@ export default {
             }
           }
         } else if (this.burnTokens && this.liquidity.listingTokenPrice !== null) {
-          this.liquidityIsValid = true;
+          if (this.liquidity.permaBurn) {
+            // all values are filled so liquidity is valid
+            this.liquidityIsValid = true;
+          } else if (this.liquidity.locked && this.liquidity.timeLocked) {
+            // when timelocked is selected check releasedate
+            if (this.liquidity.releaseDate !== null && this.liquidity.releaseDateTime.HH !== null)
+              this.liquidityIsValid = true;
+          } else if (this.liquidity.locked && this.liquidity.interval) {
+            // When interval is selected check interval values
+            if (this.liquidity.intervalStartDate !== null &&
+                this.liquidity.intervalStartDateTime.HH !== null &&
+                this.liquidity.intervalInDays !== null &&
+                this.liquidity.intervalPercentage !== null) {
+              this.liquidityIsValid = true;
+            }
+          } else {
+            this.liquidityIsValid = false;
+          }
+
+          // if liquidity is valid calculate remainingTokens for tokenomics
+          if (this.liquidityIsValid) {
+            if (this.liquidity.listingTokenPrice !== null && this.liquidity.percentage !== null) {
+              const liquidityTokens = this.liquidity.percentage / this.liquidity.listingTokenPrice;
+              // remaining amount of tokens for tokenomics
+              this.remainingAmount = this.remainingTokensAmount - liquidityTokens.toFixed();
+            }
+          }
         }
       },
       deep: true

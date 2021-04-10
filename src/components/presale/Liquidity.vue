@@ -64,20 +64,20 @@
                   type="number"
                   max="100"
                   v-model="liquidity.percentage"
-                  placeholder="Precentage of raised ETH that will be added as liquidity"
+                  placeholder="Percentage of raised ETH that will be added as liquidity"
                   class="w-full mt-2 mb-2 px-3 py-1 rounded-lg
                   text-gray-600 dark:text-gray-300
                   border border-transparent
                   focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:border-transparent
                   bg-gray-100 dark:bg-gray-700">
             </div>
-            <div v-if="tokensPerEthStr" class="block mt-5 text-left">
-              <span class="text-gray-700 dark:text-gray-200">
+            <div v-if="tokensPerEthStr" class="block mt-1 text-left">
+              <span class="text-yellow-500">
                 {{tokensPerEthStr}}
               </span>
             </div>
-            <div v-if="listingPrice" class="block mt-5 text-left">
-              <span class="text-gray-700 dark:text-gray-200">
+            <div v-if="listingPrice" class="block mt-1 text-left">
+              <span class="text-yellow-500">
                 {{listingPrice}}
               </span>
             </div>
@@ -287,6 +287,7 @@ export default {
             this.liquidity.amount !== null &&
             this.liquidity.percentage !== null)
         {
+          this.liquidity.percentage = this.liquidity.percentage.toFixed(0);
           const liquidityAmount = Number(this.hardCap*0.95) / 100 * this.liquidity.percentage;
           const tokensPerETHLiq = this.liquidity.amount / liquidityAmount;
           this.tokensPerEthStr = `${tokensPerETHLiq} tokens per ETH`;
@@ -303,8 +304,13 @@ export default {
         }
 
         if (this.liquidity.listingTokenPrice !== null) {
-          const listingPrice = this.liquidity.listingTokenPrice / this.presaleTokenPrice;
-          this.listingTokenPrice = `Listing token price is ~ ${listingPrice}`;
+          const listingTimes = this.liquidity.listingTokenPrice / this.presaleTokenPrice;
+          this.listingTokenPrice = `listing price is ~ ${listingTimes} times presale price`;
+        }
+
+        if (this.liquidity.listingTokenPrice !== null && this.liquidity.percentage !== null) {
+          const tokenLiqAmount = parseFloat(this.liquidity.percentage / this.liquidity.listingTokenPrice).toFixed(2);
+          this.listingPrice = `${tokenLiqAmount} tokens will be added as liquidity`;
         }
       },
       deep: true
