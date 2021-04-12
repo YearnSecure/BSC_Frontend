@@ -105,9 +105,9 @@
                   :hardCap="settings.hardcap"
                   :totalTokens="settings.totalTokens"
                   :presaleTokens="settings.tokenPresaleAllocation"
-                  :tokensPerEth="settings.tokensPerEth"
+                  :tokensPerBNB="settings.tokensPerBNB"
                   :presaleTokenPrice="settings.presaleTokenPrice"
-                  :devideTokens="divideTokens"
+                  :divideTokens="divideTokens"
                   :burnTokens="burnTokens"
                   :key="key"
               />
@@ -235,7 +235,7 @@ export default {
           mm: "00",
           ss: "00"
         },
-        tokensPerEth: null,
+        tokensPerBNB: null,
       },
       settingsIsValid: false,
       liquidityIsValid: false,
@@ -444,6 +444,7 @@ export default {
       } else if (!this.divideTokens && this.burnTokens) {
         presaleDto.IsBurnUnsold = true;
         presaleDto.UnsoldTransferAddress = this.settings.burnTokenAddress;
+        console.log(this.settings.presaleTokenPrice);
         presaleDto.PresaleTokenPrice = web3.utils.toWei(this.settings.presaleTokenPrice);
         presaleDto.ListingTokenPrice = web3.utils.toWei(this.liquidity.listingTokenPrice);
         presaleDto.TokenPresaleAllocation = 0; // set to 0 for burnTokens, is set when divideToken is selected
@@ -554,7 +555,7 @@ export default {
 
             this.$notifications(
                 'Presale successfully created',
-                `https://ropsten.etherscan.io/tx/${response.transactionHash}`,
+                `https://testnet.bncscan.com/tx/${response.transactionHash}`,
                 0, // success
                 true);
 

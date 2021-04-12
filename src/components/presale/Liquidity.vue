@@ -286,13 +286,13 @@ export default {
             this.liquidity.amount !== null &&
             this.liquidity.percentage !== null)
         {
-          this.liquidity.percentage = this.liquidity.percentage.toFixed(0);
+          this.liquidity.percentage = parseInt(this.liquidity.percentage).toFixed(0);
           const liquidityAmount = Number(this.hardCap*0.95) / 100 * this.liquidity.percentage;
           const tokensPerBNBLiq = this.liquidity.amount / liquidityAmount;
           this.tokensPerBNBStr = `${tokensPerBNBLiq} tokens per BNB`;
 
           const listingTimes = (this.tokensPerBNB/tokensPerBNBLiq).toFixed(2);//dived tokensPerBNB from presale Alloc by tokensPerBNB from liquidity alloc
-          this.listingPrice = `listing price is ~ ${listingTimes} times presale price`;
+          this.listingPrice = `Listing price is ~ ${listingTimes} times presale price`;
         }
 
         if (this.liquidity.amount > this.remainingTokens) {
@@ -304,12 +304,14 @@ export default {
 
         if (this.liquidity.listingTokenPrice !== null) {
           const listingTimes = this.liquidity.listingTokenPrice / this.presaleTokenPrice;
-          this.listingTokenPrice = `listing price is ~ ${listingTimes} times presale price`;
+          this.listingTokenPrice = `Listing price is ~ ${listingTimes} times presale price`;
         }
 
         if (this.liquidity.listingTokenPrice !== null && this.liquidity.percentage !== null) {
           const tokenLiqAmount = parseFloat(this.liquidity.percentage / parseFloat(this.liquidity.listingTokenPrice)).toFixed(2);
+          const bnbAmount = parseFloat(this.liquidity.percentage*0.95);
           this.listingPrice = `${tokenLiqAmount} tokens will be added as liquidity`;
+          // this.listingPrice = `Max amount of ${tokenLiqAmount} tokens and ${bnbAmount} BNB will be added as liquidity`;
         }
       },
       deep: true

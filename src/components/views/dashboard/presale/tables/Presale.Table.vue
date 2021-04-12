@@ -28,7 +28,7 @@
                   Hardcap
                 </th>
                 <th class="px-6 py-3 border-b border-gray-200 text-left bg-gray-50 dark:bg-gray-800 text-xs font-medium text-gray-400 uppercase tracking-wider">
-                  Contributed ETH
+                  Contributed BNB
                 </th>
                 <th class="pr-6 py-3 border-b border-gray-200 bg-gray-50 dark:bg-gray-800 text-right text-xs font-medium text-gray-400 uppercase tracking-wider"></th>
                 <th class="pr-6 py-3 border-b border-gray-200 bg-gray-50 dark:bg-gray-800 text-right text-xs font-medium text-gray-400 uppercase tracking-wider"></th>
@@ -86,7 +86,7 @@
                   <div class="items-center space-x-3">
                     <a href="#" class="truncate hover:text-gray-600">
                       <span>
-                        {{ presale.softcapInEth }} ETH
+                        {{ presale.softcapInEth }} BNB
                       </span>
                     </a>
                   </div>
@@ -95,7 +95,7 @@
                   <div class="items-center space-x-3">
                     <a href="#" class="truncate hover:text-gray-600">
                       <span>
-                       {{ presale.hardcapInEth }} ETH
+                       {{ presale.hardcapInEth }} BNB
                       </span>
                     </a>
                   </div>
@@ -104,7 +104,7 @@
                   <div class="items-center space-x-3">
                     <a href="#" class="truncate hover:text-gray-600">
                       <span>
-                       {{ presale.contributedEth }} ETH
+                       {{ presale.contributedEth }} BNB
                       </span>
                     </a>
                   </div>
