@@ -162,7 +162,7 @@
             </label>
             <div class="mt-1 flex rounded-md">
               <input
-                  type="number"
+                  type="text"
                   v-model="token.presaleTokenPrice"
                   placeholder="Presale token price"
                   class="w-full mt-2 mb-2 px-3 py-1 rounded-lg
@@ -276,7 +276,7 @@ export default {
         }
 
         if (this.token.hardcap !== null && this.token.presaleTokenPrice !== null) {
-          const maxTokens = this.token.hardcap / this.token.presaleTokenPrice;
+          const maxTokens = this.token.hardcap / parseFloat(this.token.presaleTokenPrice);
 
           if (maxTokens !== Infinity)
             this.maxAmountOfTokens = `Max amount of tokens that will be sold: ${maxTokens}`;

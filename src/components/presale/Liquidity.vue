@@ -39,8 +39,7 @@
             </label>
             <div class="mt-1 flex rounded-md">
               <input
-                  type="number"
-                  :max="remainingTokens"
+                  type="text"
                   v-model="liquidity.listingTokenPrice"
                   placeholder="Listing token price"
                   class="w-full mt-2 mb-2 px-3 py-1 rounded-lg
@@ -309,7 +308,7 @@ export default {
         }
 
         if (this.liquidity.listingTokenPrice !== null && this.liquidity.percentage !== null) {
-          const tokenLiqAmount = parseFloat(this.liquidity.percentage / this.liquidity.listingTokenPrice).toFixed(2);
+          const tokenLiqAmount = parseFloat(this.liquidity.percentage / parseFloat(this.liquidity.listingTokenPrice)).toFixed(2);
           this.listingPrice = `${tokenLiqAmount} tokens will be added as liquidity`;
         }
       },
