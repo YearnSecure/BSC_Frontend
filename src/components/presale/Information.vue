@@ -86,7 +86,7 @@
             <label
                 :for="token.softcap"
                 class="block text-left text-sm font-medium text-gray-700 dark:text-gray-200">
-              Softcap in ETH
+              Softcap in BNB
             </label>
             <div class="mt-1 flex rounded-md">
               <input
@@ -104,7 +104,7 @@
             <label
                 :for="token.hardcap"
                 class="block text-left text-sm font-medium text-gray-700 dark:text-gray-200">
-              Hardcap in ETH
+              Hardcap in BNB
             </label>
             <div class="mt-1 flex rounded-md">
               <input
@@ -225,12 +225,12 @@
                   v-model="token.endDateTime"/>
             </div>
           </div>
-          <div v-if="tokensPerEth" class="block mt-5 text-left">
+          <div v-if="tokensPerBNB" class="block mt-5 text-left">
             <span class="text-yellow-500">
-              {{tokensPerEth}}
+              {{tokensPerBNB}}
             </span>
             <span class="block mt-1 text-yellow-500">
-              {{ethPerToken}}
+              {{BNBPerToken}}
             </span>
           </div>
         </div>
@@ -252,8 +252,8 @@ export default {
     VueTimepicker
   },
   data: () => ({
-    tokensPerEth: null,
-    ethPerToken: null,
+    tokensPerBNB: null,
+    BNBPerToken: null,
     maxAmountOfTokens: null,
     error: {
       tokenAddress: '',
@@ -265,14 +265,14 @@ export default {
     token: {
       handler() {
         if (this.token.hardcap !== null && this.token.tokenPresaleAllocation !== null) {
-          const tokenPerEth = this.token.tokenPresaleAllocation / this.token.hardcap;
-          this.tokensPerEth = `${tokenPerEth} tokens per ETH`;
-          this.token.tokensPerEth = tokenPerEth;
+          const tokenPerBNB = this.token.tokenPresaleAllocation / this.token.hardcap;
+          this.tokensPerBNB = `${tokenPerBNB} tokens per BNB`;
+          this.token.tokensPerBNB = tokenPerBNB;
 
-          const ethPerToken = this.token.hardcap / this.token.tokenPresaleAllocation;
-          this.ethPerToken =`${ethPerToken} ETH per token`;
+          const BNBPerToken = this.token.hardcap / this.token.tokenPresaleAllocation;
+          this.BNBPerToken =`${BNBPerToken} BNB per token`;
         } else {
-          this.tokensPerEth = null;
+          this.tokensPerBNB = null;
         }
 
         if (this.token.hardcap !== null && this.token.presaleTokenPrice !== null) {

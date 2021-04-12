@@ -64,16 +64,16 @@
                   type="number"
                   max="100"
                   v-model="liquidity.percentage"
-                  placeholder="Percentage of raised ETH that will be added as liquidity"
+                  placeholder="Percentage of raised BNB that will be added as liquidity"
                   class="w-full mt-2 mb-2 px-3 py-1 rounded-lg
                   text-gray-600 dark:text-gray-300
                   border border-transparent
                   focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:border-transparent
                   bg-gray-100 dark:bg-gray-700">
             </div>
-            <div v-if="tokensPerEthStr" class="block mt-1 text-left">
+            <div v-if="tokensPerBNBStr" class="block mt-1 text-left">
               <span class="text-yellow-500">
-                {{tokensPerEthStr}}
+                {{tokensPerBNBStr}}
               </span>
             </div>
             <div v-if="listingPrice" class="block mt-1 text-left">
@@ -223,7 +223,7 @@ export default {
   props: {
     liquidity: Object,
     hardCap: [String, Number],
-    tokensPerEth: [String, Number],
+    tokensPerBNB: [String, Number],
     totalTokens: [String, Number],
     presaleTokens: [String, Number],
     presaleTokenPrice: [String, Number],
@@ -234,7 +234,7 @@ export default {
     VueTimepicker
   },
   data: () => ({
-    tokensPerEthStr: null,
+    tokensPerBNBStr: null,
     listingPrice: null,
     listingTokenPrice: null,
     error: {
@@ -289,10 +289,10 @@ export default {
         {
           this.liquidity.percentage = this.liquidity.percentage.toFixed(0);
           const liquidityAmount = Number(this.hardCap*0.95) / 100 * this.liquidity.percentage;
-          const tokensPerETHLiq = this.liquidity.amount / liquidityAmount;
-          this.tokensPerEthStr = `${tokensPerETHLiq} tokens per ETH`;
+          const tokensPerBNBLiq = this.liquidity.amount / liquidityAmount;
+          this.tokensPerBNBStr = `${tokensPerBNBLiq} tokens per BNB`;
 
-          const listingTimes = (this.tokensPerEth/tokensPerETHLiq).toFixed(2);//dived tokensPerEth from presale Alloc by tokensPerEth from liquidity alloc
+          const listingTimes = (this.tokensPerBNB/tokensPerBNBLiq).toFixed(2);//dived tokensPerBNB from presale Alloc by tokensPerBNB from liquidity alloc
           this.listingPrice = `listing price is ~ ${listingTimes} times presale price`;
         }
 

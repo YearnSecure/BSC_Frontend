@@ -216,7 +216,7 @@ export default {
       burnTokens: false, // Burn tokens is not default selected
       settings: {
         address: '0x',
-        burnTokenAddress: '0x',
+        burnTokenAddress: '0x00000000000000000000000000000000dEaD',
         name: 'Dilithium',
         softcap: "50",
         hardcap: "100",
@@ -444,8 +444,8 @@ export default {
       } else if (!this.divideTokens && this.burnTokens) {
         presaleDto.IsBurnUnsold = true;
         presaleDto.UnsoldTransferAddress = this.settings.burnTokenAddress;
-        presaleDto.PresaleTokenPrice = this.settings.presaleTokenPrice;
-        presaleDto.ListingTokenPrice = this.liquidity.listingTokenPrice;
+        presaleDto.PresaleTokenPrice = web3.utils.toWei(this.settings.presaleTokenPrice);
+        presaleDto.ListingTokenPrice = web3.utils.toWei(this.liquidity.listingTokenPrice);
         presaleDto.TokenPresaleAllocation = 0; // set to 0 for burnTokens, is set when divideToken is selected
         presaleDto.TokenLiqAmount = 0; // set to 0 for burnTokens, is set when divideToken is selected
       }
