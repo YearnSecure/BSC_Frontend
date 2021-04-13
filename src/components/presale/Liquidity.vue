@@ -30,6 +30,11 @@
                 {{error.liquidity.maxAmount}}
               </p>
             </div>
+            <div v-if="listingPrice" class="block mt-1 text-left">
+              <span class="text-yellow-500">
+                {{listingPrice}}
+              </span>
+            </div>
           </div>
           <div v-if="burnTokens" class="block">
             <label
@@ -75,11 +80,12 @@
                 {{tokensPerBNBStr}}
               </span>
             </div>
-            <div v-if="listingPrice" class="block mt-1 text-left">
+            <div v-if="liquidityAmount" class="block mt-1 text-left">
               <span class="text-yellow-500">
-                {{listingPrice}}
+                {{liquidityAmount}}
               </span>
             </div>
+
           </div>
           <div class="mx-auto w-1/2 mt-4">
             <div class="grid grid-cols-2 gap-4">
@@ -236,6 +242,7 @@ export default {
     tokensPerBNBStr: null,
     listingPrice: null,
     listingTokenPrice: null,
+    liquidityAmount: null,
     error: {
       liquidity: {
         maxAmount: ''
@@ -307,11 +314,9 @@ export default {
           this.listingTokenPrice = `Listing price is ~ ${listingTimes} times presale price`;
         }
 
-        if (this.liquidity.listingTokenPrice !== null && this.liquidity.percentage !== null) {
+        if (this.liquidity.listingTokenPrice !== null && this.liquidity.percentage !== null && this.burnTokens) {
           const tokenLiqAmount = parseFloat(this.liquidity.percentage / parseFloat(this.liquidity.listingTokenPrice)).toFixed(2);
-          const bnbAmount = parseFloat(this.liquidity.percentage*0.95);
-          this.listingPrice = `${tokenLiqAmount} tokens will be added as liquidity`;
-          // this.listingPrice = `Max amount of ${tokenLiqAmount} tokens and ${bnbAmount} BNB will be added as liquidity`;
+          this.liquidityAmount = `${tokenLiqAmount} tokens will be added as liquidity`;
         }
       },
       deep: true
