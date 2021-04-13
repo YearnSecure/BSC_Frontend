@@ -105,9 +105,9 @@
                   :hardCap="settings.hardcap"
                   :totalTokens="settings.totalTokens"
                   :presaleTokens="settings.tokenPresaleAllocation"
-                  :tokensPerEth="settings.tokensPerEth"
+                  :tokensPerBNB="settings.tokensPerBNB"
                   :presaleTokenPrice="settings.presaleTokenPrice"
-                  :devideTokens="divideTokens"
+                  :divideTokens="divideTokens"
                   :burnTokens="burnTokens"
                   :key="key"
               />
@@ -215,34 +215,34 @@ export default {
       divideTokens: true, // Divide tokens is default selected
       burnTokens: false, // Burn tokens is not default selected
       settings: {
-        address: '0x',
-        burnTokenAddress: '0x',
-        name: 'Dilithium',
-        softcap: "50",
-        hardcap: "100",
-        totalTokens: 1000000,
+        address: null,
+        burnTokenAddress: null,
+        name: null,
+        softcap: null,
+        hardcap: null,
+        totalTokens: null,
         tokenPresaleAllocation: null,
-        presaleTokenPrice: 0.1,
+        presaleTokenPrice: null,
         startDate: null,
         startDateTime: {
-          HH: 10,
+          HH: null,
           mm: "00",
           ss: "00"
         },
         endDate: null,
         endDateTime: {
-          HH: 10,
+          HH: null,
           mm: "00",
           ss: "00"
         },
-        tokensPerEth: null,
+        tokensPerBNB: null,
       },
       settingsIsValid: false,
       liquidityIsValid: false,
       liquidity: {
         amount: null,
-        listingTokenPrice: 0.2,
-        percentage: 10,
+        listingTokenPrice: null,
+        percentage: null,
         locked: false,
         permaBurn: true,
         timeLocked: false,
@@ -270,7 +270,7 @@ export default {
       socialsIsValid: true,
       socials: [
         {
-          url: 'https://website.com',
+          url: '',
           type: 0,
         },
         {
@@ -444,8 +444,8 @@ export default {
       } else if (!this.divideTokens && this.burnTokens) {
         presaleDto.IsBurnUnsold = true;
         presaleDto.UnsoldTransferAddress = this.settings.burnTokenAddress;
-        presaleDto.PresaleTokenPrice = this.settings.presaleTokenPrice;
-        presaleDto.ListingTokenPrice = this.liquidity.listingTokenPrice;
+        presaleDto.PresaleTokenPrice = web3.utils.toWei(this.settings.presaleTokenPrice.toString());
+        presaleDto.ListingTokenPrice = web3.utils.toWei(this.liquidity.listingTokenPrice.toString());
         presaleDto.TokenPresaleAllocation = 0; // set to 0 for burnTokens, is set when divideToken is selected
         presaleDto.TokenLiqAmount = 0; // set to 0 for burnTokens, is set when divideToken is selected
       }
@@ -554,7 +554,7 @@ export default {
 
             this.$notifications(
                 'Presale successfully created',
-                `https://ropsten.etherscan.io/tx/${response.transactionHash}`,
+                `https://testnet.bncscan.com/tx/${response.transactionHash}`,
                 0, // success
                 true);
 

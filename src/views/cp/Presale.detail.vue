@@ -40,7 +40,7 @@
             <div class="col-span-3">
               <span class="block text-base text-gray-900 dark:text-white font-semibold tracking-wide uppercase">
                 {{ presale.name }} Token address:
-                <a :href="`https://etherscan.io/address/${presale.TokenAddress}`" target="_blank" class="text-blue-500 hover:text-yellow-600 transiation duration-300">{{ presale.TokenAddress }}</a>
+                <a :href="`https://bncscan.com/address/${presale.TokenAddress}`" target="_blank" class="text-blue-500 hover:text-yellow-600 transiation duration-300">{{ presale.TokenAddress }}</a>
               </span>
             </div>
           </div>
@@ -120,7 +120,7 @@
                     <div class="grid gap-1 mt-1">
                       <div class="flex">
                         <span class="text-gray-900 dark:text-white pr-5">Token price per token:</span>
-                        <a href="#" class="text-blue-500">{{ presale.TokenPrice }} ETH</a>
+                        <a href="#" class="text-blue-500">{{ presale.TokenPrice }} BNB</a>
                       </div>
                     </div>
                     <div class="grid gap-1 mt-1">
@@ -140,28 +140,28 @@
                       <div class="flex">
                         <span class="text-gray-900 dark:text-white pr-5">Hardcap:</span>
                         <a href="#" class="text-blue-500">{{ presale.Hardcap }}</a>
-                        <span class="text-yellow-500 pl-2">ETH</span>
+                        <span class="text-yellow-500 pl-2">BNB</span>
                       </div>
                     </div>
                     <div class="grid gap-1 mt-1">
                       <div class="flex">
                         <span class="text-gray-900 dark:text-white pr-5">Softcap:</span>
                         <a href="#" class="text-blue-500">{{ presale.Softcap }}</a>
-                        <span class="text-yellow-500 pl-2">ETH</span>
+                        <span class="text-yellow-500 pl-2">BNB</span>
                       </div>
                     </div>
                     <div class="grid gap-1 mt-1">
                       <div class="flex">
                         <span class="text-gray-900 dark:text-white pr-5">Total deposited currently:</span>
                         <a href="#" class="text-blue-500">{{ presale.TotalContributed }}</a>
-                        <span class="text-yellow-500 pl-2">ETH</span>
+                        <span class="text-yellow-500 pl-2">BNB</span>
                       </div>
                     </div>
                     <div class="grid gap-1 mt-1">
                       <div class="flex">
                         <span class="text-gray-900 dark:text-white pr-5">Your current investment:</span>
                         <a href="#" class="text-blue-500">{{ presale.UserContribution }}</a>
-                        <span class="text-yellow-500 pl-2">ETH</span>
+                        <span class="text-yellow-500 pl-2">BNB</span>
                       </div>
                     </div>
                     <div class="grid gap-1 mt-1">
@@ -204,7 +204,7 @@
                         Allocation address:
                       </span>
                       <span class="text-yellow-500">
-                        <a :href="`https://etherscan.io/address/${presale.TokenTimeLock}`" target="_blank" rel="noopener noreferrer" class="hover:text-blue-400" >{{ presale.TokenTimeLock }}</a>
+                        <a :href="`https://bncscan.com/address/${presale.TokenTimeLock}`" target="_blank" rel="noopener noreferrer" class="hover:text-blue-400" >{{ presale.TokenTimeLock }}</a>
                       </span>
                     </div>
                     <div class="mt-3 block">
@@ -253,7 +253,7 @@
                         Allocation Token Address:
                       </span>
                       <span class="text-yellow-500">
-                        <a :href="`https://etherscan.io/address/${presale.TokenTimeLock}`" target="_blank" rel="noopener noreferrer" class="hover:text-blue-400" >{{ presale.TokenTimeLock }}</a></span>
+                        <a :href="`https://bncscan.com/address/${presale.TokenTimeLock}`" target="_blank" rel="noopener noreferrer" class="hover:text-blue-400" >{{ presale.TokenTimeLock }}</a></span>
                     </div>
                     <hr class="mt-3 mb-3">
                   </div>
@@ -288,7 +288,7 @@
                   <div class="flex-1">
                     <input
                         v-model="contribution"
-                        placeholder="Enter amount in ETH"
+                        placeholder="Enter amount in BNB"
                         class="w-full px-3 py-1 rounded-lg
                     text-gray-600 dark:text-gray-300
                     border border-transparent
@@ -306,7 +306,7 @@
             <div v-if="this.presale.CurrentStep == 1 && !this.presale.SoftcapMet && this.presale.finished">
               <div class="block text-center mt-10">
                 <button v-on:click="retrieveBNB()" class="py-2 px-8 bg-yellow-500 text-white rounded-3xl">
-                  Retrieve Eth
+                  Retrieve BNB
                 </button>
               </div>
             </div>
@@ -342,7 +342,7 @@
             <div v-if="this.presale.CurrentStep == 3 && this.presale.BNBDistributable">
               <div class="block text-center mt-10">
                 <button v-on:click="distributeBNB()" class="py-2 px-8 bg-yellow-500 text-white rounded-3xl">
-                  Distribute ETH
+                  Distribute BNB
                 </button>
               </div>
             </div>
@@ -499,6 +499,7 @@ export default {
       presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
         await presaleContractInterface.methods.Presales(this.id).call().then((response) => {
           //Presale Info
+          console.log(response);
           this.presale.Name = response.Info.Name;
           this.presale.StartDate = moment.unix((parseInt(response.StartDate)));
           this.presale.EndDate = moment.unix((parseInt(response.EndDate)));

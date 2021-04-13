@@ -18,7 +18,7 @@
                   <dt class="text-sm font-medium text-gray-900 dark:text-gray-300">
                     You've deposited
                     <span class="text-yellow-500 text-xs">
-                        [Amount ETH]
+                        [Amount BNB]
                     </span>
                   </dt>
                 </div>
@@ -32,9 +32,9 @@
                 </div>
                 <div class="sm:col-span-1 mt-3">
                   <dt class="text-sm font-medium text-gray-900 dark:text-gray-300">
-                    Total ETH deposited
+                    Total BNB deposited
                     <span class="text-yellow-500 text-xs">
-                        [Amount ETH]
+                        [Amount BNB]
                     </span>
                   </dt>
                 </div>
@@ -62,7 +62,7 @@
             <div class="sm:col-span-1 text-center pb-6">
               <div class="relative pt-1">
                 <dt class="text-lg font-medium text-gray-900 dark:text-gray-300 pb-2">
-                  25 ETH Raised
+                  25 BNB Raised
                 </dt>
                 <div class="overflow-hidden h-5 mb-4 text-xs flex rounded-lg bg-gray-300">
                   <div style="width: 20%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-yellow-600"></div>
