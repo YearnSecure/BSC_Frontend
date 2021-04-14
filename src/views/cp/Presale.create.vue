@@ -762,9 +762,11 @@ export default {
           // if liquidity is valid calculate remainingTokens for tokenomics
           if (this.liquidityIsValid) {
             if (this.liquidity.listingTokenPrice !== null && this.liquidity.percentage !== null) {
-              const liquidityTokens = this.liquidity.percentage / this.liquidity.listingTokenPrice;
+              const maxBnbAmount = Number(this.settings.hardcap*0.95) / 100 * this.liquidity.percentage;
+              const tokenLiqAmount = maxBnbAmount /this.liquidity.listingTokenPrice;
+              
               // remaining amount of tokens for tokenomics
-              this.remainingAmount = this.remainingTokensAmount - liquidityTokens.toFixed();
+              this.remainingAmount = this.remainingTokensAmount - tokenLiqAmount;
             }
           }
         }

@@ -314,9 +314,10 @@ export default {
           this.listingTokenPrice = `Listing price is ~ ${listingTimes} times presale price`;
         }
 
-        if (this.liquidity.listingTokenPrice !== null && this.liquidity.percentage !== null && this.burnTokens) {
-          const tokenLiqAmount = parseFloat(this.liquidity.percentage / parseFloat(this.liquidity.listingTokenPrice)).toFixed(2);
-          this.liquidityAmount = `${tokenLiqAmount} tokens will be added as liquidity`;
+        if (this.liquidity.listingTokenPrice !== null && this.liquidity.percentage !== null && this.burnTokens) {         
+          const maxBnbAmount = parseFloat(Number(this.hardCap*0.95) / 100 * this.liquidity.percentage).toFixed(2);
+          const tokenLiqAmount = parseFloat(maxBnbAmount / parseFloat(this.liquidity.listingTokenPrice)).toFixed(2);
+          this.liquidityAmount = `A maximum amount of ${tokenLiqAmount} tokens and ${maxBnbAmount} BNB will be added as liquidity`;
         }
       },
       deep: true
