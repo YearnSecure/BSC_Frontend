@@ -216,7 +216,7 @@ export default {
       burnTokens: false, // Burn tokens is not default selected
       settings: {
         address: null,
-        burnTokenAddress: null,
+        burnTokenAddress: "0x000000000000000000000000000000000000dEaD",
         name: null,
         softcap: null,
         hardcap: null,
@@ -409,10 +409,11 @@ export default {
 
       if (startDate > endDate) {
         this.$notifications(
-            'Start date can not be later in time',
-            `Please check your information`,
-            1, // error
-            true);
+          'Start date can not be later in time',
+          `Please check your information`,
+          1, // error
+          true
+        );
         return;
       }
 
@@ -549,7 +550,6 @@ export default {
         .send({from: this.account})
         .then((response) => {
           if (response.status && response.blockHash !== '') {
-            console.log(response);
             this.key++; // update components
 
             this.$notifications(
