@@ -42,6 +42,7 @@
                   type="text"
                   v-model="token.burnTokenAddress"
                   placeholder="Token address"
+                  readonly
                   class="w-full mt-2 mb-2 px-3 py-1 rounded-lg
                   text-gray-600 dark:text-gray-300
                   border border-transparent

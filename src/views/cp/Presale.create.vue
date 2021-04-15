@@ -216,13 +216,13 @@ export default {
       burnTokens: false, // Burn tokens is not default selected
       settings: {
         address: null,
-        burnTokenAddress: null,
+        burnTokenAddress: "0x000000000000000000000000000000000000dEaD",
         name: null,
         softcap: null,
         hardcap: null,
         totalTokens: null,
         tokenPresaleAllocation: null,
-        presaleTokenPrice: null,
+        presaleTokenPrice: null, // Burn
         startDate: null,
         startDateTime: {
           HH: null,
@@ -235,24 +235,22 @@ export default {
           mm: "00",
           ss: "00"
         },
-        tokensPerBNB: null,
+        tokensPerBNB: null, // burn
       },
       settingsIsValid: false,
       liquidityIsValid: false,
       liquidity: {
-        amount: null,
-        listingTokenPrice: null,
+        amount: null, // divide
+        listingTokenPrice: null, // burn
         percentage: null,
-        locked: false,
-        permaBurn: true,
-        timeLocked: false,
+        lockedOrPermaBurn: null,
+        timeLockedOrInterval: null,
         releaseDate: null,
         releaseDateTime: {
           HH: null,
           mm: "00",
           ss: "00"
         },
-        interval: false,
         intervalStartDate: null,
         intervalStartDateTime: {
           HH: null,
@@ -409,12 +407,17 @@ export default {
 
       if (startDate > endDate) {
         this.$notifications(
-            'Start date can not be later in time',
-            `Please check your information`,
-            1, // error
-            true);
+          'Start date can not be later in time',
+          `Please check your information`,
+          1, // error
+          true
+        );
         return;
       }
+
+      let liqPermaBurn = false;
+      if (this.liquidity.lockedOrPermaBurn === '1')
+        liqPermaBurn = true;
 
       const presaleDto = {
         Token: this.settings.address,
@@ -424,7 +427,7 @@ export default {
         Softcap: `${softCap}`,
         Hardcap: `${hardCap}`,
         LiqPercentage: `${this.liquidity.percentage}`,
-        PermalockLiq: this.liquidity.permaBurn,
+        PermalockLiq: liqPermaBurn,
         LiquidityTokenAllocation: liqTokenAllocation,
         TokenAllocations: tokenAllocations,
         Website: this.socials[0].url,
@@ -437,8 +440,8 @@ export default {
       if (this.divideTokens && !this.burnTokens) {
         presaleDto.IsBurnUnsold = false;
         presaleDto.UnsoldTransferAddress = "0x000000000000000000000000000000000000dEaD";
-        presaleDto.PresaleTokenPrice = 0;
-        presaleDto.ListingTokenPrice = 0;
+        presaleDto.PresaleTokenPrice = 0; // not relevant for divide
+        presaleDto.ListingTokenPrice = 0; // not relevant for divide
         presaleDto.TokenPresaleAllocation = web3.utils.toWei(this.settings.tokenPresaleAllocation);
         presaleDto.TokenLiqAmount = web3.utils.toWei(this.liquidity.amount);
       } else if (!this.divideTokens && this.burnTokens) {
@@ -458,8 +461,8 @@ export default {
       let releaseDate = 0;
       let intervalPercentage = 0;
       let intervalOfRelease = 0;
-      if (!this.liquidity.permaBurn) {
-        if (this.liquidity.locked && this.liquidity.timeLocked) {
+      if (this.liquidity.lockedOrPermaBurn === '0') {
+        if (this.liquidity.timeLockedOrInterval === '0') {
           // add time to datetime settings
           const startTime = this.liquidity.releaseDateTime;
           const startDate = new Date(this.liquidity.releaseDate);
@@ -467,7 +470,7 @@ export default {
           startDate.setMinutes(startTime.mm);
 
           releaseDate = (new Date(startDate).getTime()/1000);
-        } else if (this.liquidity.interval) {
+        } else if (this.liquidity.timeLockedOrInterval === '1') {
           // add time to datetime settings
           const startTime = this.liquidity.intervalStartDateTime;
           const startDate = new Date(this.liquidity.intervalStartDate);
@@ -480,12 +483,16 @@ export default {
         }
       }
 
+      let interval = false;
+      if (this.liquidity.timeLockedOrInterval === '1')
+        interval = true;
+
       return {
         Name: `${this.settings.name}-liquidity-tokens`,
         Amount: 0, // not relevant
         RemainingAmount: 0, // not relevant
         ReleaseDate: releaseDate,
-        IsInterval: this.liquidity.interval,
+        IsInterval: interval,
         PercentageOfRelease: intervalPercentage,
         IntervalOfRelease: intervalOfRelease,
         Exists: true,
@@ -544,17 +551,17 @@ export default {
       return tokenAllocations;
     },
     sendPresaleToContract: async function(presaleContractInterface, presaleDto) {
-      this.$loading(true);
+      // this.$loading(true);
+      console.log(presaleDto);
       await presaleContractInterface.methods.CreatePresale(presaleDto)
         .send({from: this.account})
         .then((response) => {
           if (response.status && response.blockHash !== '') {
-            console.log(response);
             this.key++; // update components
 
             this.$notifications(
                 'Presale successfully created',
-                `https://testnet.bncscan.com/tx/${response.transactionHash}`,
+                `https://www.bncscan.com/tx/${response.transactionHash}`,
                 0, // success
                 true);
 
@@ -719,15 +726,15 @@ export default {
             this.remainingAmount = (this.settings.totalTokens - this.settings.tokenPresaleAllocation - this.liquidity.amount);
           }
 
-          if (this.liquidity.percentage !== null && this.liquidity.amount !== null) {
-            if (this.liquidity.permaBurn) {
+          if (this.liquidity.lockedOrPermaBurn !== null && this.liquidity.amount !== null) {
+            if (this.liquidity.lockedOrPermaBurn === '1') {
               // all values are filled so liquidity is valid
               this.liquidityIsValid = true;
-            } else if (this.liquidity.locked && this.liquidity.timeLocked) {
+            } else if (this.liquidity.lockedOrPermaBurn === '0' && this.liquidity.timeLockedOrInterval === '0') {
               // when timelocked is selected check releasedate
               if (this.liquidity.releaseDate !== null && this.liquidity.releaseDateTime.HH !== null)
                 this.liquidityIsValid = true;
-            } else if (this.liquidity.locked && this.liquidity.interval) {
+            } else if (this.liquidity.lockedOrPermaBurn === '0' && this.liquidity.timeLockedOrInterval === '1') {
               // When interval is selected check interval values
               if (this.liquidity.intervalStartDate !== null &&
                   this.liquidity.intervalStartDateTime.HH !== null &&
@@ -740,14 +747,14 @@ export default {
             }
           }
         } else if (this.burnTokens && this.liquidity.listingTokenPrice !== null) {
-          if (this.liquidity.permaBurn) {
+          if (this.liquidity.lockedOrPermaBurn === '1') {
             // all values are filled so liquidity is valid
             this.liquidityIsValid = true;
-          } else if (this.liquidity.locked && this.liquidity.timeLocked) {
+          } else if (this.liquidity.lockedOrPermaBurn === '0' && this.liquidity.timeLockedOrInterval === '0') {
             // when timelocked is selected check releasedate
             if (this.liquidity.releaseDate !== null && this.liquidity.releaseDateTime.HH !== null)
               this.liquidityIsValid = true;
-          } else if (this.liquidity.locked && this.liquidity.interval) {
+          } else if (this.liquidity.lockedOrPermaBurn === '1' && this.liquidity.timeLockedOrInterval === '1') {
             // When interval is selected check interval values
             if (this.liquidity.intervalStartDate !== null &&
                 this.liquidity.intervalStartDateTime.HH !== null &&
@@ -762,9 +769,11 @@ export default {
           // if liquidity is valid calculate remainingTokens for tokenomics
           if (this.liquidityIsValid) {
             if (this.liquidity.listingTokenPrice !== null && this.liquidity.percentage !== null) {
-              const liquidityTokens = this.liquidity.percentage / this.liquidity.listingTokenPrice;
+              const maxBnbAmount = Number(this.settings.hardcap*0.95) / 100 * this.liquidity.percentage;
+              const tokenLiqAmount = maxBnbAmount /this.liquidity.listingTokenPrice;
+              
               // remaining amount of tokens for tokenomics
-              this.remainingAmount = this.remainingTokensAmount - liquidityTokens.toFixed();
+              this.remainingAmount = this.remainingTokensAmount - tokenLiqAmount;
             }
           }
         }
