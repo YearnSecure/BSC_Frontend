@@ -91,37 +91,50 @@
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="inline-flex items-center mt-9">
-                  <input type="checkbox" class="form-checkbox w-4 h-4 rounded bg-gray-800 text-yellow-600" v-model="liquidity.locked">
+                  <input type="radio"
+                         class="form-checkbox w-4 h-4 rounded bg-gray-800 text-yellow-600"
+                         value="0"
+                         v-model="liquidity.lockedOrPermaBurn">
                   <span class="text-gray-700 dark:text-gray-200 ml-2">Locked</span>
                 </label>
               </div>
               <div>
                 <label class="inline-flex items-center mt-9">
-                  <input type="checkbox" class="form-checkbox w-4 h-4 rounded bg-gray-800 text-yellow-600" v-model="liquidity.permaBurn">
+                  <input type="radio"
+                         class="form-checkbox w-4 h-4 rounded bg-gray-800 text-yellow-600"
+                         value="1"
+                         v-model="liquidity.lockedOrPermaBurn">
                   <span class="text-gray-700 dark:text-gray-200 ml-2">Perma-burn</span>
                 </label>
               </div>
             </div>
           </div>
           <div
-            v-if="liquidity.locked"
+            v-if="liquidity.lockedOrPermaBurn === '0'"
             class="block mx-auto w-1/2">
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="inline-flex items-center mt-9">
-                  <input type="checkbox" class="form-checkbox w-4 h-4 rounded bg-gray-800 text-yellow-600" v-model="liquidity.timeLocked">
+                  <input
+                      type="radio"
+                      class="form-checkbox w-4 h-4 rounded bg-gray-800 text-yellow-600"
+                      value="0"
+                      v-model="liquidity.timeLockedOrInterval">
                   <span class="text-gray-700 dark:text-gray-200 ml-2">Timelocked</span>
                 </label>
               </div>
               <div>
                 <label class="inline-flex items-center mt-9">
-                  <input type="checkbox" class="form-checkbox w-4 h-4 rounded bg-gray-800 text-yellow-600" v-model="liquidity.interval">
+                  <input type="radio"
+                         class="form-checkbox w-4 h-4 rounded bg-gray-800 text-yellow-600"
+                         value="1"
+                         v-model="liquidity.timeLockedOrInterval">
                   <span class="text-gray-700 dark:text-gray-200 ml-2">Interval</span>
                 </label>
               </div>
             </div>
           </div>
-          <div class="block w-full" v-if="liquidity.timeLocked">
+          <div class="block w-full" v-if="liquidity.timeLockedOrInterval === '0'">
             <div class="grid grid-cols-2 gap-4">
               <div class="col-span-1">
                 <label class="items-center">
@@ -155,7 +168,7 @@
               </div>
             </div>
           </div>
-          <div v-if="liquidity.interval" class="grid grid-cols-4 gap-4">
+          <div v-if="liquidity.timeLockedOrInterval === '1'" class="grid grid-cols-4 gap-4">
             <div class="col-span-1">
               <label
                   :for="liquidity.intervalStartDate"
@@ -262,30 +275,14 @@ export default {
   watch: {
     liquidity: {
       handler() {
-        if (this.liquidity.permaBurn && !this.liquidity.locked) {
-          this.liquidity.locked = false;
-          this.liquidity.timeLocked = false;
-          this.liquidity.interval = false;
-        } else if (this.liquidity.permaBurn && this.liquidity.locked) {
-          this.liquidity.locked = false;
-          this.liquidity.timeLocked = false;
-          this.liquidity.interval = false;
-        } else if (this.liquidity.locked) {
-          this.liquidity.permaBurn = false;
-        } else if (this.liquidity.locked && this.liquidity.permaBurn) {
+        if (this.liquidity.lockedOrPermaBurn === '1') {
           this.liquidity.locked = false;
           this.liquidity.timeLocked = false;
           this.liquidity.interval = false;
         }
 
-        if (this.liquidity.interval && !this.liquidity.timeLocked) {
+        if (this.liquidity.timeLockedOrInterval === '1') {
           this.liquidity.timeLocked = false;
-        } else if (this.liquidity.interval && this.liquidity.timeLocked) {
-          this.liquidity.locked = false;
-          this.liquidity.timeLocked = false;
-          this.liquidity.interval = false;
-        } else {
-          this.liquidity.interval = false;
         }
 
         if (this.hardCap !== "undefined" &&
