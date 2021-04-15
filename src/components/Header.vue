@@ -3,7 +3,7 @@
     <!-- Page title & actions -->
     <div class="border-b border-gray-200 dark:bg-gray-900 px-4 py-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
       <div class="flex-0 min-w-0">
-        <a :href="switchPlatformUrl" class="py-2 px-3 bg-yellow-500 text-white rounded hover:bg-yellow-600" target="_blank">ERC Chain</a>
+        <a :href="switchPlatformUrl" class="py-2 px-3 bg-yellow-500 text-white cursor-pointer rounded hover:bg-yellow-600" target="_blank">ERC Chain</a>
       </div>
       <div class="flex-1 min-w-0 text-center">
         <h1 class="text-lg font-medium leading-6 text-gray-900 dark:text-white sm:truncate">
