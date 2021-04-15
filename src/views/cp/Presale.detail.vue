@@ -30,10 +30,10 @@
                   {{ presale.TokenName }}
                 </span>
                 <span class="block text-base text-gray-900 dark:text-white font-medium tracking-wide">
-                  Start date: {{ formatDate(presale.StartDate) }}
+                  Start date: {{ formatEpochDate(presale.StartDate) }}
                 </span>
                 <span class="block text-base text-gray-900 dark:text-white font-medium tracking-wide">
-                  End date: {{ formatDate(presale.EndDate) }}
+                  End date: {{ formatEpochDate(presale.EndDate) }}
                 </span>
               </h1>
             </div>
@@ -499,10 +499,9 @@ export default {
       presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
         await presaleContractInterface.methods.Presales(this.id).call().then((response) => {
           //Presale Info
-          console.log(response)
           this.presale.Name = response.Info.Name;
-          this.presale.StartDate = moment.unix((parseInt(response.StartDate)));
-          this.presale.EndDate = moment.unix((parseInt(response.EndDate)));
+          this.presale.StartDate = (parseInt(response.StartDate));
+          this.presale.EndDate = (parseInt(response.EndDate));
           this.presale.Softcap = this.readableFormatNumbers(web3.utils.fromWei(response.Softcap));
           this.presale.Hardcap = this.readableFormatNumbers(web3.utils.fromWei(response.Hardcap));
           this.presale.TokenAddress = response.Addresses.TokenAddress;
@@ -549,9 +548,6 @@ export default {
           .call()
           .then((response) => {
             this.presale.Allocations = response;
-
-            console.log(response);
-            console.log(this.totalSupply,this.tokensInPresale,this.liquidityTokens)
 
             const totalSupply = this.totalSupply;
             for (let i=0; i < response.length; i++) {
