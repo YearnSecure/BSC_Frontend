@@ -150,7 +150,7 @@ export default {
       this.$emit('pinPresale', presale);
     },
     formatDate: function(date) {
-      return new Date(date).toLocaleString();
+      return new Date(date).toUTCString();
     }
   }
 }
