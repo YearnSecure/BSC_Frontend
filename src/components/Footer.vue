@@ -5,7 +5,7 @@
         <div class="flex justify-center space-x-6 md:order-2">
         </div>
         <div class="mt-8 pd-10 md:mt-0 md:order-1">
-          <p class="text-lefttext-base text-gray-400">
+          <p class="text-left text-base text-gray-400">
             &copy; {{ new Date().getFullYear() }} YearnSecure, Inc. All rights reserved.
           </p>
         </div>

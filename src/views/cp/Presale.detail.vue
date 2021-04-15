@@ -1,5 +1,5 @@
 <template>
-  <div id="presale" class="h-screen">
+  <div id="presale" :class="!isLoaded ? 'h-screen' : ''">
     <transition name="slide-fade">
       <main v-if="isLoaded" class="flex-1 relative z-0 overflow-y-auto focus:outline-none" tabindex="0">
         <Header
@@ -470,27 +470,31 @@ export default {
       await this.currentAccount();
     }
 
-    this.web3 = new Web3(this.provider);
-    await this.getPresaleData();
-    await this.getContributedBNB();
-    await this.getSoftcapMet();
-    if (this.account.toLowerCase() === this.presale.TokenOwnerAddress.toLowerCase()){
-      await this.getAllowance();
-    }
-    if (parseInt(this.presale.CurrentStep) === 1){
-      await this.getPresaleFinished();
-      if (!this.presale.finishedPresale){
-        await this.getPresaleStarted();
-      }
-    }
-
-    await this.getTokenAllocations();
-
-    this.setProgressBar();
+    await this.initDetailPage();
     this.$loading(false);
     this.isLoaded = true;
   },
   methods: {
+    initDetailPage: async function() {
+      this.web3 = new Web3(this.provider);
+
+      await this.getPresaleData();
+      await this.getContributedBNB();
+      await this.getSoftcapMet();
+      if (this.account.toLowerCase() === this.presale.TokenOwnerAddress.toLowerCase()){
+        await this.getAllowance();
+      }
+      if (parseInt(this.presale.CurrentStep) === 1){
+        await this.getPresaleFinished();
+        if (!this.presale.finishedPresale){
+          await this.getPresaleStarted();
+        }
+      }
+
+      await this.getTokenAllocations();
+
+      this.setProgressBar();
+    },
     getPresaleData: async function() {
       const presaleContractAbi = this.contractAbi;
       const web3 = new Web3(this.provider);
@@ -576,19 +580,20 @@ export default {
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
       
       presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-        await presaleContractInterface.methods.GetBNBContributedForAddress(this.id, this.account).call().then((response) => {
-          if (response == 0){
-            this.presale.UserContribution = 0;
-            this.presale.Roi = 0;
-          } else {
-            this.presale.UserContribution = web3.utils.fromWei(response);
-            this.getRoi();
-          }          
-            })
-            .catch((e) => {
-              console.log('error:' + e);
-            });
-    
+        await presaleContractInterface.methods.GetBNBContributedForAddress(this.id, this.account)
+          .call()
+          .then((response) => {
+            if (response == 0){
+              this.presale.UserContribution = 0;
+              this.presale.Roi = 0;
+            } else {
+              this.presale.UserContribution = web3.utils.fromWei(response);
+              this.getRoi();
+            }
+          })
+          .catch((e) => {
+            console.log('error:' + e);
+          });
     },
     getTokenTicker: async function() {
       const tokenContractAbi = this.tokenAbi;
@@ -596,13 +601,14 @@ export default {
       const tokenContractInterface = new web3.eth.Contract(tokenContractAbi);
       
       tokenContractInterface.options.address = this.presale.TokenAddress;
-        await tokenContractInterface.methods.symbol().call().then((response) => {
-          this.presale.TokenName = response;          
-            })
-            .catch((e) => {
-              console.log('error:' + e);
-            });
-    
+        await tokenContractInterface.methods.symbol()
+          .call()
+          .then((response) => {
+            this.presale.TokenName = response;
+          })
+          .catch((e) => {
+            console.log('error:' + e);
+          });
     },
     getRoi: async function() {
       const presaleContractAbi = this.contractAbi;
@@ -610,13 +616,14 @@ export default {
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
       
       presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-        await presaleContractInterface.methods.GetAmountOfTokensForAddress(this.id, this.account).call().then((response) => {
-          this.presale.Roi = web3.utils.fromWei(response);
-          
-            })
-            .catch((e) => {
-              console.log('error:' + e);
-            });
+        await presaleContractInterface.methods.GetAmountOfTokensForAddress(this.id, this.account)
+          .call()
+          .then((response) => {
+            this.presale.Roi = web3.utils.fromWei(response);
+          })
+          .catch((e) => {
+            console.log('error:' + e);
+          });
     },
     getPresalesGraph: async function() {
       if (this.presale.tokens && this.presale.tokens.length > 0) {
@@ -635,8 +642,6 @@ export default {
 
       tokenContractInterface.options.address = this.presale.TokenAddress;
       await tokenContractInterface.methods.allowance(this.account, process.env.VUE_APP_PRESALE_CONTRACT).call().then((response) => {
-        console.log(response);
-        console.log(this.presale.TotalTokenAmount);
         this.allowanceState = response;
       }).catch((e) => {
         console.log('error:' + e);
@@ -648,10 +653,12 @@ export default {
       const tokenContractInterface = new web3.eth.Contract(tokenContractAbi);
       
       tokenContractInterface.options.address = this.presale.TokenAddress;
-        await tokenContractInterface.methods.approve(process.env.VUE_APP_PRESALE_CONTRACT, this.presale.TotalTokenAmount).send({from: this.account}).then()
-            .catch((e) => {
-              console.log('error:' + e);
-            });
+        await tokenContractInterface.methods.approve(process.env.VUE_APP_PRESALE_CONTRACT, this.presale.TotalTokenAmount)
+          .send({from: this.account})
+          .then()
+          .catch((e) => {
+            console.log('error:' + e);
+          });
     },
     transferTokens: async function() {
       const presaleContractAbi = this.contractAbi;
@@ -659,10 +666,12 @@ export default {
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
       
       presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-        await presaleContractInterface.methods.TransferTokens(this.id).send({from: this.account}).then()
-            .catch((e) => {
-              console.log('error:' + e);
-            });
+        await presaleContractInterface.methods.TransferTokens(this.id)
+          .send({from: this.account})
+          .then()
+          .catch((e) => {
+            console.log('error:' + e);
+          });
     },
     getPresaleFinished: async function() {
       const presaleContractAbi = this.contractAbi;
@@ -673,9 +682,8 @@ export default {
         await presaleContractInterface.methods.PresaleFinished(this.id).call({from: this.account}).then((response) => {
           this.presale.finished = response
         }).catch((e) => {
-              console.log('error:' + e);
-            });
-
+          console.log('error:' + e);
+        });
     },
     getPresaleStarted: async function() {
       const presaleContractAbi = this.contractAbi;
@@ -683,11 +691,13 @@ export default {
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
       
       presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-        await presaleContractInterface.methods.PresaleStarted(this.id).call({from: this.account}).then((response) => {
-          this.presale.started = response
-        }).catch((e) => {
-              console.log('error:' + e);
-            });
+        await presaleContractInterface.methods.PresaleStarted(this.id)
+          .call({from: this.account})
+          .then((response) => {
+            this.presale.started = response
+          }).catch((e) => {
+            console.log('error:' + e);
+          });
     },
     addLiquidity: async function () {
       const presaleContractAbi = this.contractAbi;
@@ -695,10 +705,14 @@ export default {
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
       
       presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-        await presaleContractInterface.methods.AddLiquidity(this.id).send({from: this.account}).then().catch((e) => {
-              console.log('error:' + e);
-            });
-
+        await presaleContractInterface.methods.AddLiquidity(this.id)
+          .send({from: this.account})
+          .then(() => {
+            this.initDetailPage();
+          })
+          .catch((e) => {
+            console.log('error:' + e);
+          });
     },
     claimTokens: async function() {
       const presaleContractAbi = this.contractAbi;
@@ -706,9 +720,14 @@ export default {
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
       
       presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-        await presaleContractInterface.methods.ClaimTokens(this.id).send({from: this.account}).then().catch((e) => {
-              console.log('error:' + e);
-            });
+        await presaleContractInterface.methods.ClaimTokens(this.id)
+          .send({from: this.account})
+          .then(() => {
+            this.initDetailPage();
+          })
+          .catch((e) => {
+            console.log('error:' + e);
+          });
     },
     distributeBNB: async function() {
       const presaleContractAbi = this.contractAbi;
@@ -716,9 +735,14 @@ export default {
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
       
       presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-        await presaleContractInterface.methods.DistributeBNB(this.id).send({from: this.account}).then().catch((e) => {
-              console.log('error:' + e);
-            });
+        await presaleContractInterface.methods.DistributeBNB(this.id)
+          .send({from: this.account})
+          .then(() => {
+            this.initDetailPage();
+          })
+          .catch((e) => {
+            console.log('error:' + e);
+          });
     },
     retrieveBNB: async function() {
       const presaleContractAbi = this.contractAbi;
@@ -726,9 +750,14 @@ export default {
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
       
       presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-        await presaleContractInterface.methods.RetrieveBNB(this.id, this.account).send({from: this.account}).then().catch((e) => {
-              console.log('error:' + e);
-            });
+        await presaleContractInterface.methods.RetrieveBNB(this.id, this.account)
+          .send({from: this.account})
+          .then(() => {
+            this.initDetailPage();
+          })
+          .catch((e) => {
+            console.log('error:' + e);
+          });
     },
     retrieveTokensOwner: async function() {
       const presaleContractAbi = this.contractAbi;
@@ -736,9 +765,14 @@ export default {
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
       
       presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-        await presaleContractInterface.methods.RetrieveTokens(this.id).send({from: this.account}).then().catch((e) => {
-              console.log('error:' + e);
-            });
+        await presaleContractInterface.methods.RetrieveTokens(this.id)
+          .send({from: this.account})
+          .then(() => {
+            this.initDetailPage();
+          })
+          .catch((e) => {
+            console.log('error:' + e);
+          });
     },
     TransferTokensToLocks: async function() {
       const presaleContractAbi = this.contractAbi;
@@ -746,9 +780,14 @@ export default {
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
       
       presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-        await presaleContractInterface.methods.TransferTokensToLocks(this.id).send({from: this.account}).then().catch((e) => {
-              console.log('error:' + e);
-            });
+        await presaleContractInterface.methods.TransferTokensToLocks(this.id)
+          .send({from: this.account})
+          .then(() => {
+            this.initDetailPage();
+          })
+          .catch((e) => {
+            console.log('error:' + e);
+          });
     },
     getSoftcapMet: async function() {
       const presaleContractAbi = this.contractAbi;
@@ -756,11 +795,13 @@ export default {
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
       
       presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-        await presaleContractInterface.methods.SoftcapMet(this.id).call({from: this.account}).then((response) => {
-          this.presale.SoftcapMet = response
-        }).catch((e) => {
-              console.log('error:' + e);
-            });
+        await presaleContractInterface.methods.SoftcapMet(this.id)
+          .call({from: this.account})
+          .then((response) => {
+            this.presale.SoftcapMet = response;
+          }).catch((e) => {
+            console.log('error:' + e);
+          });
     },
     contributeTokens: async function(x) {
       const presaleContractAbi = this.contractAbi;
@@ -768,7 +809,12 @@ export default {
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
       
       presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-        await presaleContractInterface.methods.Contribute(this.id).send({from: this.account, value:web3.utils.toWei(x.toString())}).then()
+        await presaleContractInterface.methods.Contribute(this.id)
+            .send({from: this.account, value:web3.utils.toWei(x.toString())})
+            .then(() => {
+              this.contribution = "";
+              this.initDetailPage();
+            })
             .catch((e) => {
               console.log('error:' + e);
             });

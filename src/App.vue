@@ -5,7 +5,7 @@
       <!-- Main column -->
       <div class="flex flex-col w-0 flex-1">
         <router-view @toggleIsBusy="toggleIsBusy" class="flex w-100 h-full pb-10" />
-        <Footer class="block border-t-2 bg-gray-50 dark:bg-gray-800"/>
+<!--        <Footer class="block border-t-2 bg-gray-50 dark:bg-gray-800"/>-->
       </div>
     </div>
     <Cookie
@@ -18,14 +18,14 @@
 import splitbee from '@splitbee/web';
 
 import Sidebar from '@/components/Sidebar'
-import Footer from '@/components/Footer';
+// import Footer from '@/components/Footer';
 import Cookie from '@/components/Cookie'
 
 export default {
   name: 'app',
   components: {
     Sidebar,
-    Footer,
+    // Footer,
     Cookie
   },
   data: () => ({
