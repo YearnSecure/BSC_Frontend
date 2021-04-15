@@ -1,5 +1,5 @@
 <template>
-  <div id="presale" class="h-screen">
+  <div id="presale" :class="!isLoaded ? 'h-screen' : ''">
     <transition name="slide-fade">
       <main v-if="isLoaded" class="flex-1 relative z-0 overflow-y-auto focus:outline-none" tabindex="0">
         <Header
