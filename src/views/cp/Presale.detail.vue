@@ -655,7 +655,9 @@ export default {
       tokenContractInterface.options.address = this.presale.TokenAddress;
         await tokenContractInterface.methods.approve(process.env.VUE_APP_PRESALE_CONTRACT, this.presale.TotalTokenAmount)
           .send({from: this.account})
-          .then()
+          .then(() => {
+            this.initDetailPage();
+          })
           .catch((e) => {
             console.log('error:' + e);
           });
@@ -668,7 +670,9 @@ export default {
       presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
         await presaleContractInterface.methods.TransferTokens(this.id)
           .send({from: this.account})
-          .then()
+          .then(() => {
+            this.initDetailPage();
+          })
           .catch((e) => {
             console.log('error:' + e);
           });
