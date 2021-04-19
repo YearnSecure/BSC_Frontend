@@ -307,7 +307,7 @@ export default {
         }
 
         if (this.liquidity.listingTokenPrice !== null) {
-          const listingTimes =  this.presaleTokenPrice / this.liquidity.listingTokenPrice;
+          const listingTimes =  this.liquidity.listingTokenPrice / this.presaleTokenPrice;
           this.listingTokenPrice = `Listing price is ~ ${listingTimes} times presale price`;
         }
 
