@@ -561,7 +561,7 @@ export default {
 
             this.$notifications(
                 'Presale successfully created',
-                `https://www.bncscan.com/tx/${response.transactionHash}`,
+                `https://www.bscscan.com/tx/${response.transactionHash}`,
                 0, // success
                 true);
 

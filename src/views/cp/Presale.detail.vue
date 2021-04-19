@@ -40,7 +40,7 @@
             <div class="col-span-3">
               <span class="block text-base text-gray-900 dark:text-white font-semibold tracking-wide uppercase">
                 {{ presale.name }} Token address:
-                <a :href="`https://bncscan.com/address/${presale.TokenAddress}`" target="_blank" class="text-blue-500 hover:text-yellow-600 transiation duration-300">{{ presale.TokenAddress }}</a>
+                <a :href="`https://bscscan.com/address/${presale.TokenAddress}`" target="_blank" class="text-blue-500 hover:text-yellow-600 transiation duration-300">{{ presale.TokenAddress }}</a>
               </span>
             </div>
           </div>
@@ -204,7 +204,7 @@
                         Allocation address:
                       </span>
                       <span class="text-yellow-500">
-                        <a :href="`https://bncscan.com/address/${presale.TokenTimeLock}`" target="_blank" rel="noopener noreferrer" class="hover:text-blue-400" >{{ presale.TokenTimeLock }}</a>
+                        <a :href="`https://bscscan.com/address/${presale.TokenTimeLock}`" target="_blank" rel="noopener noreferrer" class="hover:text-blue-400" >{{ presale.TokenTimeLock }}</a>
                       </span>
                     </div>
                     <div class="mt-3 block">
@@ -253,7 +253,7 @@
                         Allocation Token Address:
                       </span>
                       <span class="text-yellow-500">
-                        <a :href="`https://bncscan.com/address/${presale.TokenTimeLock}`" target="_blank" rel="noopener noreferrer" class="hover:text-blue-400" >{{ presale.TokenTimeLock }}</a></span>
+                        <a :href="`https://bscscan.com/address/${presale.TokenTimeLock}`" target="_blank" rel="noopener noreferrer" class="hover:text-blue-400" >{{ presale.TokenTimeLock }}</a></span>
                     </div>
                     <hr class="mt-3 mb-3">
                   </div>
