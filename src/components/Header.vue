@@ -10,7 +10,7 @@
           YSEC Token address: <a :href="`https://etherscan.io/address/${contractAddress}`" target="_blank" class="text-blue-500 hover:text-yellow-600 transiation duration-300">{{ contractAddress }}</a>
         </h1>
         <h3 v-if="isConnected" class="text-sm font-medium leading-4 text-gray-900 dark:text-white sm:truncate">
-          You are connected: <a :href="`https://etherscan.io/address/${account}`" target="_blank" class="text-yellow-500 hover:text-blue-600 transiation duration-300">{{ account }}</a>
+          You are connected: <a :href="`https://bscscan.com/address/${account}`" target="_blank" class="text-yellow-500 hover:text-blue-600 transiation duration-300">{{ account }}</a>
         </h3>
         <h4 v-if="isConnected" class="text-xs font-medium leading-4 text-green-600 sm:truncate">
           <span v-if="chainId">{{ network }}</span>
