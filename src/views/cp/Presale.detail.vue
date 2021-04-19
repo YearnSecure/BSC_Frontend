@@ -899,7 +899,7 @@ export default {
       return new Date(date).toUTCString();
     },
     formatEpochDate: function(date) {
-      return new Date(date * 1000);
+      return new Date(date * 1000).toLocaleString();
     },
     formatFromWei: function(wei) {
       return this.web3.utils.fromWei(wei.toString());
