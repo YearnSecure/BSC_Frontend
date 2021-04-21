@@ -129,7 +129,7 @@
               <input
                   type="number"
                   v-model="token.totalTokens"
-                  placeholder="Token presale allocation"
+                  placeholder="Total tokens"
                   class="w-full mt-2 mb-2 px-3 py-1 rounded-lg
                   text-gray-600 dark:text-gray-300
                   border border-transparent
