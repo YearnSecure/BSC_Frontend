@@ -36,7 +36,7 @@ export default {
       }));
     },
     isBusyStop() {
-      return this.anim.stop();
+      this.loading = false;
     },
   },
   watch: {

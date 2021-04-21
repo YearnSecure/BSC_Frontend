@@ -17,7 +17,8 @@
               @closeModal="closeModal" />
 
           <PageTitle
-              :title="title" />
+              :title="title"
+              :type="1"/>
 
           <div class="block px-4 mt-6 sm:px-6 lg:px-8">
             <div class="my-8">
@@ -329,6 +330,7 @@ export default {
     }
   },
   mounted: async function () {
+    this.$loading(true);
     if (this.provider === undefined) {
       this.isLoaded = true;
     }
@@ -340,6 +342,7 @@ export default {
       await this.currentAccount();
       this.isLoaded = true;
     }
+    this.$loading(false);
   },
   methods: {
     validSocials: function() {
@@ -382,6 +385,7 @@ export default {
       this.tokenomicsIsValid = true;
     },
     createPresale: async function () {
+      this.$loading(true);
       const presaleContractAbi = this.contractAbi;
       const web3 = new Web3(this.provider);
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
@@ -412,6 +416,7 @@ export default {
           1, // error
           true
         );
+        this.$loading(false);
         return;
       }
 
@@ -455,6 +460,8 @@ export default {
 
       if (this.account !== null && this.account !== '') {
         await this.sendPresaleToContract(presaleContractInterface, presaleDto);
+      } else {
+        this.$loading(false);
       }
     },
     addLiquidityAllocation: function() {
@@ -551,8 +558,6 @@ export default {
       return tokenAllocations;
     },
     sendPresaleToContract: async function(presaleContractInterface, presaleDto) {
-      // this.$loading(true);
-      console.log(presaleDto);
       await presaleContractInterface.methods.CreatePresale(presaleDto)
         .send({from: this.account})
         .then((response) => {
