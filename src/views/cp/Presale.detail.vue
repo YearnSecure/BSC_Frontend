@@ -30,6 +30,12 @@
                 <span class="block text-base text-gray-900 dark:text-white font-semibold tracking-wide uppercase">
                   {{ presale.TokenName }}
                 </span>
+                <span v-if="presale.isBurn" class="block text-base text-gray-900 dark:text-white font-semibold tracking-wide">
+                 Presale type: <span class="text-yellow-500">Burn</span>
+                </span>
+                  <span v-else class="block text-base text-gray-900 dark:text-white font-semibold tracking-wide">
+                 Presale type: <span class="text-yellow-500">Divide</span>
+                </span>
                 <span class="block text-base text-gray-900 dark:text-white font-medium tracking-wide">
                   Start date: {{ formatEpochDate(presale.StartDate) }}
                 </span>
@@ -381,6 +387,7 @@ export default {
       presale: {
         Name: '',
         StartDate: null,
+        isBurn: false,
         EndDate: null,
         SoftCap: null,
         HardCap: null,
@@ -507,6 +514,7 @@ export default {
       presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
         await presaleContractInterface.methods.Presales(this.id).call().then((response) => {
           //Presale Info
+          this.presale.isBurn = response.State.IsBurnUnsold;
           this.presale.Name = response.Info.Name;
           this.presale.StartDate = (parseInt(response.StartDate));
           this.presale.EndDate = (parseInt(response.EndDate));

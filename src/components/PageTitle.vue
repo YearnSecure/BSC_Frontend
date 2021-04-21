@@ -68,6 +68,7 @@ export default {
   props: {
     title: String,
     type: Number,
+    presaleType: Boolean
   },
   components: {
     // Search
