@@ -17,7 +17,8 @@
             @closeModal="closeModal" />
 
         <PageTitle
-            :title="title" />
+            :title="title"
+            :type="0"/>
 
         <div class="block px-4 mt-6 sm:px-6 lg:px-8">
           <div class="grid grid-cols-4 gap-4">
@@ -119,14 +120,14 @@
                     </div>
                     <div class="grid gap-1 mt-1">
                       <div class="flex">
-                        <span class="text-gray-900 dark:text-white pr-5">Token price per token:</span>
+                        <span class="text-gray-900 dark:text-white pr-5">Price per token:</span>
                         <a href="#" class="text-blue-500">{{ presale.TokenPrice }} BNB</a>
                       </div>
                     </div>
                     <div class="grid gap-1 mt-1">
-                      <div class="flex">
-                        <span class="text-gray-900 dark:text-white pr-5">Listing price is: </span>
-                        <a href="#" class="text-blue-500">~ {{ presale.listingPrice }} times presale price</a>
+                      <div class="block">
+                        <span class="text-gray-900 block dark:text-white pr-5">Listing price per token is: </span>
+                        <a href="#" class="block text-blue-500">{{ presale.listingTokenPrice }} (~ {{ presale.listingPrice }} times presale price)</a>
                       </div>
                     </div>
                   </div>
@@ -409,6 +410,7 @@ export default {
         started: false,
         SoftCapMet: false,
         listingPrice: null,
+        listingTokenPrice: null,
         chartData: {
           datasets: [
             {
@@ -486,7 +488,7 @@ export default {
       }
       if (parseInt(this.presale.CurrentStep) === 1){
         await this.getPresaleFinished();
-        if (!this.presale.finishedPresale){
+        if (!this.presale.finished){
           await this.getPresaleStarted();
         }
       }
@@ -527,6 +529,10 @@ export default {
           const presalePrice = web3.utils.fromWei(response.TokenPresaleAllocation)/web3.utils.fromWei(response.Hardcap);
           const listingPrice = web3.utils.fromWei(response.TokenLiqAmount) / ((response.LiqPercentage/100)*Number(web3.utils.fromWei(response.Hardcap)*0.95)); 
           this.presale.listingPrice =  (presalePrice/listingPrice).toFixed(2);
+
+          const hardCapPercentage = Number(web3.utils.fromWei(response.Hardcap)) * 0.95;
+          const toLiquidity = hardCapPercentage * ((1/100) * Number(response.LiqPercentage));
+          this.presale.listingTokenPrice = (toLiquidity / Number(web3.utils.fromWei(response.TokenLiqAmount))).toFixed(5);
 
           //Current Presale Step
           this.presale.CurrentStep = response.State.Step;
@@ -635,7 +641,7 @@ export default {
     getTokenPrice: function() {
       return parseInt(this.presale.Hardcap)/(parseInt(this.presale.RawTokensInPresale));
     },
-    getAllowance: async function (){
+    getAllowance: async function () {
       const tokenContractAbi = this.tokenAbi;
       const web3 = new Web3(this.provider);
       const tokenContractInterface = new web3.eth.Contract(tokenContractAbi);
@@ -647,7 +653,8 @@ export default {
         console.log('error:' + e);
       });
     },
-    approveCall: async function (){
+    approveCall: async function () {
+      this.$loading(true);
       const tokenContractAbi = this.tokenAbi;
       const web3 = new Web3(this.provider);
       const tokenContractInterface = new web3.eth.Contract(tokenContractAbi);
@@ -660,9 +667,12 @@ export default {
           })
           .catch((e) => {
             console.log('error:' + e);
+          }).finally(() => {
+            this.$loading(false);
           });
     },
     transferTokens: async function() {
+      this.$loading(true);
       const presaleContractAbi = this.contractAbi;
       const web3 = new Web3(this.provider);
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
@@ -675,6 +685,8 @@ export default {
           })
           .catch((e) => {
             console.log('error:' + e);
+          }).finally(() => {
+            this.$loading(false);
           });
     },
     getPresaleFinished: async function() {
@@ -704,6 +716,7 @@ export default {
           });
     },
     addLiquidity: async function () {
+      this.$loading(true);
       const presaleContractAbi = this.contractAbi;
       const web3 = new Web3(this.provider);
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
@@ -716,9 +729,12 @@ export default {
           })
           .catch((e) => {
             console.log('error:' + e);
+          }).finally(() => {
+            this.$loading(false);
           });
     },
     claimTokens: async function() {
+      this.$loading(true);
       const presaleContractAbi = this.contractAbi;
       const web3 = new Web3(this.provider);
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
@@ -731,9 +747,12 @@ export default {
           })
           .catch((e) => {
             console.log('error:' + e);
+          }).finally(() => {
+            this.$loading(false);
           });
     },
     distributeBNB: async function() {
+      this.$loading(true);
       const presaleContractAbi = this.contractAbi;
       const web3 = new Web3(this.provider);
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
@@ -746,9 +765,12 @@ export default {
           })
           .catch((e) => {
             console.log('error:' + e);
+          }).finally(() => {
+            this.$loading(false);
           });
     },
     retrieveBNB: async function() {
+      this.$loading(true);
       const presaleContractAbi = this.contractAbi;
       const web3 = new Web3(this.provider);
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
@@ -761,9 +783,12 @@ export default {
           })
           .catch((e) => {
             console.log('error:' + e);
+          }).finally(() => {
+            this.$loading(false);
           });
     },
     retrieveTokensOwner: async function() {
+      this.$loading(true);
       const presaleContractAbi = this.contractAbi;
       const web3 = new Web3(this.provider);
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
@@ -776,9 +801,12 @@ export default {
           })
           .catch((e) => {
             console.log('error:' + e);
+          }).finally(() => {
+            this.$loading(false);
           });
     },
     TransferTokensToLocks: async function() {
+      this.$loading(true);
       const presaleContractAbi = this.contractAbi;
       const web3 = new Web3(this.provider);
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
@@ -791,6 +819,8 @@ export default {
           })
           .catch((e) => {
             console.log('error:' + e);
+          }).finally(() => {
+            this.$loading(false);
           });
     },
     getSoftcapMet: async function() {
@@ -808,6 +838,7 @@ export default {
           });
     },
     contributeTokens: async function(x) {
+      this.$loading(true);
       const presaleContractAbi = this.contractAbi;
       const web3 = new Web3(this.provider);
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
@@ -821,6 +852,8 @@ export default {
             })
             .catch((e) => {
               console.log('error:' + e);
+            }).finally(() => {
+              this.$loading(false);
             });
     },
     readableFormatNumbers: function(x){
