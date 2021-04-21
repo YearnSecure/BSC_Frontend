@@ -335,7 +335,7 @@
             <div v-if="this.presale.CurrentStep == 2">
               <div class="block text-center mt-10">
                 <button v-on:click="addLiquidity()" class="py-2 px-8 bg-yellow-500 text-white rounded-3xl">
-                  Add Uniswap Liquidity
+                  Add Pancakeswap Liquidity
                 </button>
               </div>
             </div>
