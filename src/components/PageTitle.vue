@@ -26,26 +26,37 @@
             <p class="py-5 text-gray-900 dark:text-white">
               Before using our IDO creation page please remember the following:
             </p>
+            <p class="py-5 text-gray-900 dark:text-white">
+              When Burn Unsold Tokens is selected
+            </p>
+            <ul class="text-gray-900 dark:text-white pl-5">
+              <li class="list-item">
+                Dead adress for Burn Token function is set to dead adress by default. Provide a different address if sending tokens elsewhere is required.
+              </li>
+            </ul>
+            <p class="py-5 text-gray-900 dark:text-white">
+              When Divide Unsold Token is selected
+            </p>
             <ul class="text-gray-900 dark:text-white pl-5">
               <li class="list-item">
                 Unsold tokens from the presale allocation will be divided among investors.
               </li>
-              <li class="list-item pt-1">
+              <li class="list-item">
                 No adjustments can be made within the IDO contract after it has been submitted.
               </li>
-              <li class="list-item pt-1">
-                Tokens locked can only been released on set dates and times. YSEC is unable to unlock tokens within its vaults.
+              <li class="list-item">
+                Tokens locked can only be released on set dates and times. YSEC is unable to unlock tokens within its vaults.
               </li>
-              <li class="list-item pt-1">
-                Listing an IDO through our platform will result in the listing of an ETH – Project Token pair on Uniswap.
+              <li class="list-item">
+                Listing an IDO through our platform will result in the listing of a BNB – Project Token pair on Pancakeswap.
               </li>
             </ul>
           </div>
           <div v-if="type === 3">
             <!-- Dashboard Page -->
             <p class="text-gray-900 dark:text-white">
-              Welcome to our IDO Dashboard. On this page you are presented with an overview of passed, ongoing and upcoming Initial Dex Offerings.
-              All token metrics will be and / or have been executed exactly as the IDO detail pages show.
+              Welcome to our IDO Dashboard. On this page you are presented with an overview of ended, ongoing and upcoming Initial Dex Offerings.
+              All token metrics will be and / or have been executed exactly as presented on the IDO detail pages.
               One can track locked tokens by clicking the vault adresses, see what was raised, what was added towards creating a liquidity pair etc.
             </p>
             <p class="py-5 text-gray-900 dark:text-white">
