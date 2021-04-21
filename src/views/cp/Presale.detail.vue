@@ -93,11 +93,11 @@
               <div class="block mt-8">
                 <div class="grid">
                   <div>
-                    <span class="block text-1xl leading-8 font-medium tracking-tight text-gray-900 dark:text-white sm:text-1xl">Coin information</span>
+                    <span class="block text-1xl leading-8 font-medium tracking-tight text-gray-900 dark:text-white sm:text-1xl">Token information</span>
                     <div class="grid gap-1 mt-3">
                       <div class="flex">
-                        <span class="text-gray-900 dark:text-white pr-5">Liquiditiy locked:</span>
-                        <a href="#" class="text-blue-500">{{ presale.LiquidityLocked }}%</a>
+                        <span class="text-gray-900 dark:text-white pr-5">Liquidity locked:</span>
+                        <a href="#" class="text-blue-500">{{ presale.LiquidityLocked }}% of raised BNB</a>
                       </div>
                     </div>
                     <div class="grid gap-1 mt-1">
@@ -333,7 +333,7 @@
                 </button>
               </div>
             </div>
-            <div v-if="this.presale.CurrentStep == 3">
+            <div v-if="this.presale.CurrentStep == 3 && !this.tokensClaimed">
               <div class="block text-center mt-10">
                 <button v-on:click="claimTokens()" class="py-2 px-8 bg-yellow-500 text-white rounded-3xl">
                   Claim Tokens
@@ -444,6 +444,7 @@ export default {
       Allocations: {},
       webState: 0,
       contribution: "",
+      tokensClaimed: false,
       alert: {
         title: '',
         msg: ''
@@ -494,6 +495,7 @@ export default {
       }
 
       await this.getTokenAllocations();
+      await this.getContributorHasTokensClaimed();
 
       this.setProgressBar();
     },
@@ -652,6 +654,24 @@ export default {
       }).catch((e) => {
         console.log('error:' + e);
       });
+    },
+    getContributorHasTokensClaimed: async function() {
+      this.$loading(true);
+      const presaleContractAbi = this.contractAbi;
+      const web3 = new Web3(this.provider);
+      const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
+
+      presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
+      await presaleContractInterface.methods.ContributorHasClaimed(this.id, this.account)
+        .call()
+        .then((response) => {
+          this.tokensClaimed = response;
+        })
+        .catch((e) => {
+          console.log('error:' + e);
+        }).finally(() => {
+          this.$loading(false);
+        });
     },
     approveCall: async function () {
       this.$loading(true);
