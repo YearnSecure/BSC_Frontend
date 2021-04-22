@@ -99,7 +99,7 @@ export default {
       this.isLoaded = true;
     }
 
-    // await this.getPresales();
+    await this.getPresales();
     this.$loading(false);
 
     const isMobile = ('ontouchstart' in document.documentElement && /mobi/i.test(navigator.userAgent));
@@ -111,7 +111,14 @@ export default {
       await axios.get(`${process.env.VUE_APP_SERVICE_GETALL}`)
         .then((response) => {
           if (response.status === 200) {
-            this.presales = response.data.items;
+            const presales = [];
+            for (let i = 0; i < response.data.items.length; i++) {
+              if (i > 0) {
+                presales.push(response.data.items[i]);
+              }
+            }
+            // this.presales = response.data.items;
+            this.presales = presales;
           }
         }).catch(() => {
           this.showError('Error');
