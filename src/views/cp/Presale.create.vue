@@ -43,12 +43,14 @@
                     v-if="!divideTokens"
                     v-on:click="selectDivideTokens"
                     class="
-                    text-white
+                    dark:text-white
+                    text-yellow-500
                     px-3
                     py-2
                     border
-                    border-white
-                    bg-transparent
+                    dark:border-white
+                    dark:bg-transparent
+                    border-yellow-500
                     hover:bg-yellow-500
                     hover:border-yellow-500
                     rounded">
