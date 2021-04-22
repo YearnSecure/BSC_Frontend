@@ -148,14 +148,26 @@
                           class="block text-left text-sm font-medium text-gray-700 dark:text-gray-200">
                         Interval percentage
                       </label>
-                      <input type="number"
-                             placeholder="Interval percentage"
-                             v-model="allocation.intervalPercentage"
-                             class="w-full mt-2 mb-2 px-3 py-1 rounded-lg
-                  text-gray-600 dark:text-gray-300
-                  border border-transparent
-                  focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:border-transparent
-                  bg-gray-100 dark:bg-gray-700">
+                      <div class="percentageSlider">
+                        <input
+                            v-model="allocation.intervalPercentage"
+                            type="range"
+                            min="1"
+                            max="100"
+                            value="0"
+                            class="slider mt-4">
+                        <p class="text-yellow-500 text-center mt-2">
+                          {{allocation.intervalPercentage}}%
+                        </p>
+                      </div>
+<!--                      <input type="number"-->
+<!--                             placeholder="Interval percentage"-->
+<!--                             v-model="allocation.intervalPercentage"-->
+<!--                             class="w-full mt-2 mb-2 px-3 py-1 rounded-lg-->
+<!--                  text-gray-600 dark:text-gray-300-->
+<!--                  border border-transparent-->
+<!--                  focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:border-transparent-->
+<!--                  bg-gray-100 dark:bg-gray-700">-->
                     </div>
                   </div>
                 </div>
@@ -450,5 +462,45 @@ export default {
 }
 .time-picker .dropdown select option {
   color: #FFFFFF !important;
+}
+
+
+.percentageSlider {
+  width: 100%; /* Width of the outside container */
+}
+
+/* The slider itself */
+.slider {
+  -webkit-appearance: none;  /* Override default CSS styles */
+  appearance: none;
+  width: 100%; /* Full-width */
+  height: 25px; /* Specified height */
+  background: #374151;; /* Grey background */
+  outline: none; /* Remove outline */
+  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+  -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+  transition: opacity .2s;
+}
+
+/* Mouse-over effects */
+.slider:hover {
+  opacity: 1; /* Fully shown on mouse-over */
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  width: 25px; /* Set a specific slider handle width */
+  height: 25px; /* Slider handle height */
+  background: #f59e0b; /* Green background */
+  cursor: pointer; /* Cursor on hover */
+}
+
+.slider::-moz-range-thumb {
+  width: 25px; /* Set a specific slider handle width */
+  height: 25px; /* Slider handle height */
+  background: #f59e0b; /* Green background */
+  cursor: pointer; /* Cursor on hover */
 }
 </style>
