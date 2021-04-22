@@ -530,7 +530,13 @@ export default {
           this.presale.RawTokensInPresale = web3.utils.fromWei(response.TokenPresaleAllocation);
           this.presale.TokenLiquidity = this.readableFormatNumbers(web3.utils.fromWei(response.TokenLiqAmount));
           this.liquidityTokens = web3.utils.fromWei(response.TokenLiqAmount);
-          this.presale.TokenPrice = this.getTokenPrice();
+
+          if(this.presale.isBurn){
+            this.presale.TokenPrice = this.readableFormatNumbers(web3.utils.fromWei(response.State.PresaleTokenPrice));
+          } else {
+            this.presale.TokenPrice = this.getTokenPrice();
+          }
+
           this.presale.TotalContributed = web3.utils.fromWei(response.State.ContributedBNB);
           this.presale.TokenOwnerAddress = response.Addresses.TokenOwnerAddress;
           this.presale.BNBDistributable = (response.State.ContributedBNB - response.State.RetrievedBNBAmount) > 0;
