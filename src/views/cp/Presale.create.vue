@@ -51,6 +51,7 @@
                     dark:border-white
                     dark:bg-transparent
                     border-yellow-500
+                    hover:text-white
                     hover:bg-yellow-500
                     hover:border-yellow-500
                     rounded">
