@@ -382,14 +382,14 @@ export default {
             spendTokens = this.remainingAmount / 100 * percentageBar;
 
             if (counter === 0) {
-              this.remainingTokens = this.remainingAmount - Math.round(spendTokens);
+              this.remainingTokens = Math.floor(this.remainingAmount - Math.round(spendTokens));
             }
             else
-              this.remainingTokens = this.remainingTokens - Math.round(spendTokens);
+              this.remainingTokens = Math.floor(this.remainingTokens - Math.round(spendTokens));
 
             if (this.remainingTokens < 0) {
               allocation.amount = null;
-              this.remainingTokens = this.remainingAmount;
+              this.remainingTokens = Math.floor(this.remainingAmount);
               allocation.style = `width: ${0}%; background-color: ${this.backgroundColors[counter]}`;
               return;
             }
