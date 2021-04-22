@@ -111,14 +111,7 @@ export default {
       await axios.get(`${process.env.VUE_APP_SERVICE_GETALL}`)
         .then((response) => {
           if (response.status === 200) {
-            const presales = [];
-            for (let i = 0; i < response.data.items.length; i++) {
-              if (i > 0) {
-                presales.push(response.data.items[i]);
-              }
-            }
-            // this.presales = response.data.items;
-            this.presales = presales;
+            this.presales = response.data.items;
           }
         }).catch(() => {
           this.showError('Error');
