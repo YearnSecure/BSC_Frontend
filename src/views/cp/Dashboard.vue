@@ -99,7 +99,7 @@ export default {
       this.isLoaded = true;
     }
 
-    await this.getPresales();
+    // await this.getPresales();
     this.$loading(false);
 
     const isMobile = ('ontouchstart' in document.documentElement && /mobi/i.test(navigator.userAgent));
