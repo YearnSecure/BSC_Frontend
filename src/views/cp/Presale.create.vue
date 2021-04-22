@@ -60,10 +60,13 @@
                     v-if="!burnTokens"
                     v-on:click="selectBurnTokens"
                     class="
-                    text-white
+                    dark:text-white
+                    text-gray-700
                     px-3
                     py-2
                     border
+                    dark:border-yellow-500
+                    border-gray-700
                     border-white
                     bg-transparent
                     hover:bg-yellow-500
@@ -75,12 +78,14 @@
                     v-if="burnTokens"
                     v-on:click="selectBurnTokens"
                     class="
-                    text-white
+                    dark:text-white
+                    text-gray-700
                     px-3
                     py-2
                     bg-yellow-500
                     border
-                    border-yellow-500
+                    dark:border-yellow-500
+                    border-gray-700
                     hover:bg-yellow-600
                     hover:border-yellow-600
                     rounded">

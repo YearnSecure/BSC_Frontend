@@ -134,7 +134,7 @@
               </div>
             </div>
           </div>
-          <div class="block w-full" v-if="liquidity.timeLockedOrInterval === '0'">
+          <div class="block w-full" v-if="liquidity.timeLockedOrInterval === '0' && liquidity.lockedOrPermaBurn === '0'">
             <div class="grid grid-cols-2 gap-4">
               <div class="col-span-1">
                 <label class="items-center">
@@ -168,7 +168,7 @@
               </div>
             </div>
           </div>
-          <div v-if="liquidity.timeLockedOrInterval === '1'" class="grid grid-cols-4 gap-4">
+          <div v-if="liquidity.timeLockedOrInterval === '1' && liquidity.lockedOrPermaBurn === '0'" class="grid grid-cols-4 gap-4">
             <div class="col-span-1">
               <label
                   :for="liquidity.intervalStartDate"

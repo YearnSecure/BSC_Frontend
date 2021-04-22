@@ -8,10 +8,10 @@
         <div class="grid grid-cols-3">
           <div class="col-span-2">
             <div class="relative text-center pt-1">
-              <span v-if="remainingTokens === 0 && !showRemainingTokens" class="block text-white w-full mt-2">
+              <span v-if="remainingTokens === 0 && !showRemainingTokens" class="block text-gray-700 dark:text-white w-full mt-2">
                 {{remainingAmount}} tokens remain
               </span>
-              <span v-else class="block text-white w-full mt-2">
+              <span v-else class="block text-gray-700 dark:text-white w-full mt-2">
                 {{remainingTokens}} tokens remain
               </span>
               <div class="overflow-hidden h-5 mt-2 text-center text-xs flex rounded bg-gray-400">
@@ -26,7 +26,7 @@
               <div v-for="(allocation, key) in allocations" class="block" :key="key">
                 <div class="grid grid-cols-5 gap-4 mt-5">
                   <div class="col-span-2 text-left">
-                    <label :for="allocation.name" class="text-white">Allocation</label>
+                    <label :for="allocation.name" class="text-gray-700 dark:text-white">Allocation</label>
                     <input
                         type="text"
                         v-model="allocation.name"
@@ -38,7 +38,7 @@
                         bg-gray-100 dark:bg-gray-700">
                   </div>
                   <div class="text-left">
-                    <label :for="allocation.amount" class="text-white">Amount</label>
+                    <label :for="allocation.amount" class="text-gray-700 dark:text-white">Amount</label>
                     <input
                         type="number"
                         v-model="allocation.amount"
@@ -53,13 +53,13 @@
                   <div>
                     <label class="inline-flex items-center mt-9">
                       <input type="radio" class="form-checkbox w-4 h-4 rounded bg-gray-800 text-yellow-600" value="0" v-model="allocation.timelockedInterval">
-                      <span class="text-white ml-2">Timelocked</span>
+                      <span class="text-gray-700 dark:text-white ml-2">Timelocked</span>
                     </label>
                   </div>
                   <div>
                     <label class="inline-flex items-center mt-9">
                       <input type="radio" class="form-checkbox w-4 h-4 rounded bg-gray-800 text-yellow-600" value="1" v-model="allocation.timelockedInterval">
-                      <span class="text-white ml-2">Interval</span>
+                      <span class="text-gray-700 dark:text-white ml-2">Interval</span>
                     </label>
                   </div>
                 </div>
