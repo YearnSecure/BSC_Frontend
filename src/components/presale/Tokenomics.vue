@@ -9,10 +9,10 @@
           <div class="col-span-2">
             <div class="relative text-center pt-1">
               <span v-if="remainingTokens === 0 && !showRemainingTokens" class="block text-gray-700 dark:text-white w-full mt-2">
-                {{remainingAmount}} tokens remain
+                {{ floorValue(remainingAmount) }} tokens remain
               </span>
               <span v-else class="block text-gray-700 dark:text-white w-full mt-2">
-                {{remainingTokens}} tokens remain
+                {{ floorValue(remainingTokens) }} tokens remain
               </span>
               <div class="overflow-hidden h-5 mt-2 text-center text-xs flex rounded bg-gray-400">
                 <div v-for="(allocation, key) in allocations" :key="key" :style="allocation.style" class="h-5 shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center"></div>
@@ -336,6 +336,9 @@ export default {
         this.$emit('setAllocations', this.allocations);
       }
     },
+      floorValue: function(number) {
+     return new Number(Math.floor(number));
+  },
     resetAllocations: function() {
       this.showSetAllocationButton = true;
       this.showResetAllocationsButton = false;
@@ -382,14 +385,14 @@ export default {
             spendTokens = this.remainingAmount / 100 * percentageBar;
 
             if (counter === 0) {
-              this.remainingTokens = Math.floor(this.remainingAmount - Math.round(spendTokens));
+              this.remainingTokens = this.remainingAmount - Math.round(spendTokens);
             }
             else
-              this.remainingTokens = Math.floor(this.remainingTokens - Math.round(spendTokens));
+              this.remainingTokens = this.remainingTokens - Math.round(spendTokens);
 
             if (this.remainingTokens < 0) {
               allocation.amount = null;
-              this.remainingTokens = Math.floor(this.remainingAmount);
+              this.remainingTokens = this.remainingAmount;
               allocation.style = `width: ${0}%; background-color: ${this.backgroundColors[counter]}`;
               return;
             }
