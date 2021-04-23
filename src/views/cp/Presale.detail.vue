@@ -532,9 +532,9 @@ export default {
           this.liquidityTokens = web3.utils.fromWei(response.TokenLiqAmount);
 
           if(this.presale.isBurn){
-            this.presale.TokenPrice = this.readableFormatNumbers(web3.utils.fromWei(response.State.PresaleTokenPrice));
+            this.presale.TokenPrice = this.readableFormatNumbers(parseFloat(web3.utils.fromWei(response.State.PresaleTokenPrice)).toFixed(10));
           } else {
-            this.presale.TokenPrice = this.getTokenPrice();
+            this.presale.TokenPrice = this.getTokenPrice().toFixed(10);
           }
 
           this.presale.TotalContributed = web3.utils.fromWei(response.State.ContributedBNB);
@@ -548,7 +548,7 @@ export default {
 
           const hardCapPercentage = Number(web3.utils.fromWei(response.Hardcap)) * 0.95;
           const toLiquidity = hardCapPercentage * ((1/100) * Number(response.LiqPercentage));
-          this.presale.listingTokenPrice = (toLiquidity / Number(web3.utils.fromWei(response.TokenLiqAmount))).toFixed(5);
+          this.presale.listingTokenPrice = (toLiquidity / Number(web3.utils.fromWei(response.TokenLiqAmount))).toFixed(10);
 
           //Current Presale Step
           this.presale.CurrentStep = response.State.Step;
