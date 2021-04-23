@@ -439,6 +439,8 @@ export default {
       contractAddress: process.env.VUE_APP_CONTRACT_ADDRESS,
       isConnected: false,
       showAlert: false,
+      showConnectionButton: false,
+      showDownloadButton: false,
       isLoaded: false,
       title: 'Presale',
       account: this.$store.state.account,
@@ -473,6 +475,14 @@ export default {
   }, 
   mounted: async function () {
     this.$loading(true);
+    if (this.provider.chainId !== 0x38) {
+      this.showError(
+          'Wrong network detection',
+          'It looks like you are connected to the wrong network. Please connect to Binance Smart Chain and refresh the page.',
+          false);
+      this.isLoaded = true;
+    }
+
     if (!this.isLoaded) {
       // Detect provider
       await this.detectProvider();
@@ -532,9 +542,9 @@ export default {
           this.liquidityTokens = web3.utils.fromWei(response.TokenLiqAmount);
 
           if(this.presale.isBurn){
-            this.presale.TokenPrice = this.readableFormatNumbers(web3.utils.fromWei(response.State.PresaleTokenPrice));
+            this.presale.TokenPrice = this.readableFormatNumbers(parseFloat(web3.utils.fromWei(response.State.PresaleTokenPrice)).toFixed(10));
           } else {
-            this.presale.TokenPrice = this.getTokenPrice();
+            this.presale.TokenPrice = this.getTokenPrice().toFixed(10);
           }
 
           this.presale.TotalContributed = web3.utils.fromWei(response.State.ContributedBNB);
@@ -548,7 +558,7 @@ export default {
 
           const hardCapPercentage = Number(web3.utils.fromWei(response.Hardcap)) * 0.95;
           const toLiquidity = hardCapPercentage * ((1/100) * Number(response.LiqPercentage));
-          this.presale.listingTokenPrice = (toLiquidity / Number(web3.utils.fromWei(response.TokenLiqAmount))).toFixed(5);
+          this.presale.listingTokenPrice = (toLiquidity / Number(web3.utils.fromWei(response.TokenLiqAmount))).toFixed(10);
 
           //Current Presale Step
           this.presale.CurrentStep = response.State.Step;
@@ -920,6 +930,7 @@ export default {
     currentAccount: async function () {
       // connect to MetaMask account
       this.chainId = this.provider.chainId;
+
       this.provider
           .request({ method: 'eth_accounts' })
           .then(this.handleAccountsChanged(this.provider._state.accounts))
@@ -970,6 +981,9 @@ export default {
     },
     formatFromWei: function(wei) {
       return this.web3.utils.fromWei(wei.toString());
+    },
+    closeModal: function () {
+      this.showAlert = !this.showAlert;
     },
     showError: function (
         title,
