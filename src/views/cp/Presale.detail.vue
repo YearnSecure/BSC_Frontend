@@ -439,6 +439,8 @@ export default {
       contractAddress: process.env.VUE_APP_CONTRACT_ADDRESS,
       isConnected: false,
       showAlert: false,
+      showConnectionButton: false,
+      showDownloadButton: false,
       isLoaded: false,
       title: 'Presale',
       account: this.$store.state.account,
@@ -473,6 +475,14 @@ export default {
   }, 
   mounted: async function () {
     this.$loading(true);
+    if (this.provider.chainId !== 0x38) {
+      this.showError(
+          'Wrong network detection',
+          'It looks like you are connected to the wrong network. Please connect to Binance Smart Chain and refresh the page.',
+          false);
+      this.isLoaded = true;
+    }
+
     if (!this.isLoaded) {
       // Detect provider
       await this.detectProvider();
@@ -920,6 +930,7 @@ export default {
     currentAccount: async function () {
       // connect to MetaMask account
       this.chainId = this.provider.chainId;
+
       this.provider
           .request({ method: 'eth_accounts' })
           .then(this.handleAccountsChanged(this.provider._state.accounts))
@@ -970,6 +981,9 @@ export default {
     },
     formatFromWei: function(wei) {
       return this.web3.utils.fromWei(wei.toString());
+    },
+    closeModal: function () {
+      this.showAlert = !this.showAlert;
     },
     showError: function (
         title,
