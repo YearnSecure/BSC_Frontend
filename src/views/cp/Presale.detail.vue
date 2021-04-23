@@ -475,7 +475,7 @@ export default {
   }, 
   mounted: async function () {
     this.$loading(true);
-    if (this.provider.chainId !== 0x38) {
+    if (this.provider.chainId !== '0x38') {
       this.showError(
           'Wrong network detection',
           'It looks like you are connected to the wrong network. Please connect to Binance Smart Chain and refresh the page.',
