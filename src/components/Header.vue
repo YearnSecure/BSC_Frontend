@@ -73,8 +73,9 @@
 </template>
 
 <script>
+import Web3 from "web3";
 import { mapGetters } from "vuex";
-import ConnectWalletModal from "@/components/modals/ConnectWallet"
+import ConnectWalletModal from "@/components/modals/ConnectWallet";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 
 export default {
@@ -94,15 +95,11 @@ export default {
       provider: null,
       walletAddress: null,
       isConnected: false,
+      web3: null,
     }
   },
   beforeMount: function() {
     this.$store.dispatch("initTheme");
-  },
-  mounted: function() {
-
-    this.currentAccount();
-    console.log(this.provider);
   },
   computed: {
     ...mapGetters({ theme: "getTheme" }),
@@ -123,22 +120,6 @@ export default {
     }
   },
   methods: {
-    currentAccount: async function () {
-      // connect to MetaMask account
-      this.provider = window.ethereum;
-      this.chainId = this.provider.chainId;
-      this.provider
-          .request({ method: 'eth_accounts' })
-          .then(this.handleAccountsChanged(this.provider._state.accounts))
-          .catch((err) => {
-            // Some unexpected error.
-            // For backwards compatibility reasons, if no accounts are available,
-            // eth_accounts will return an empty array.
-            this.showError(
-                'Unexpected error',
-                err);
-          });
-    },
     connectMetaMask: function() {
       this.provider = window.ethereum;
       this.provider
@@ -159,6 +140,7 @@ export default {
     connectWalletConnect: async function() {
       this.provider = new WalletConnectProvider({
         infuraId: process.env.VUE_APP_INFURA_ID,
+        bridge: "https://bridge.walletconnect.org", // Required
         rpc: {
           1: process.env.VUE_APP_INFURA_URL,
           3: "https://ropsten.infura.io/v3/",
@@ -168,11 +150,14 @@ export default {
       });
       await this.provider.enable();
 
-      // this.provider.on("accountsChanged", (accounts) => {
-      //   this.handleAccountsChanged(accounts);
-      // });
+      this.web3 = new Web3(this.provider);
+
+      if (this.provider.accounts[0] && this.provider.accounts[0] !== null && this.provider.accounts[0] !== "") {
+        this.handleAccountsChanged(this.provider.accounts);
+      }
     },
     handleAccountsChanged: function(accounts) {
+      console.log(accounts);
       if (accounts !== null && accounts.length === 0) {
         // MetaMask is locked or the user has not connected any accounts
         console.log('MetaMask is locked or the user has not connected any accounts');
@@ -213,17 +198,19 @@ export default {
     provider: {
       handler: function () {
         console.log(this.provider);
-        if (
-            this.$store.getters.account === '' &&
-            this.provider._state.accounts.length > 0) {
-          this.$store.state.account = this.provider._state.accounts[0];
-          this.handleAccountsChanged(this.provider._state.accounts);
-        } else if (
-            this.$store.getters.account !== '' &&
-            this.provider._state.accounts.length === 0) {
-          this.$store.state.account = '';
-          this.handleAccountsChanged(this.provider._state.accounts);
-        }
+        // if (this.provider._state !== undefined) {
+        //   if (
+        //       this.$store.getters.account === '' &&
+        //       this.provider._state.accounts.length > 0) {
+        //     this.$store.state.account = this.provider._state.accounts[0];
+        //     this.handleAccountsChanged(this.provider._state.accounts);
+        //   } else if (
+        //       this.$store.getters.account !== '' &&
+        //       this.provider._state.accounts.length === 0) {
+        //     this.$store.state.account = '';
+        //     this.handleAccountsChanged(this.provider._state.accounts);
+        //   }
+        // }
       },
       deep: true
     }
