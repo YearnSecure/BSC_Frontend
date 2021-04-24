@@ -38,7 +38,7 @@
               <tr v-for="(presale, key) in presales" :key="key">
                 <td class="px-6 py-3 text-sm font-medium text-gray-900 dark:text-gray-300">
                   <div class="flex space-x-3">
-                    <a href="#" class="truncate hover:text-gray-600">
+                    <a v-on:click="showPresale(presale)" class="truncate cursor-pointer hover:text-yellow-500">
                       <span>
                         {{ presale.name }}
                         <br>
