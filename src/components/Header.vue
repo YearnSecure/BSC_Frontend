@@ -56,8 +56,11 @@
             </svg>
           </a>
         </div>
-        <button type="button" v-on:click="connectWallet" class="order-0 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 sm:order-1 sm:ml-3">
+        <button v-if="!isConnected" type="button" v-on:click="toggleConnectWalletModal" class="order-0 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 sm:order-1 sm:ml-3">
           Connect wallet
+        </button>
+        <button v-if="isConnected" type="button" class="order-0 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:order-1 sm:ml-3">
+          {{ truncateString(walletAddress, 12) }}
         </button>
       </div>
     </div>
@@ -65,7 +68,6 @@
         v-if="showModal"
         @connectMetaMask="connectMetaMask"
         @connectWalletConnect="connectWalletConnect"
-        @connectWalletLink="connectWalletLink"
         @toggleModal="toggleConnectWalletModal"/>
   </div>  
 </template>
@@ -73,12 +75,12 @@
 <script>
 import { mapGetters } from "vuex";
 import ConnectWalletModal from "@/components/modals/ConnectWallet"
+import WalletConnectProvider from "@walletconnect/web3-provider";
 
 export default {
   name: 'header.dashboard.components',
   props: {
     contractAddress: String,
-    isConnected: Boolean,
     account: String,
     chainId: String
   },
@@ -91,10 +93,16 @@ export default {
       showModal: false,
       provider: null,
       walletAddress: null,
+      isConnected: false,
     }
   },
-  beforeMount: function(){
+  beforeMount: function() {
     this.$store.dispatch("initTheme");
+  },
+  mounted: function() {
+
+    this.currentAccount();
+    console.log(this.provider);
   },
   computed: {
     ...mapGetters({ theme: "getTheme" }),
@@ -115,6 +123,22 @@ export default {
     }
   },
   methods: {
+    currentAccount: async function () {
+      // connect to MetaMask account
+      this.provider = window.ethereum;
+      this.chainId = this.provider.chainId;
+      this.provider
+          .request({ method: 'eth_accounts' })
+          .then(this.handleAccountsChanged(this.provider._state.accounts))
+          .catch((err) => {
+            // Some unexpected error.
+            // For backwards compatibility reasons, if no accounts are available,
+            // eth_accounts will return an empty array.
+            this.showError(
+                'Unexpected error',
+                err);
+          });
+    },
     connectMetaMask: function() {
       this.provider = window.ethereum;
       this.provider
@@ -133,38 +157,36 @@ export default {
       });
     },
     connectWalletConnect: async function() {
-      // this.provider = new WalletConnectProvider({
-      //   infuraId: process.env.VUE_APP_INFURA_ID,
-      //   rpc: {
-      //     1: process.env.VUE_APP_INFURA_URL,
-      //   }
-      // });
+      this.provider = new WalletConnectProvider({
+        infuraId: process.env.VUE_APP_INFURA_ID,
+        rpc: {
+          1: process.env.VUE_APP_INFURA_URL,
+          3: "https://ropsten.infura.io/v3/",
+          38: "https://bsc-dataseed.binance.org/",
+          61: "https://data-seed-prebsc-1-s1.binance.org:8545"
+        }
+      });
       await this.provider.enable();
+
+      // this.provider.on("accountsChanged", (accounts) => {
+      //   this.handleAccountsChanged(accounts);
+      // });
     },
-    // connectWalletLink: async function() {
-    //   const walletLink = new WalletLink({
-    //     appName: "Real Estate App",
-    //     appLogoUrl: "",
-    //     darkMode: "true",
-    //   });
-    //
-    //   const ethereum = walletLink.makeWeb3Provider(
-    //       `${process.env.VUE_APP_INFURA_URL}/${process.env.VUE_APP_INFURA_ID}`, process.env.VUE_APP_CHAIN_ID
-    //   )
-    //
-    //   this.provider = new Web3(ethereum);
-    //   await ethereum.enable();
-    // },
     handleAccountsChanged: function(accounts) {
       if (accounts !== null && accounts.length === 0) {
         // MetaMask is locked or the user has not connected any accounts
-        console.log('MetaMask is locked or the user has not connected any accounts')
+        console.log('MetaMask is locked or the user has not connected any accounts');
+        this.isConnected = false;
+        this.account = null;
+        this.toggleConnectWalletModal();
+        this.$emit('connectedWallet', false);
       } else {
         // this.$store.state.account = accounts[0];
         this.walletAddress = accounts[0];
         // show user that MetaMask is connected
         this.isConnected = true;
         this.toggleConnectWalletModal();
+        this.$emit('connectedWallet', true, accounts[0]);
       }
     },
     truncateString: function(str, num) {
@@ -188,6 +210,23 @@ export default {
           ? document.querySelector("html").classList.remove("dark")
           : document.querySelector("html").classList.add("dark");
     },
+    provider: {
+      handler: function () {
+        console.log(this.provider);
+        if (
+            this.$store.getters.account === '' &&
+            this.provider._state.accounts.length > 0) {
+          this.$store.state.account = this.provider._state.accounts[0];
+          this.handleAccountsChanged(this.provider._state.accounts);
+        } else if (
+            this.$store.getters.account !== '' &&
+            this.provider._state.accounts.length === 0) {
+          this.$store.state.account = '';
+          this.handleAccountsChanged(this.provider._state.accounts);
+        }
+      },
+      deep: true
+    }
   },
 }
 </script>
