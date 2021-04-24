@@ -1,7 +1,18 @@
 <template>
   <div id="presale" :class="!isLoaded ? 'h-screen' : ''">
     <transition name="slide-fade">
-      <main v-if="isLoaded" class="flex-1 relative z-0 overflow-y-auto focus:outline-none" tabindex="0">
+      <main v-if="isNotConnected">
+        <span>Not connected LOL</span>
+        <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+        <button v-on:click="connectMetamask" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-yellow-600 text-base font-medium text-white hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+          Connect metamask
+        </button>
+        <button v-on:click="connectWalletConnect" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-yellow-600 text-base font-medium text-white hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+          Connect walletConnect
+        </button>
+      </div>
+      </main>
+      <main v-if="isLoaded && !isNotConnected" class="flex-1 relative z-0 overflow-y-auto focus:outline-none" tabindex="0">
         <Header
             :contractAddress="contractAddress"
             :isConnected="isConnected"
@@ -365,6 +376,8 @@ import AlertModal from '@/components/modals/Alert.modals'
 import Header from '@/components/Header'
 import PageTitle from '@/components/PageTitle'
 
+import WalletConnector from '@/components/plugins/WalletConnection/WalletConnector.ts'
+
 import Chart from '@/components/views/dashboard/presale/charts/Presale.Chart'
 import axios from "axios";
 import Web3 from "web3";
@@ -376,7 +389,7 @@ export default {
     AlertModal,
     Header,
     PageTitle,
-    Chart
+    Chart,   
   },
   data() {
     return {
@@ -447,6 +460,7 @@ export default {
       showConnectionButton: false,
       showDownloadButton: false,
       isLoaded: false,
+      isNotConnected: false,
       title: 'Presale',
       account: this.$store.state.account,
       provider: window.ethereum,
@@ -475,109 +489,182 @@ export default {
       progressPercentage: 0,
       web3: null,
       contractAbi: [{"inputs":[{"internalType":"address","name":"timelockFactoryAddress","type":"address"},{"internalType":"address","name":"yieldFeeAddress","type":"address"},{"internalType":"address","name":"feeAddress","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"},{"indexed":false,"internalType":"address","name":"reciever","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"BNBDistributed","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"},{"indexed":false,"internalType":"address","name":"reciever","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"BNBFeeDistributed","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"},{"indexed":false,"internalType":"address","name":"reciever","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"BNBYieldFeeDistributed","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"},{"indexed":false,"internalType":"address","name":"claimer","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"ClaimedTokens","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"},{"indexed":false,"internalType":"address","name":"contributor","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Contributed","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"NoTokensTransferedToLocks","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"},{"indexed":false,"internalType":"bool","name":"permaLockedLiq","type":"bool"},{"indexed":false,"internalType":"uint256","name":"amountOfBNB","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amountOfTokens","type":"uint256"}],"name":"PancakeswapLiquidityAdded","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"},{"indexed":false,"internalType":"address","name":"contributor","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"RetrievedBNB","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"RetrievedTokens","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"TokensTransfered","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"TokensTransferedToLocks","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"},{"indexed":false,"internalType":"address","name":"reciever","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"UnliqedTokensTransfered","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"presaleId","type":"uint256"},{"indexed":false,"internalType":"address","name":"reciever","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"UnsoldTokensTransfered","type":"event"},{"inputs":[],"name":"FeeAddress","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function","constant":true},{"inputs":[],"name":"PancakeswapFactoryAddress","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function","constant":true},{"inputs":[],"name":"PancakeswapRouterAddress","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function","constant":true},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"PresaleIndexer","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function","constant":true},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"Presales","outputs":[{"components":[{"internalType":"string","name":"Name","type":"string"},{"internalType":"string","name":"Website","type":"string"},{"internalType":"string","name":"Telegram","type":"string"},{"internalType":"string","name":"Twitter","type":"string"},{"internalType":"string","name":"Github","type":"string"},{"internalType":"string","name":"Medium","type":"string"}],"internalType":"struct PresaleInfo","name":"Info","type":"tuple"},{"internalType":"uint256","name":"StartDate","type":"uint256"},{"internalType":"uint256","name":"EndDate","type":"uint256"},{"internalType":"uint256","name":"Softcap","type":"uint256"},{"internalType":"uint256","name":"Hardcap","type":"uint256"},{"internalType":"uint256","name":"TokenLiqAmount","type":"uint256"},{"internalType":"uint256","name":"LiqPercentage","type":"uint256"},{"internalType":"uint256","name":"TokenPresaleAllocation","type":"uint256"},{"internalType":"bool","name":"PermalockLiq","type":"bool"},{"components":[{"internalType":"string","name":"Name","type":"string"},{"internalType":"uint256","name":"Amount","type":"uint256"},{"internalType":"uint256","name":"RemainingAmount","type":"uint256"},{"internalType":"uint256","name":"ReleaseDate","type":"uint256"},{"internalType":"bool","name":"IsInterval","type":"bool"},{"internalType":"uint256","name":"PercentageOfRelease","type":"uint256"},{"internalType":"uint256","name":"IntervalOfRelease","type":"uint256"},{"internalType":"bool","name":"Exists","type":"bool"},{"internalType":"address","name":"Token","type":"address"}],"internalType":"struct TokenAllocation","name":"LiquidityTokenAllocation","type":"tuple"},{"components":[{"internalType":"address","name":"TokenOwnerAddress","type":"address"},{"internalType":"address","name":"TokenAddress","type":"address"},{"internalType":"address","name":"TokenTimeLock","type":"address"},{"internalType":"address","name":"UnsoldTransferAddress","type":"address"}],"internalType":"struct PresaleDataAddresses","name":"Addresses","type":"tuple"},{"components":[{"internalType":"uint256","name":"TotalTokenAmount","type":"uint256"},{"internalType":"uint256","name":"Step","type":"uint256"},{"internalType":"uint256","name":"ContributedBNB","type":"uint256"},{"internalType":"uint256","name":"RaisedFeeBNB","type":"uint256"},{"internalType":"bool","name":"Exists","type":"bool"},{"internalType":"uint256","name":"RetrievedTokenAmount","type":"uint256"},{"internalType":"uint256","name":"RetrievedBNBAmount","type":"uint256"},{"internalType":"uint256","name":"NumberOfContributors","type":"uint256"},{"internalType":"uint256","name":"PresaleTokenPrice","type":"uint256"},{"internalType":"uint256","name":"ListingTokenPrice","type":"uint256"},{"internalType":"bool","name":"IsBurnUnsold","type":"bool"},{"internalType":"uint256","name":"TransferedBurnUnsold","type":"uint256"}],"internalType":"struct PresaleDataState","name":"State","type":"tuple"}],"stateMutability":"view","type":"function","constant":true},{"inputs":[],"name":"TimelockFactoryAddress","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function","constant":true},{"inputs":[],"name":"YieldFeeAddress","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function","constant":true},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function","constant":true},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"timelockFactoryAddress","type":"address"}],"name":"SetTimelockFactory","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"yieldFeeAddress","type":"address"}],"name":"SetYieldFeeAddress","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"feeAddress","type":"address"}],"name":"SetFeeAddress","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"router","type":"address"}],"name":"SetPancakeswapRouterAddress","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"router","type":"address"}],"name":"SetPancakeswapFactoryAddress","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"components":[{"internalType":"string","name":"Name","type":"string"},{"internalType":"uint256","name":"StartDate","type":"uint256"},{"internalType":"uint256","name":"EndDate","type":"uint256"},{"internalType":"uint256","name":"Softcap","type":"uint256"},{"internalType":"uint256","name":"Hardcap","type":"uint256"},{"internalType":"uint256","name":"TokenLiqAmount","type":"uint256"},{"internalType":"uint256","name":"LiqPercentage","type":"uint256"},{"internalType":"uint256","name":"TokenPresaleAllocation","type":"uint256"},{"internalType":"bool","name":"PermalockLiq","type":"bool"},{"components":[{"internalType":"string","name":"Name","type":"string"},{"internalType":"uint256","name":"Amount","type":"uint256"},{"internalType":"uint256","name":"RemainingAmount","type":"uint256"},{"internalType":"uint256","name":"ReleaseDate","type":"uint256"},{"internalType":"bool","name":"IsInterval","type":"bool"},{"internalType":"uint256","name":"PercentageOfRelease","type":"uint256"},{"internalType":"uint256","name":"IntervalOfRelease","type":"uint256"},{"internalType":"bool","name":"Exists","type":"bool"},{"internalType":"address","name":"Token","type":"address"}],"internalType":"struct TokenAllocation[]","name":"TokenAllocations","type":"tuple[]"},{"components":[{"internalType":"string","name":"Name","type":"string"},{"internalType":"uint256","name":"Amount","type":"uint256"},{"internalType":"uint256","name":"RemainingAmount","type":"uint256"},{"internalType":"uint256","name":"ReleaseDate","type":"uint256"},{"internalType":"bool","name":"IsInterval","type":"bool"},{"internalType":"uint256","name":"PercentageOfRelease","type":"uint256"},{"internalType":"uint256","name":"IntervalOfRelease","type":"uint256"},{"internalType":"bool","name":"Exists","type":"bool"},{"internalType":"address","name":"Token","type":"address"}],"internalType":"struct TokenAllocation","name":"LiquidityTokenAllocation","type":"tuple"},{"internalType":"address","name":"Token","type":"address"},{"internalType":"string","name":"Website","type":"string"},{"internalType":"string","name":"Telegram","type":"string"},{"internalType":"string","name":"Twitter","type":"string"},{"internalType":"string","name":"Github","type":"string"},{"internalType":"string","name":"Medium","type":"string"},{"internalType":"uint256","name":"PresaleTokenPrice","type":"uint256"},{"internalType":"uint256","name":"ListingTokenPrice","type":"uint256"},{"internalType":"bool","name":"IsBurnUnsold","type":"bool"},{"internalType":"address","name":"UnsoldTransferAddress","type":"address"}],"internalType":"struct PresaleSettings","name":"settings","type":"tuple"}],"name":"CreatePresale","outputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"TransferTokens","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"Contribute","outputs":[],"stateMutability":"payable","type":"function","payable":true},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"},{"internalType":"address","name":"contributor","type":"address"}],"name":"RetrieveBNB","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"RetrieveTokens","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"TransferTokensToLocks","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"AddLiquidity","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"ClaimTokens","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"DistributeBNB","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"PresaleStarted","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function","constant":true},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"PresaleFinished","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function","constant":true},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"SoftcapMet","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function","constant":true},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"HardcapMet","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function","constant":true},{"inputs":[],"name":"PresaleIndexerLength","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function","constant":true},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"GetTokenAllocations","outputs":[{"components":[{"internalType":"string","name":"Name","type":"string"},{"internalType":"uint256","name":"Amount","type":"uint256"},{"internalType":"uint256","name":"RemainingAmount","type":"uint256"},{"internalType":"uint256","name":"ReleaseDate","type":"uint256"},{"internalType":"bool","name":"IsInterval","type":"bool"},{"internalType":"uint256","name":"PercentageOfRelease","type":"uint256"},{"internalType":"uint256","name":"IntervalOfRelease","type":"uint256"},{"internalType":"bool","name":"Exists","type":"bool"},{"internalType":"address","name":"Token","type":"address"}],"internalType":"struct TokenAllocation[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function","constant":true},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"},{"internalType":"address","name":"forAddress","type":"address"}],"name":"GetBNBContributedForAddress","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function","constant":true},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"},{"internalType":"address","name":"forAddress","type":"address"}],"name":"GetAmountOfTokensForAddress","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function","constant":true},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"},{"internalType":"address","name":"forAddress","type":"address"}],"name":"GetHardcapAmountOfTokensForAddress","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function","constant":true},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"GetRatio","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function","constant":true},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"}],"name":"GetNumberOfContributors","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function","constant":true},{"inputs":[{"internalType":"uint256","name":"presaleId","type":"uint256"},{"internalType":"address","name":"forAddress","type":"address"}],"name":"ContributorHasClaimed","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function","constant":true}],
-      tokenAbi: [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"payable":true,"stateMutability":"payable","type":"fallback"},{"anonymous":false,"inputs":[{"indexed":true,"name":"owner","type":"address"},{"indexed":true,"name":"spender","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Transfer","type":"event"}]
+      tokenAbi: [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"payable":true,"stateMutability":"payable","type":"fallback"},{"anonymous":false,"inputs":[{"indexed":true,"name":"owner","type":"address"},{"indexed":true,"name":"spender","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Transfer","type":"event"}],
+      walletConnector:null,
     }
   }, 
   mounted: async function () {
     this.$loading(true);
-    if (this.provider.chainId !== '0x38') {
-      this.showError(
-          'Wrong network detection',
-          'It looks like you are connected to the wrong network. Please connect to Binance Smart Chain and refresh the page.',
-          false);
-      this.isLoaded = true;
-    }
 
     if (!this.isLoaded) {
-      // Detect provider
-      await this.detectProvider();
-      // Connect to your account
-      await this.currentAccount();
-    }
+      //do shit
 
-    await this.initDetailPage();
+      //this.isLoaded = true;
+      this.walletConnector = new WalletConnector();
+      if(this.walletConnector.IsConnected())
+      {
+        this.isLoaded = true;
+      }else{
+        this.isNotConnected = true;
+      }
+    }
+    // if (this.provider.chainId !== '0x38') {
+    //   this.showError(
+    //       'Wrong network detection',
+    //       'It looks like you are connected to the wrong network. Please connect to Binance Smart Chain and refresh the page.',
+    //       false);
+    //   this.isLoaded = true;
+    // }
+
+    // if (!this.isLoaded) {
+    //   // Detect provider
+    //   await this.detectProvider();
+    //   // Connect to your account
+    //   await this.currentAccount();
+    // }
+
+    if(this.isLoaded == true)
+      await this.initDetailPage();
+
     this.$loading(false);
-    this.isLoaded = true;
+    //this.isLoaded = true;
   },
   methods: {
     initDetailPage: async function() {
-      this.web3 = new Web3(this.provider);
+      //this.web3 = new Web3(this.provider);
 
       await this.getPresaleData();
-      await this.getContributedBNB();
-      await this.getSoftcapMet();
-      if (this.account.toLowerCase() === this.presale.TokenOwnerAddress.toLowerCase()){
-        await this.getAllowance();
-      }
-      if (parseInt(this.presale.CurrentStep) === 1){
-        await this.getPresaleFinished();
-        if (!this.presale.finished){
-          await this.getPresaleStarted();
-        }
-      }
+      // await this.getContributedBNB();
+      // await this.getSoftcapMet();
+      // if (this.account.toLowerCase() === this.presale.TokenOwnerAddress.toLowerCase()){
+      //   await this.getAllowance();
+      // }
+      // if (parseInt(this.presale.CurrentStep) === 1){
+      //   await this.getPresaleFinished();
+      //   if (!this.presale.finished){
+      //     await this.getPresaleStarted();
+      //   }
+      // }
 
-      await this.getTokenAllocations();
-      await this.getContributorHasTokensClaimed();
+      // await this.getTokenAllocations();
+      // await this.getContributorHasTokensClaimed();
 
-      this.setProgressBar();
+      // this.setProgressBar();
     },
     getPresaleData: async function() {
-      const presaleContractAbi = this.contractAbi;
       const web3 = new Web3(this.provider);
-      const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
+      //const result = await this.walletConnector.MetamaskCall(this.contractAbi, this.id, process.env.VUE_APP_PRESALE_CONTRACT);
+      try{
+        const result = await this.walletConnector.WalletConnectCall(this.contractAbi, this.id, process.env.VUE_APP_PRESALE_CONTRACT); 
+      }catch(e){
+        console.log('error:' + e);
+      }
+          
+        
       
-      presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-        await presaleContractInterface.methods.Presales(this.id).call().then((response) => {
-          //Presale Info
-          this.presale.isBurn = response.State.IsBurnUnsold;
-          this.presale.Name = response.Info.Name;
-          this.presale.StartDate = (parseInt(response.StartDate));
-          this.presale.EndDate = (parseInt(response.EndDate));
-          this.presale.Softcap = parseFloat(web3.utils.fromWei(response.Softcap));
-          this.presale.Hardcap = parseFloat(web3.utils.fromWei(response.Hardcap));
-          this.presale.TokenAddress = response.Addresses.TokenAddress;
-          this.presale.LiquidityLocked = response.LiqPercentage;
-          this.totalSupply = web3.utils.fromWei(response.State.TotalTokenAmount);
-          this.presale.TotalSupply = (this.readableFormatNumbers(Math.ceil(parseFloat(web3.utils.fromWei(response.State.TotalTokenAmount)))));
-          this.presale.TotalTokenAmount = response.State.TotalTokenAmount;
-          this.presale.TokensInPresale = this.readableFormatNumbers(web3.utils.fromWei(response.TokenPresaleAllocation));
-          this.tokensInPresale = web3.utils.fromWei(response.TokenPresaleAllocation);
-          this.presale.RawTokensInPresale = web3.utils.fromWei(response.TokenPresaleAllocation);
-          this.presale.TokenLiquidity = this.readableFormatNumbers(web3.utils.fromWei(response.TokenLiqAmount));
-          this.liquidityTokens = web3.utils.fromWei(response.TokenLiqAmount);
+      console.log(result);
+      this.presale.isBurn = result.State.IsBurnUnsold;
+          this.presale.Name = result.Info.Name;
+          this.presale.StartDate = (parseInt(result.StartDate));
+          this.presale.EndDate = (parseInt(result.EndDate));
+          this.presale.Softcap = parseFloat(web3.utils.fromWei(result.Softcap));
+          this.presale.Hardcap = parseFloat(web3.utils.fromWei(result.Hardcap));
+          this.presale.TokenAddress = result.Addresses.TokenAddress;
+          this.presale.LiquidityLocked = result.LiqPercentage;
+          this.totalSupply = web3.utils.fromWei(result.State.TotalTokenAmount);
+          this.presale.TotalSupply = (this.readableFormatNumbers(Math.ceil(parseFloat(web3.utils.fromWei(result.State.TotalTokenAmount)))));
+          this.presale.TotalTokenAmount = result.State.TotalTokenAmount;
+          this.presale.TokensInPresale = this.readableFormatNumbers(web3.utils.fromWei(result.TokenPresaleAllocation));
+          this.tokensInPresale = web3.utils.fromWei(result.TokenPresaleAllocation);
+          this.presale.RawTokensInPresale = web3.utils.fromWei(result.TokenPresaleAllocation);
+          this.presale.TokenLiquidity = this.readableFormatNumbers(web3.utils.fromWei(result.TokenLiqAmount));
+          this.liquidityTokens = web3.utils.fromWei(result.TokenLiqAmount);
 
           if(this.presale.isBurn){
-            this.presale.TokenPrice = this.readableFormatNumbers(parseFloat(web3.utils.fromWei(response.State.PresaleTokenPrice)).toFixed(10));
+            this.presale.TokenPrice = this.readableFormatNumbers(parseFloat(web3.utils.fromWei(result.State.PresaleTokenPrice)).toFixed(10));
           } else {
             this.presale.TokenPrice = this.getTokenPrice().toFixed(10);
           }
 
-          this.presale.TotalContributed = web3.utils.fromWei(response.State.ContributedBNB);
-          this.presale.TokenOwnerAddress = response.Addresses.TokenOwnerAddress;
-          this.presale.BNBDistributable = (response.State.ContributedBNB - response.State.RetrievedBNBAmount) > 0;
-          this.presale.TokenTimeLock = response.Addresses.TokenTimeLock;
+          this.presale.TotalContributed = web3.utils.fromWei(result.State.ContributedBNB);
+          this.presale.TokenOwnerAddress = result.Addresses.TokenOwnerAddress;
+          this.presale.BNBDistributable = (result.State.ContributedBNB - result.State.RetrievedBNBAmount) > 0;
+          this.presale.TokenTimeLock = result.Addresses.TokenTimeLock;
 
-          const presalePrice = web3.utils.fromWei(response.TokenPresaleAllocation)/web3.utils.fromWei(response.Hardcap);
-          const listingPrice = web3.utils.fromWei(response.TokenLiqAmount) / ((response.LiqPercentage/100)*Number(web3.utils.fromWei(response.Hardcap)*0.95)); 
+          const presalePrice = web3.utils.fromWei(result.TokenPresaleAllocation)/web3.utils.fromWei(result.Hardcap);
+          const listingPrice = web3.utils.fromWei(result.TokenLiqAmount) / ((result.LiqPercentage/100)*Number(web3.utils.fromWei(result.Hardcap)*0.95)); 
           this.presale.listingPrice =  (presalePrice/listingPrice).toFixed(2);
 
-          const hardCapPercentage = Number(web3.utils.fromWei(response.Hardcap)) * 0.95;
-          const toLiquidity = hardCapPercentage * ((1/100) * Number(response.LiqPercentage));
-          this.presale.listingTokenPrice = (toLiquidity / Number(web3.utils.fromWei(response.TokenLiqAmount))).toFixed(10);
+          const hardCapPercentage = Number(web3.utils.fromWei(result.Hardcap)) * 0.95;
+          const toLiquidity = hardCapPercentage * ((1/100) * Number(result.LiqPercentage));
+          this.presale.listingTokenPrice = (toLiquidity / Number(web3.utils.fromWei(result.TokenLiqAmount))).toFixed(10);
 
           //Current Presale Step
-          this.presale.CurrentStep = response.State.Step;
+          this.presale.CurrentStep = result.State.Step;
           //Socials
-          this.presale.Github = response.Info.Github;
-          this.presale.Medium = response.Info.Medium;
-          this.presale.Telegram = response.Info.Telegram;
-          this.presale.Twitter = response.Info.Twitter;
-          this.presale.Website = response.Info.Website;
+          this.presale.Github = result.Info.Github;
+          this.presale.Medium = result.Info.Medium;
+          this.presale.Telegram = result.Info.Telegram;
+          this.presale.Twitter = result.Info.Twitter;
+          this.presale.Website = result.Info.Website;
           this.getTokenTicker();
-        })
-        .catch((e) => {
-          console.log('error:' + e);
-        });
+
+      // const presaleContractAbi = this.contractAbi;
+      // const web3 = new Web3(this.provider);
+      // const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
+      
+      // presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
+      //   await presaleContractInterface.methods.Presales(this.id).call().then((response) => {
+      //     //Presale Info
+      //     this.presale.isBurn = response.State.IsBurnUnsold;
+      //     this.presale.Name = response.Info.Name;
+      //     this.presale.StartDate = (parseInt(response.StartDate));
+      //     this.presale.EndDate = (parseInt(response.EndDate));
+      //     this.presale.Softcap = parseFloat(web3.utils.fromWei(response.Softcap));
+      //     this.presale.Hardcap = parseFloat(web3.utils.fromWei(response.Hardcap));
+      //     this.presale.TokenAddress = response.Addresses.TokenAddress;
+      //     this.presale.LiquidityLocked = response.LiqPercentage;
+      //     this.totalSupply = web3.utils.fromWei(response.State.TotalTokenAmount);
+      //     this.presale.TotalSupply = (this.readableFormatNumbers(Math.ceil(parseFloat(web3.utils.fromWei(response.State.TotalTokenAmount)))));
+      //     this.presale.TotalTokenAmount = response.State.TotalTokenAmount;
+      //     this.presale.TokensInPresale = this.readableFormatNumbers(web3.utils.fromWei(response.TokenPresaleAllocation));
+      //     this.tokensInPresale = web3.utils.fromWei(response.TokenPresaleAllocation);
+      //     this.presale.RawTokensInPresale = web3.utils.fromWei(response.TokenPresaleAllocation);
+      //     this.presale.TokenLiquidity = this.readableFormatNumbers(web3.utils.fromWei(response.TokenLiqAmount));
+      //     this.liquidityTokens = web3.utils.fromWei(response.TokenLiqAmount);
+
+      //     if(this.presale.isBurn){
+      //       this.presale.TokenPrice = this.readableFormatNumbers(parseFloat(web3.utils.fromWei(response.State.PresaleTokenPrice)).toFixed(10));
+      //     } else {
+      //       this.presale.TokenPrice = this.getTokenPrice().toFixed(10);
+      //     }
+
+      //     this.presale.TotalContributed = web3.utils.fromWei(response.State.ContributedBNB);
+      //     this.presale.TokenOwnerAddress = response.Addresses.TokenOwnerAddress;
+      //     this.presale.BNBDistributable = (response.State.ContributedBNB - response.State.RetrievedBNBAmount) > 0;
+      //     this.presale.TokenTimeLock = response.Addresses.TokenTimeLock;
+
+      //     const presalePrice = web3.utils.fromWei(response.TokenPresaleAllocation)/web3.utils.fromWei(response.Hardcap);
+      //     const listingPrice = web3.utils.fromWei(response.TokenLiqAmount) / ((response.LiqPercentage/100)*Number(web3.utils.fromWei(response.Hardcap)*0.95)); 
+      //     this.presale.listingPrice =  (presalePrice/listingPrice).toFixed(2);
+
+      //     const hardCapPercentage = Number(web3.utils.fromWei(response.Hardcap)) * 0.95;
+      //     const toLiquidity = hardCapPercentage * ((1/100) * Number(response.LiqPercentage));
+      //     this.presale.listingTokenPrice = (toLiquidity / Number(web3.utils.fromWei(response.TokenLiqAmount))).toFixed(10);
+
+      //     //Current Presale Step
+      //     this.presale.CurrentStep = response.State.Step;
+      //     //Socials
+      //     this.presale.Github = response.Info.Github;
+      //     this.presale.Medium = response.Info.Medium;
+      //     this.presale.Telegram = response.Info.Telegram;
+      //     this.presale.Twitter = response.Info.Twitter;
+      //     this.presale.Website = response.Info.Website;
+      //     this.getTokenTicker();
+      //   })
+      //   .catch((e) => {
+      //     console.log('error:' + e);
+      //   });
     },
     getTokenAllocations: async function() {
       const presaleContractAbi = this.contractAbi;
@@ -963,19 +1050,25 @@ export default {
         this.isConnected = true;
       }
     },
-    connectAccount: function () {
-      this.provider
-          .request({ method: 'eth_requestAccounts' })
-          .then(this.handleAccountsChanged(this.provider._state.accounts))
-          .catch((err) => {
-            if (err.code === 4001) {
-              // EIP-1193 userRejectedRequest error
-              // If this happens, the user rejected the connection request.
-              this.showError('Please connect to MetaMask.', err.message);
-            } else {
-              this.showError('Something went wrong', err.message);
-            }
-          });
+    connectMetamask: function () {
+      
+      this.walletConnector.ConnectMetaMask();
+      // this.provider
+      //     .request({ method: 'eth_requestAccounts' })
+      //     .then(this.handleAccountsChanged(this.provider._state.accounts))
+      //     .catch((err) => {
+      //       if (err.code === 4001) {
+      //         // EIP-1193 userRejectedRequest error
+      //         // If this happens, the user rejected the connection request.
+      //         this.showError('Please connect to MetaMask.', err.message);
+      //       } else {
+      //         this.showError('Something went wrong', err.message);
+      //       }
+      //     });
+
+    },
+    connectWalletConnect: function(){
+      this.walletConnector.ConnectWalletConnect();
     },
     formatDate: function(date) {
       // const dateTimeOffset = Math.abs()
