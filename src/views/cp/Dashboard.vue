@@ -86,25 +86,25 @@ export default {
     }
   },
   mounted: async function () {
-    this.$loading(true);
-    if (this.provider.chainId !== '0x38') {
-      this.showError(
-          'Wrong network detection',
-          'It looks like you are connected to the wrong network. Please connect to Binance Smart Chain and refresh the page.',
-          false);
+    // this.$loading(true);
+    // if (this.provider.chainId !== '0x38') {
+    //   this.showError(
+    //       'Wrong network detection',
+    //       'It looks like you are connected to the wrong network. Please connect to Binance Smart Chain and refresh the page.',
+    //       false);
       this.isLoaded = true;
-    }
-
-    if (!this.isLoaded) {
-      // Detect provider
-      await this.detectProvider();
-      // Connect to your account
-      await this.currentAccount();
-      this.isLoaded = true;
-    }
-
-    await this.getPresales();
-    this.$loading(false);
+    // }
+    //
+    // if (!this.isLoaded) {
+    //   // Detect provider
+    //   await this.detectProvider();
+    //   // Connect to your account
+    //   await this.currentAccount();
+    //   this.isLoaded = true;
+    // }
+    //
+    // await this.getPresales();
+    // this.$loading(false);
 
     const isMobile = ('ontouchstart' in document.documentElement && /mobi/i.test(navigator.userAgent));
     if (isMobile)

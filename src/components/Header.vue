@@ -56,16 +56,23 @@
             </svg>
           </a>
         </div>
-        <!-- <button type="button" class="order-0 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:order-1 sm:ml-3">
-          Create
-        </button> -->
+        <button type="button" v-on:click="connectWallet" class="order-0 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 sm:order-1 sm:ml-3">
+          Connect wallet
+        </button>
       </div>
     </div>
+    <ConnectWalletModal
+        v-if="showModal"
+        @connectMetaMask="connectMetaMask"
+        @connectWalletConnect="connectWalletConnect"
+        @connectWalletLink="connectWalletLink"
+        @toggleModal="toggleConnectWalletModal"/>
   </div>  
 </template>
 
 <script>
 import { mapGetters } from "vuex";
+import ConnectWalletModal from "@/components/modals/ConnectWallet"
 
 export default {
   name: 'header.dashboard.components',
@@ -75,9 +82,15 @@ export default {
     account: String,
     chainId: String
   },
+  components: {
+    ConnectWalletModal
+  },
   data() {
     return {
-      switchPlatformUrl: process.env.VUE_APP_ERC
+      switchPlatformUrl: process.env.VUE_APP_ERC,
+      showModal: false,
+      provider: null,
+      walletAddress: null,
     }
   },
   beforeMount: function(){
@@ -101,18 +114,81 @@ export default {
       return network;
     }
   },
+  methods: {
+    connectMetaMask: function() {
+      this.provider = window.ethereum;
+      this.provider
+          .request({ method: 'eth_requestAccounts' })
+          .then(() => {
+            this.handleAccountsChanged(this.provider._state.accounts);
+          }).catch((err) => {
+        if (err.code === 4001) {
+          // EIP-1193 userRejectedRequest error
+          // If this happens, the user rejected the connection request.
+          console.log("User rejected connection")
+        } else {
+          console.log(`There is an error:`);
+          console.log(err);
+        }
+      });
+    },
+    connectWalletConnect: async function() {
+      // this.provider = new WalletConnectProvider({
+      //   infuraId: process.env.VUE_APP_INFURA_ID,
+      //   rpc: {
+      //     1: process.env.VUE_APP_INFURA_URL,
+      //   }
+      // });
+      await this.provider.enable();
+    },
+    // connectWalletLink: async function() {
+    //   const walletLink = new WalletLink({
+    //     appName: "Real Estate App",
+    //     appLogoUrl: "",
+    //     darkMode: "true",
+    //   });
+    //
+    //   const ethereum = walletLink.makeWeb3Provider(
+    //       `${process.env.VUE_APP_INFURA_URL}/${process.env.VUE_APP_INFURA_ID}`, process.env.VUE_APP_CHAIN_ID
+    //   )
+    //
+    //   this.provider = new Web3(ethereum);
+    //   await ethereum.enable();
+    // },
+    handleAccountsChanged: function(accounts) {
+      if (accounts !== null && accounts.length === 0) {
+        // MetaMask is locked or the user has not connected any accounts
+        console.log('MetaMask is locked or the user has not connected any accounts')
+      } else {
+        // this.$store.state.account = accounts[0];
+        this.walletAddress = accounts[0];
+        // show user that MetaMask is connected
+        this.isConnected = true;
+        this.toggleConnectWalletModal();
+      }
+    },
+    truncateString: function(str, num) {
+      if (str !== undefined) {
+        if (str.length <= num) {
+          return str
+        }
+        return str.slice(0, num) + '...'
+      }
+    },
+    setTheme: function() {
+      this.$store.dispatch("toggleTheme");
+    },
+    toggleConnectWalletModal: function() {
+      this.showModal = !this.showModal;
+    }
+  },
   watch: {
     theme(newTheme) {
       newTheme === "light"
-        ? document.querySelector("html").classList.remove("dark")
-        : document.querySelector("html").classList.add("dark");
+          ? document.querySelector("html").classList.remove("dark")
+          : document.querySelector("html").classList.add("dark");
     },
   },
-  methods: {
-    setTheme: function() {
-      this.$store.dispatch("toggleTheme");
-    }
-  }
 }
 </script>
 
