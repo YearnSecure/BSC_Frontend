@@ -500,9 +500,10 @@ export default {
       //do shit
 
       //this.isLoaded = true;
-      this.walletConnector = new WalletConnector();
+      this.walletConnector = new WalletConnector(window.ethereum);
       if(this.walletConnector.IsConnected())
       {
+        await this.loadAccounts();
         this.isLoaded = true;
       }else{
         this.isNotConnected = true;
@@ -553,118 +554,61 @@ export default {
     },
     getPresaleData: async function() {
       const web3 = new Web3(this.provider);
-      //const result = await this.walletConnector.MetamaskCall(this.contractAbi, this.id, process.env.VUE_APP_PRESALE_CONTRACT);
-      try{
-        const result = await this.walletConnector.WalletConnectCall(this.contractAbi, this.id, process.env.VUE_APP_PRESALE_CONTRACT); 
-      }catch(e){
-        console.log('error:' + e);
+      let result;
+      try {
+        result = await this.walletConnector.GetPresaleData(this.contractAbi, this.id, process.env.VUE_APP_PRESALE_CONTRACT); 
+      } catch (error) {
+          console.log('error: ' + error);
       }
-          
-        
       
-      console.log(result);
-      this.presale.isBurn = result.State.IsBurnUnsold;
-          this.presale.Name = result.Info.Name;
-          this.presale.StartDate = (parseInt(result.StartDate));
-          this.presale.EndDate = (parseInt(result.EndDate));
-          this.presale.Softcap = parseFloat(web3.utils.fromWei(result.Softcap));
-          this.presale.Hardcap = parseFloat(web3.utils.fromWei(result.Hardcap));
-          this.presale.TokenAddress = result.Addresses.TokenAddress;
-          this.presale.LiquidityLocked = result.LiqPercentage;
-          this.totalSupply = web3.utils.fromWei(result.State.TotalTokenAmount);
-          this.presale.TotalSupply = (this.readableFormatNumbers(Math.ceil(parseFloat(web3.utils.fromWei(result.State.TotalTokenAmount)))));
-          this.presale.TotalTokenAmount = result.State.TotalTokenAmount;
-          this.presale.TokensInPresale = this.readableFormatNumbers(web3.utils.fromWei(result.TokenPresaleAllocation));
-          this.tokensInPresale = web3.utils.fromWei(result.TokenPresaleAllocation);
-          this.presale.RawTokensInPresale = web3.utils.fromWei(result.TokenPresaleAllocation);
-          this.presale.TokenLiquidity = this.readableFormatNumbers(web3.utils.fromWei(result.TokenLiqAmount));
-          this.liquidityTokens = web3.utils.fromWei(result.TokenLiqAmount);
+      if(result != null)
+      {
+        this.presale.isBurn = result.State.IsBurnUnsold;
+        this.presale.Name = result.Info.Name;
+        this.presale.StartDate = (parseInt(result.StartDate));
+        this.presale.EndDate = (parseInt(result.EndDate));
+        this.presale.Softcap = parseFloat(web3.utils.fromWei(result.Softcap));
+        this.presale.Hardcap = parseFloat(web3.utils.fromWei(result.Hardcap));
+        this.presale.TokenAddress = result.Addresses.TokenAddress;
+        this.presale.LiquidityLocked = result.LiqPercentage;
+        this.totalSupply = web3.utils.fromWei(result.State.TotalTokenAmount);
+        this.presale.TotalSupply = (this.readableFormatNumbers(Math.ceil(parseFloat(web3.utils.fromWei(result.State.TotalTokenAmount)))));
+        this.presale.TotalTokenAmount = result.State.TotalTokenAmount;
+        this.presale.TokensInPresale = this.readableFormatNumbers(web3.utils.fromWei(result.TokenPresaleAllocation));
+        this.tokensInPresale = web3.utils.fromWei(result.TokenPresaleAllocation);
+        this.presale.RawTokensInPresale = web3.utils.fromWei(result.TokenPresaleAllocation);
+        this.presale.TokenLiquidity = this.readableFormatNumbers(web3.utils.fromWei(result.TokenLiqAmount));
+        this.liquidityTokens = web3.utils.fromWei(result.TokenLiqAmount);
 
-          if(this.presale.isBurn){
-            this.presale.TokenPrice = this.readableFormatNumbers(parseFloat(web3.utils.fromWei(result.State.PresaleTokenPrice)).toFixed(10));
-          } else {
-            this.presale.TokenPrice = this.getTokenPrice().toFixed(10);
-          }
+        if(this.presale.isBurn){
+          this.presale.TokenPrice = this.readableFormatNumbers(parseFloat(web3.utils.fromWei(result.State.PresaleTokenPrice)).toFixed(10));
+        } else {
+          this.presale.TokenPrice = this.getTokenPrice().toFixed(10);
+        }
 
-          this.presale.TotalContributed = web3.utils.fromWei(result.State.ContributedBNB);
-          this.presale.TokenOwnerAddress = result.Addresses.TokenOwnerAddress;
-          this.presale.BNBDistributable = (result.State.ContributedBNB - result.State.RetrievedBNBAmount) > 0;
-          this.presale.TokenTimeLock = result.Addresses.TokenTimeLock;
+        this.presale.TotalContributed = web3.utils.fromWei(result.State.ContributedBNB);
+        this.presale.TokenOwnerAddress = result.Addresses.TokenOwnerAddress;
+        this.presale.BNBDistributable = (result.State.ContributedBNB - result.State.RetrievedBNBAmount) > 0;
+        this.presale.TokenTimeLock = result.Addresses.TokenTimeLock;
 
-          const presalePrice = web3.utils.fromWei(result.TokenPresaleAllocation)/web3.utils.fromWei(result.Hardcap);
-          const listingPrice = web3.utils.fromWei(result.TokenLiqAmount) / ((result.LiqPercentage/100)*Number(web3.utils.fromWei(result.Hardcap)*0.95)); 
-          this.presale.listingPrice =  (presalePrice/listingPrice).toFixed(2);
+        const presalePrice = web3.utils.fromWei(result.TokenPresaleAllocation)/web3.utils.fromWei(result.Hardcap);
+        const listingPrice = web3.utils.fromWei(result.TokenLiqAmount) / ((result.LiqPercentage/100)*Number(web3.utils.fromWei(result.Hardcap)*0.95)); 
+        this.presale.listingPrice =  (presalePrice/listingPrice).toFixed(2);
 
-          const hardCapPercentage = Number(web3.utils.fromWei(result.Hardcap)) * 0.95;
-          const toLiquidity = hardCapPercentage * ((1/100) * Number(result.LiqPercentage));
-          this.presale.listingTokenPrice = (toLiquidity / Number(web3.utils.fromWei(result.TokenLiqAmount))).toFixed(10);
+        const hardCapPercentage = Number(web3.utils.fromWei(result.Hardcap)) * 0.95;
+        const toLiquidity = hardCapPercentage * ((1/100) * Number(result.LiqPercentage));
+        this.presale.listingTokenPrice = (toLiquidity / Number(web3.utils.fromWei(result.TokenLiqAmount))).toFixed(10);
 
-          //Current Presale Step
-          this.presale.CurrentStep = result.State.Step;
-          //Socials
-          this.presale.Github = result.Info.Github;
-          this.presale.Medium = result.Info.Medium;
-          this.presale.Telegram = result.Info.Telegram;
-          this.presale.Twitter = result.Info.Twitter;
-          this.presale.Website = result.Info.Website;
-          this.getTokenTicker();
-
-      // const presaleContractAbi = this.contractAbi;
-      // const web3 = new Web3(this.provider);
-      // const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
-      
-      // presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-      //   await presaleContractInterface.methods.Presales(this.id).call().then((response) => {
-      //     //Presale Info
-      //     this.presale.isBurn = response.State.IsBurnUnsold;
-      //     this.presale.Name = response.Info.Name;
-      //     this.presale.StartDate = (parseInt(response.StartDate));
-      //     this.presale.EndDate = (parseInt(response.EndDate));
-      //     this.presale.Softcap = parseFloat(web3.utils.fromWei(response.Softcap));
-      //     this.presale.Hardcap = parseFloat(web3.utils.fromWei(response.Hardcap));
-      //     this.presale.TokenAddress = response.Addresses.TokenAddress;
-      //     this.presale.LiquidityLocked = response.LiqPercentage;
-      //     this.totalSupply = web3.utils.fromWei(response.State.TotalTokenAmount);
-      //     this.presale.TotalSupply = (this.readableFormatNumbers(Math.ceil(parseFloat(web3.utils.fromWei(response.State.TotalTokenAmount)))));
-      //     this.presale.TotalTokenAmount = response.State.TotalTokenAmount;
-      //     this.presale.TokensInPresale = this.readableFormatNumbers(web3.utils.fromWei(response.TokenPresaleAllocation));
-      //     this.tokensInPresale = web3.utils.fromWei(response.TokenPresaleAllocation);
-      //     this.presale.RawTokensInPresale = web3.utils.fromWei(response.TokenPresaleAllocation);
-      //     this.presale.TokenLiquidity = this.readableFormatNumbers(web3.utils.fromWei(response.TokenLiqAmount));
-      //     this.liquidityTokens = web3.utils.fromWei(response.TokenLiqAmount);
-
-      //     if(this.presale.isBurn){
-      //       this.presale.TokenPrice = this.readableFormatNumbers(parseFloat(web3.utils.fromWei(response.State.PresaleTokenPrice)).toFixed(10));
-      //     } else {
-      //       this.presale.TokenPrice = this.getTokenPrice().toFixed(10);
-      //     }
-
-      //     this.presale.TotalContributed = web3.utils.fromWei(response.State.ContributedBNB);
-      //     this.presale.TokenOwnerAddress = response.Addresses.TokenOwnerAddress;
-      //     this.presale.BNBDistributable = (response.State.ContributedBNB - response.State.RetrievedBNBAmount) > 0;
-      //     this.presale.TokenTimeLock = response.Addresses.TokenTimeLock;
-
-      //     const presalePrice = web3.utils.fromWei(response.TokenPresaleAllocation)/web3.utils.fromWei(response.Hardcap);
-      //     const listingPrice = web3.utils.fromWei(response.TokenLiqAmount) / ((response.LiqPercentage/100)*Number(web3.utils.fromWei(response.Hardcap)*0.95)); 
-      //     this.presale.listingPrice =  (presalePrice/listingPrice).toFixed(2);
-
-      //     const hardCapPercentage = Number(web3.utils.fromWei(response.Hardcap)) * 0.95;
-      //     const toLiquidity = hardCapPercentage * ((1/100) * Number(response.LiqPercentage));
-      //     this.presale.listingTokenPrice = (toLiquidity / Number(web3.utils.fromWei(response.TokenLiqAmount))).toFixed(10);
-
-      //     //Current Presale Step
-      //     this.presale.CurrentStep = response.State.Step;
-      //     //Socials
-      //     this.presale.Github = response.Info.Github;
-      //     this.presale.Medium = response.Info.Medium;
-      //     this.presale.Telegram = response.Info.Telegram;
-      //     this.presale.Twitter = response.Info.Twitter;
-      //     this.presale.Website = response.Info.Website;
-      //     this.getTokenTicker();
-      //   })
-      //   .catch((e) => {
-      //     console.log('error:' + e);
-      //   });
+        //Current Presale Step
+        this.presale.CurrentStep = result.State.Step;
+        //Socials
+        this.presale.Github = result.Info.Github;
+        this.presale.Medium = result.Info.Medium;
+        this.presale.Telegram = result.Info.Telegram;
+        this.presale.Twitter = result.Info.Twitter;
+        this.presale.Website = result.Info.Website;
+        this.getTokenTicker();
+      }
     },
     getTokenAllocations: async function() {
       const presaleContractAbi = this.contractAbi;
@@ -720,19 +664,12 @@ export default {
           });
     },
     getTokenTicker: async function() {
-      const tokenContractAbi = this.tokenAbi;
-      const web3 = new Web3(this.provider);
-      const tokenContractInterface = new web3.eth.Contract(tokenContractAbi);
-      
-      tokenContractInterface.options.address = this.presale.TokenAddress;
-        await tokenContractInterface.methods.symbol()
-          .call()
-          .then((response) => {
-            this.presale.TokenName = response;
-          })
-          .catch((e) => {
-            console.log('error:' + e);
-          });
+      try {
+        const result = await this.walletConnector.GetTokenSymbol(this.tokenAbi, this.presale.TokenAddress);
+        this.presale.TokenName = result;
+      } catch (error) {
+        console.log('error:' + error);
+      }      
     },
     getRoi: async function() {
       const presaleContractAbi = this.contractAbi;
@@ -870,22 +807,23 @@ export default {
           });
     },
     claimTokens: async function() {
-      this.$loading(true);
-      const presaleContractAbi = this.contractAbi;
-      const web3 = new Web3(this.provider);
-      const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
+      await this.walletConnector.ClaimTokens(this.contractAbi, this.id, process.env.VUE_APP_PRESALE_CONTRACT, this.account)
+      // this.$loading(true);
+      // const presaleContractAbi = this.contractAbi;
+      // const web3 = new Web3(this.provider);
+      // const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
       
-      presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-        await presaleContractInterface.methods.ClaimTokens(this.id)
-          .send({from: this.account})
-          .then(() => {
-            this.initDetailPage();
-          })
-          .catch((e) => {
-            console.log('error:' + e);
-          }).finally(() => {
-            this.$loading(false);
-          });
+      // presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
+      //   await presaleContractInterface.methods.ClaimTokens(this.id)
+      //     .send({from: this.account})
+      //     .then(() => {
+      //       this.initDetailPage();
+      //     })
+      //     .catch((e) => {
+      //       console.log('error:' + e);
+      //     }).finally(() => {
+      //       this.$loading(false);
+      //     });
     },
     distributeBNB: async function() {
       this.$loading(true);
@@ -1050,8 +988,7 @@ export default {
         this.isConnected = true;
       }
     },
-    connectMetamask: function () {
-      
+    connectMetamask: function () {      
       this.walletConnector.ConnectMetaMask();
       // this.provider
       //     .request({ method: 'eth_requestAccounts' })
@@ -1069,6 +1006,12 @@ export default {
     },
     connectWalletConnect: function(){
       this.walletConnector.ConnectWalletConnect();
+    },
+    loadAccounts: async function(){
+      const accounts = await this.walletConnector.GetAccounts();
+      this.$store.state.account = accounts[0];
+      this.account = accounts[0];
+      console.log(this.account);
     },
     formatDate: function(date) {
       // const dateTimeOffset = Math.abs()
