@@ -126,6 +126,28 @@ export default class WalletConnector{
     }
   }
 
+  async GetPresaleFinished(abi: any, address: string, id: any, account: any){
+    const web3 = this.GetProvider();
+    
+    if(web3 != null)
+    {
+       const presaleContractInterface = new web3.eth.Contract(abi);
+        presaleContractInterface.options.address = address;
+      return await presaleContractInterface.methods.PresaleFinished(id).call({from: account});
+    }
+  }
+
+  async GetPresaleStarted(abi: any, address: string, id: any, account: any){
+    const web3 = this.GetProvider();
+    
+    if(web3 != null)
+    {
+       const presaleContractInterface = new web3.eth.Contract(abi);
+        presaleContractInterface.options.address = address;
+      return await presaleContractInterface.methods.PresaleStarted(id).call({from: account})
+    }
+  }
+
   async ClaimTokens(abi: any, id: any, address: string, account: any){
     const web3 = this.GetProvider();
     if(web3 != null)
@@ -134,6 +156,25 @@ export default class WalletConnector{
         const presaleContractInterface = new web3.eth.Contract(abi);
         presaleContractInterface.options.address = address;
         await presaleContractInterface.methods.ClaimTokens(id).send({from: account});
+      }catch(e){
+        console.log('error: ' + e)
+      }
+      
+    }
+  }
+
+  async ContributeTokens(abi: any, id: any, address: string, account: any, value: any){
+    const web3 = this.GetProvider();
+    console.log('id in connector: ' + id);
+    console.log('address in connector: ' + address);
+    console.log('account in connector: ' + account);
+    console.log('amount in connector: ' + value);
+    if(web3 != null)
+    {
+      try{
+        const presaleContractInterface = new web3.eth.Contract(abi);
+        presaleContractInterface.options.address = address;
+        await presaleContractInterface.methods.Contribute(id).send({from: account, value: web3.utils.toWei(value.toString())});
       }catch(e){
         console.log('error: ' + e)
       }

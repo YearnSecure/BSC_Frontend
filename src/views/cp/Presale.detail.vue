@@ -500,7 +500,7 @@ export default {
       //do shit
 
       //this.isLoaded = true;
-      this.walletConnector = new WalletConnector(window.ethereum);
+      this.walletConnector = new WalletConnector(window.ethereum, this.contractAbi);
       if(this.walletConnector.IsConnected())
       {
         await this.loadAccounts();
@@ -540,12 +540,12 @@ export default {
       // if (this.account.toLowerCase() === this.presale.TokenOwnerAddress.toLowerCase()){
       //   await this.getAllowance();
       // }
-      // if (parseInt(this.presale.CurrentStep) === 1){
-      //   await this.getPresaleFinished();
-      //   if (!this.presale.finished){
-      //     await this.getPresaleStarted();
-      //   }
-      // }
+      if (parseInt(this.presale.CurrentStep) === 1){
+        await this.getPresaleFinished();
+        if (!this.presale.finished){
+          await this.getPresaleStarted();
+        }
+      }
 
       // await this.getTokenAllocations();
       // await this.getContributorHasTokensClaimed();
@@ -763,30 +763,34 @@ export default {
           });
     },
     getPresaleFinished: async function() {
-      const presaleContractAbi = this.contractAbi;
-      const web3 = new Web3(this.provider);
-      const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
+      const result = await this.walletConnector.GetPresaleFinished(this.contractAbi, process.env.VUE_APP_PRESALE_CONTRACT, this.id, this.account);
+      this.presale.finished = result;
+      // const presaleContractAbi = this.contractAbi;
+      // const web3 = new Web3(this.provider);
+      // const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
       
-      presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-        await presaleContractInterface.methods.PresaleFinished(this.id).call({from: this.account}).then((response) => {
-          this.presale.finished = response
-        }).catch((e) => {
-          console.log('error:' + e);
-        });
+      // presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
+      //   await presaleContractInterface.methods.PresaleFinished(this.id).call({from: this.account}).then((response) => {
+      //     this.presale.finished = response
+      //   }).catch((e) => {
+      //     console.log('error:' + e);
+      //   });
     },
     getPresaleStarted: async function() {
-      const presaleContractAbi = this.contractAbi;
-      const web3 = new Web3(this.provider);
-      const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
+      const result = await this.walletConnector.GetPresaleStarted(this.contractAbi, process.env.VUE_APP_PRESALE_CONTRACT, this.id, this.account);
+      this.presale.started = result;
+      // const presaleContractAbi = this.contractAbi;
+      // const web3 = new Web3(this.provider);
+      // const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
       
-      presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-        await presaleContractInterface.methods.PresaleStarted(this.id)
-          .call({from: this.account})
-          .then((response) => {
-            this.presale.started = response
-          }).catch((e) => {
-            console.log('error:' + e);
-          });
+      // presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
+      //   await presaleContractInterface.methods.PresaleStarted(this.id)
+      //     .call({from: this.account})
+      //     .then((response) => {
+      //       this.presale.started = response
+      //     }).catch((e) => {
+      //       console.log('error:' + e);
+      //     });
     },
     addLiquidity: async function () {
       this.$loading(true);
@@ -911,24 +915,27 @@ export default {
             console.log('error:' + e);
           });
     },
-    contributeTokens: async function(x) {
-      this.$loading(true);
-      const presaleContractAbi = this.contractAbi;
-      const web3 = new Web3(this.provider);
-      const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
+    contributeTokens: async function(x) {     
+      const amount = x; 
+      console.log('amount in detail: ' + amount);
+      await this.walletConnector.ContributeTokens(this.contractAbi, this.id, process.env.VUE_APP_PRESALE_CONTRACT, this.account, x);
+      // this.$loading(true);
+      // const presaleContractAbi = this.contractAbi;
+      // const web3 = new Web3(this.provider);
+      // const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
       
-      presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-        await presaleContractInterface.methods.Contribute(this.id)
-            .send({from: this.account, value:web3.utils.toWei(x.toString())})
-            .then(() => {
-              this.contribution = "";
-              this.initDetailPage();
-            })
-            .catch((e) => {
-              console.log('error:' + e);
-            }).finally(() => {
-              this.$loading(false);
-            });
+      // presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
+      //   await presaleContractInterface.methods.Contribute(this.id)
+      //       .send({from: this.account, value:web3.utils.toWei(x.toString())})
+      //       .then(() => {
+      //         this.contribution = "";
+      //         this.initDetailPage();
+      //       })
+      //       .catch((e) => {
+      //         console.log('error:' + e);
+      //       }).finally(() => {
+      //         this.$loading(false);
+      //       });
     },
     readableFormatNumbers: function(x){
         const parts = x.toString().split(".");
