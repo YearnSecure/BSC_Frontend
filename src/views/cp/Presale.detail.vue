@@ -24,7 +24,7 @@
           <PresaleData :presale="presale" />
         </div>
         <div class="block px-4 mt-6 sm:px-6 lg:px-8">
-          <div class="grid grid-cols-4 gap-4">
+          <div class="lg:grid sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
             <div class="col-span-1">
               <TeamInformation :presale="presale" />
               <TokenInformation :presale="presale" />
@@ -34,7 +34,7 @@
                   :progressStyle="progressStyle"/>
             </div>
             <div class="col-span-3">
-              <div class="grid grid-cols-3 gap-4">
+              <div class="lg:grid sm:grid-cols-1 lg:grid-cols-3 gap-4">
                 <div class="col-span-2">
                   <TokenAllocations
                       :presale="presale"

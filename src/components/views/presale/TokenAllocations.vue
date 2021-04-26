@@ -1,7 +1,7 @@
 <template>
   <div>
     <span class="block text-1xl leading-8 font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-1xl">Token allocation</span>
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid sm:grid-cols-1 lg:grid-cols-2 gap-4">
       <div class="col-span-1" v-for="(allocation, index) in presale.Allocations" :key="index">
         <div class="mt-3 block">
           <span class="text-gray-900 dark:text-white">
