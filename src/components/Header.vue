@@ -10,7 +10,7 @@
           YSEC Token address: <a :href="`https://etherscan.io/address/${contractAddress}`" target="_blank" class="text-blue-500 hover:text-yellow-600 transiation duration-300">{{ contractAddress }}</a>
         </h1>
         <h3 v-if="isConnected" class="text-sm font-medium leading-4 text-gray-900 dark:text-white sm:truncate">
-          You are connected: <a :href="`https://bscscan.com/address/${account}`" target="_blank" class="text-yellow-500 hover:text-blue-600 transiation duration-300">{{ account }}</a>
+          You are connected: <a :href="`https://bscscan.com/address/${connectedWalletAddress}`" target="_blank" class="text-yellow-500 hover:text-blue-600 transiation duration-300">{{ connectedWalletAddress }}</a>
         </h3>
         <h4 v-if="isConnected" class="text-xs font-medium leading-4 text-green-600 sm:truncate">
           <span v-if="chainId">{{ network }}</span>
@@ -60,7 +60,7 @@
           Connect wallet
         </button>
         <button v-if="isConnected" type="button" class="order-0 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:order-1 sm:ml-3">
-          {{ truncateString(walletAddress, 12) }}
+          {{ truncateString(connectedWalletAddress, 12) }}
         </button>
       </div>
     </div>
@@ -76,7 +76,7 @@
 import Web3 from "web3";
 import { mapGetters } from "vuex";
 import ConnectWalletModal from "@/components/modals/ConnectWallet";
-import WalletConnectProvider from "@walletconnect/web3-provider";
+import WalletConnector from "@/plugins/walletConnect.plugin";
 
 export default {
   name: 'header.dashboard.components',
@@ -88,18 +88,23 @@ export default {
   components: {
     ConnectWalletModal
   },
-  data() {
-    return {
-      switchPlatformUrl: process.env.VUE_APP_ERC,
-      showModal: false,
-      provider: null,
-      walletAddress: null,
-      isConnected: false,
-      web3: null,
-    }
-  },
+  data:() => ({
+    switchPlatformUrl: process.env.VUE_APP_ERC,
+    web3: new Web3(window.ethereum),
+    tokenPrice: null,
+    connectedWalletAddress: null,
+    walletConnector: null,
+    isConnected: false,
+    chainId: null,
+    showModal: false,
+    showConnectedWalletModal: false,
+  }),
   beforeMount: function() {
     this.$store.dispatch("initTheme");
+  },
+  mounted: async function() {
+    this.walletConnector = new WalletConnector(window.ethereum);
+    await this.initConnection();
   },
   computed: {
     ...mapGetters({ theme: "getTheme" }),
@@ -120,58 +125,47 @@ export default {
     }
   },
   methods: {
-    connectMetaMask: function() {
-      this.provider = window.ethereum;
-      this.provider
-          .request({ method: 'eth_requestAccounts' })
-          .then(() => {
-            this.handleAccountsChanged(this.provider._state.accounts);
-          }).catch((err) => {
-        if (err.code === 4001) {
-          // EIP-1193 userRejectedRequest error
-          // If this happens, the user rejected the connection request.
-          console.log("User rejected connection")
-        } else {
-          console.log(`There is an error:`);
-          console.log(err);
-        }
-      });
-    },
-    connectWalletConnect: async function() {
-      this.provider = new WalletConnectProvider({
-        infuraId: process.env.VUE_APP_INFURA_ID,
-        bridge: "https://bridge.walletconnect.org", // Required
-        rpc: {
-          1: process.env.VUE_APP_INFURA_URL,
-          3: "https://ropsten.infura.io/v3/",
-          38: "https://bsc-dataseed.binance.org/",
-          61: "https://data-seed-prebsc-1-s1.binance.org:8545"
-        }
-      });
-      await this.provider.enable();
-
-      this.web3 = new Web3(this.provider);
-
-      if (this.provider.accounts[0] && this.provider.accounts[0] !== null && this.provider.accounts[0] !== "") {
-        this.handleAccountsChanged(this.provider.accounts);
+    initConnection: async function() {
+      if(this.walletConnector.IsConnected()) {
+        await this.loadAccounts();
+      } else{
+        this.isConnected = false;
       }
     },
-    handleAccountsChanged: function(accounts) {
-      console.log(accounts);
-      if (accounts !== null && accounts.length === 0) {
-        // MetaMask is locked or the user has not connected any accounts
-        console.log('MetaMask is locked or the user has not connected any accounts');
-        this.isConnected = false;
-        this.account = null;
+    connectMetaMask: async function() {
+      this.walletConnector.ConnectMetaMask()
+          .then((response) => {
+            this.connectedWalletAddress = response[0];
+            this.$store.state.account =  response[0];
+            this.chainId = this.walletConnector.tempWC.chainId;
+            this.initConnection();
+            this.isConnected = true;
+          }).catch((e) => {
+        console.log(`Something went wrong:`, e);
+      }).finally(() => {
         this.toggleConnectWalletModal();
-        this.$emit('connectedWallet', false);
-      } else {
-        // this.$store.state.account = accounts[0];
-        this.walletAddress = accounts[0];
-        // show user that MetaMask is connected
+      });
+    },
+    connectWalletConnect: function() {
+      this.walletConnector.ConnectWalletConnect()
+          .then((response) => {
+            this.connectedWalletAddress = response[0];
+            this.$store.state.account = response[0];
+            this.chainId = this.walletConnector.tempWC.chainId;
+            this.isConnected = true;
+          }).catch((e) => {
+        console.log(`Something went wrong:`, e);
+      }).finally(() => {
+        this.toggleConnectWalletModal();
+      });
+    },
+    loadAccounts: async function() {
+      const wallet = await this.walletConnector.GetAccounts();
+      if (wallet !== undefined) {
+        this.connectedWalletAddress = wallet[0];
+        this.$store.state.account = wallet[0];
+        this.chainId = await this.walletConnector.GetChainId();
         this.isConnected = true;
-        this.toggleConnectWalletModal();
-        this.$emit('connectedWallet', true, accounts[0]);
       }
     },
     truncateString: function(str, num) {
@@ -195,25 +189,6 @@ export default {
           ? document.querySelector("html").classList.remove("dark")
           : document.querySelector("html").classList.add("dark");
     },
-    provider: {
-      handler: function () {
-        console.log(this.provider);
-        // if (this.provider._state !== undefined) {
-        //   if (
-        //       this.$store.getters.account === '' &&
-        //       this.provider._state.accounts.length > 0) {
-        //     this.$store.state.account = this.provider._state.accounts[0];
-        //     this.handleAccountsChanged(this.provider._state.accounts);
-        //   } else if (
-        //       this.$store.getters.account !== '' &&
-        //       this.provider._state.accounts.length === 0) {
-        //     this.$store.state.account = '';
-        //     this.handleAccountsChanged(this.provider._state.accounts);
-        //   }
-        // }
-      },
-      deep: true
-    }
   },
 }
 </script>
