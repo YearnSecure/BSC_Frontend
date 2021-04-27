@@ -68,6 +68,7 @@ export default {
       presales: [], // empty array
       presalesArray: [],
       showConnectionButton: false,
+      showWalletconnectButton: false,
       showDownloadButton: false,
       showCreatePresaleModal: true,
       alert: {
@@ -87,25 +88,25 @@ export default {
     }
   },
   mounted: async function () {
-    // this.$loading(true);
-    // if (this.provider.chainId !== '0x38') {
-    //   this.showError(
-    //       'Wrong network detection',
-    //       'It looks like you are connected to the wrong network. Please connect to Binance Smart Chain and refresh the page.',
-    //       false);
+    this.$loading(true);
+    if (this.provider.chainId !== proccess.env.VUE_APP_CHAIN_ID) {
+      this.showError(
+          'Wrong network detection',
+          'It looks like you are connected to the wrong network. Please connect to Binance Smart Chain and refresh the page.',
+          false);
       this.isLoaded = true;
-    // }
-    //
-    // if (!this.isLoaded) {
-    //   // Detect provider
-    //   await this.detectProvider();
-    //   // Connect to your account
-    //   await this.currentAccount();
-    //   this.isLoaded = true;
-    // }
-    //
-    // await this.getPresales();
-    // this.$loading(false);
+    }
+
+    if (!this.isLoaded) {
+      // Detect provider
+      await this.detectProvider();
+      // Connect to your account
+      await this.currentAccount();
+      this.isLoaded = true;
+    }
+
+    await this.getPresales();
+    this.$loading(false);
 
     const isMobile = ('ontouchstart' in document.documentElement && /mobi/i.test(navigator.userAgent));
     if (isMobile)
@@ -191,14 +192,78 @@ export default {
 
       await this.setPinnedPresales();
     },
-    connectedWallet: function(bool, walletAddress = "") {
-      if (bool) {
-        this.account = walletAddress;
-        this.isConnected = true;
-      } else {
-        this.account = null;
-        this.isConnected = false;
+    detectProvider: async function () {
+      // Great change MetaMask is not installed
+      if (this.provider === undefined) {
+        return this.showError(
+            'MetaMask is not installed.',
+            'It looks like the connection to the MetaMask wallet failed. Try connecting again.',
+            false,
+            true);
       }
+
+      if (!this.provider.isMetaMask)
+        return this.showError(
+            'MetaMask connection failed.',
+            'It looks like the connection to the MetaMask wallet failed. Try connecting again.');
+    },
+    currentAccount: async function () {
+      // connect to MetaMask account
+      this.chainId = this.provider.chainId;
+      this.provider
+          .request({ method: 'eth_accounts' })
+          .then(this.handleAccountsChanged(this.provider._state.accounts))
+          .catch((err) => {
+            // Some unexpected error.
+            // For backwards compatibility reasons, if no accounts are available,
+            // eth_accounts will return an empty array.
+            this.showError(
+                'Unexpected error',
+                err);
+          });
+    },
+    handleAccountsChanged: function (accounts) {
+      if (accounts !== null && accounts.length === 0) {
+        // MetaMask is locked or the user has not connected any accounts
+        this.isConnected = false;
+        this.showError(
+          'No connections made',
+          'Click the connect button to connect your MetaMask account',
+          true, true);
+      } else {
+        this.$store.state.account = accounts[0];
+        this.account = accounts[0];
+        // show user that MetaMask is connected
+        this.isConnected = true;
+      }
+    },
+    walletconnectAccount: async function (){
+      const testprovider = new WalletConnectProvider({
+        rpc: {
+          1: "https://bsc-dataseed.binance.org/",
+          2: "https://bsc-dataseed1.defibit.io/",
+          3: "https://bsc-dataseed1.ninicoin.io/",
+        },
+      });
+
+    await testprovider.enable();
+
+    },
+  
+
+    connectAccount: function () {
+      this.provider
+        .request({ method: 'eth_requestAccounts' })
+        .then(this.handleAccountsChanged(this.provider._state.accounts))
+        .catch((err) => {
+          if (err.code === 4001) {
+            // EIP-1193 userRejectedRequest error
+            // If this happens, the user rejected the connection request.
+            this.showError('Please connect to MetaMask.', err.message);
+          } else {
+            this.showError('Something went wrong', err.message);
+          }
+        });
     },
     closeModal: function () { 
       this.showAlert = !this.showAlert;
@@ -207,14 +272,34 @@ export default {
       title, 
       msg, 
       showConnectButton = false,
+      showWalletconnectButton = false,
       showDownloadButton = false) {
       this.showAlert = !this.showAlert;
       this.alert.title = title
       this.alert.msg = msg;
       this.showConnectionButton = showConnectButton;
+      this.showWalletconnectButton = showWalletconnectButton;
       this.showDownloadButton = showDownloadButton;
     }
   },
+  watch: {
+    provider: {
+      handler: function () {
+        if (
+          this.$store.getters.account === '' &&
+          this.provider._state.accounts.length > 0) {
+            this.$store.state.account = this.provider._state.accounts[0];
+            this.handleAccountsChanged(this.provider._state.accounts);
+          } else if (
+            this.$store.getters.account !== '' &&
+            this.provider._state.accounts.length === 0) {
+              this.$store.state.account = '';
+              this.handleAccountsChanged(this.provider._state.accounts);
+          }
+      },
+      deep: true
+    }
+  }
 }
 </script>
 
