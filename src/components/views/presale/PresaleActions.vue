@@ -97,7 +97,8 @@ export default {
   props: {
     presale: Object,
     allowanceState: String,
-    account: String
+    account: String,
+    tokensClaimed: Boolean,
   },
   data() {
     return {

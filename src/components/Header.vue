@@ -134,13 +134,13 @@ export default {
     },
     connectMetaMask: async function() {
       this.walletConnector.ConnectMetaMask()
-          .then((response) => {
-            this.connectedWalletAddress = response[0];
-            this.$store.state.account =  response[0];
-            this.chainId = this.walletConnector.tempWC.chainId;
-            this.initConnection();
-            this.isConnected = true;
-          }).catch((e) => {
+        .then((response) => {
+          this.connectedWalletAddress = response[0];
+          this.$store.state.account =  response[0];
+          this.chainId = this.walletConnector.tempWC.chainId;
+          this.initConnection();
+          this.isConnected = true;
+        }).catch((e) => {
         console.log(`Something went wrong:`, e);
       }).finally(() => {
         this.toggleConnectWalletModal();

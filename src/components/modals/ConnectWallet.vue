@@ -30,10 +30,6 @@
                  class="block my-2 px-2 py-2 hover:bg-gray-100 cursor-pointer">
               <p>WalletConnect</p>
             </div>
-<!--            <div v-on:click="walletLink"-->
-<!--                 class="block my-2 px-2 py-2 hover:bg-gray-100 cursor-pointer">-->
-<!--              <p>Coinbase</p>-->
-<!--            </div>-->
           </div>
         </div>
       </div>
@@ -57,9 +53,6 @@ export default {
     walletConnect: function() {
       this.$emit('connectWalletConnect');
     },
-    // walletLink: function() {
-    //   this.$emit('connectWalletLink');
-    // },
     toggleModal: function() {
       this.$emit('toggleModal');
     }

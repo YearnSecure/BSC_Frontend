@@ -54,6 +54,7 @@
               :presale="presale"
               :allowanceState="allowanceState"
               :account="account"
+              :tokensClaimed="tokensClaimed"
               @approveCall="approveCall"
               @transferTokens="transferTokens"
               @contributeTokens="contributeTokens"
