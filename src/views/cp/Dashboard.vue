@@ -89,13 +89,13 @@ export default {
   },
   mounted: async function () {
     this.$loading(true);
-    if (this.provider.chainId !== proccess.env.VUE_APP_CHAIN_ID) {
-      this.showError(
-          'Wrong network detection',
-          'It looks like you are connected to the wrong network. Please connect to Binance Smart Chain and refresh the page.',
-          false);
-      this.isLoaded = true;
-    }
+    // if (this.provider.chainId !== proccess.env.VUE_APP_CHAIN_ID) {
+    //   this.showError(
+    //       'Wrong network detection',
+    //       'It looks like you are connected to the wrong network. Please connect to Binance Smart Chain and refresh the page.',
+    //       false);
+    //   this.isLoaded = true;
+    // }
 
     if (!this.isLoaded) {
       // Detect provider
@@ -237,20 +237,6 @@ export default {
         this.isConnected = true;
       }
     },
-    walletconnectAccount: async function (){
-      const testprovider = new WalletConnectProvider({
-        rpc: {
-          1: "https://bsc-dataseed.binance.org/",
-          2: "https://bsc-dataseed1.defibit.io/",
-          3: "https://bsc-dataseed1.ninicoin.io/",
-        },
-      });
-
-    await testprovider.enable();
-
-    },
-  
-
     connectAccount: function () {
       this.provider
         .request({ method: 'eth_requestAccounts' })

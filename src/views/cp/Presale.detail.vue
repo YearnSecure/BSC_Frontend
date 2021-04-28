@@ -84,6 +84,7 @@ import PresaleInformation from '@/components/views/presale/PresaleInformation'
 import TokenAllocations from '@/components/views/presale/TokenAllocations'
 
 import Chart from '@/components/views/dashboard/presale/charts/Presale.Chart'
+import WalletConnector from "@/plugins/walletConnect.plugin";
 import Web3 from "web3";
 
 export default {
@@ -102,6 +103,7 @@ export default {
   data() {
     return {
       id: this.$route.params.id,
+      walletConnector: null,
       totalSupply: 0,
       tokensInPresale: 0,
       liquidityTokens: 0,
@@ -216,31 +218,36 @@ export default {
       await this.currentAccount();
     }
 
+    await this.initWalletConnector();
     await this.initDetailPage();
     this.$loading(false);
     this.isLoaded = true;
   },
   methods: {
+    initWalletConnector: async function() {
+      this.walletConnector = new WalletConnector(window.ethereum);
+    },
     initDetailPage: async function() {
       this.web3 = new Web3(this.provider);
-
+    
       await this.getPresaleData();
       await this.getContributedBNB();
-      await this.getSoftcapMet();
-      if (this.account.toLowerCase() === this.presale.TokenOwnerAddress.toLowerCase()){
-        await this.getAllowance();
-      }
-      if (parseInt(this.presale.CurrentStep) === 1){
-        await this.getPresaleFinished();
-        if (!this.presale.finished){
-          await this.getPresaleStarted();
-        }
-      }
 
-      await this.getTokenAllocations();
-      await this.getContributorHasTokensClaimed();
+      // await this.getSoftcapMet();
+      // if (this.account.toLowerCase() === this.presale.TokenOwnerAddress.toLowerCase()){
+      //   await this.getAllowance();
+      // }
+      // if (parseInt(this.presale.CurrentStep) === 1){
+      //   await this.getPresaleFinished();
+      //   if (!this.presale.finished){
+      //     await this.getPresaleStarted();
+      //   }
+      // }
 
-      this.setProgressBar();
+      // await this.getTokenAllocations();
+      // await this.getContributorHasTokensClaimed();
+
+      // this.setProgressBar();
     },
     getPresaleData: async function() {
       const presaleContractAbi = this.contractAbi;
@@ -248,8 +255,7 @@ export default {
       const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
       
       presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-        await presaleContractInterface.methods.Presales(this.id).call().then((response) => {
-          //Presale Info
+      await this.walletConnector.GetPresaleData(this.contractAbi, this.id, process.env.VUE_APP_PRESALE_CONTRACT).then((response) => {
           this.presale.isBurn = response.State.IsBurnUnsold;
           this.presale.Name = response.Info.Name;
           this.presale.StartDate = (parseInt(response.StartDate));
@@ -267,6 +273,7 @@ export default {
           this.presale.TokenLiquidity = this.readableFormatNumbers(web3.utils.fromWei(response.TokenLiqAmount));
           this.liquidityTokens = web3.utils.fromWei(response.TokenLiqAmount);
 
+          
           if(this.presale.isBurn){
             this.presale.TokenPrice = this.readableFormatNumbers(parseFloat(web3.utils.fromWei(response.State.PresaleTokenPrice)).toFixed(10));
           } else {
@@ -281,7 +288,7 @@ export default {
           const presalePrice = web3.utils.fromWei(response.TokenPresaleAllocation)/web3.utils.fromWei(response.Hardcap);
           const listingPrice = web3.utils.fromWei(response.TokenLiqAmount) / ((response.LiqPercentage/100)*Number(web3.utils.fromWei(response.Hardcap)*0.95)); 
           this.presale.listingPrice =  (presalePrice/listingPrice).toFixed(2);
-
+          
           const hardCapPercentage = Number(web3.utils.fromWei(response.Hardcap)) * 0.95;
           const toLiquidity = hardCapPercentage * ((1/100) * Number(response.LiqPercentage));
           this.presale.listingTokenPrice = (toLiquidity / Number(web3.utils.fromWei(response.TokenLiqAmount))).toFixed(10);
@@ -294,32 +301,48 @@ export default {
           this.presale.Telegram = response.Info.Telegram;
           this.presale.Twitter = response.Info.Twitter;
           this.presale.Website = response.Info.Website;
-          this.getTokenTicker();
-        })
-        .catch((e) => {
+          this.getTokenTicker();         
+      })
+      .catch((e) => {
           console.log('error:' + e);
         });
     },
     getContributedBNB: async function() {
-      const presaleContractAbi = this.contractAbi;
-      const web3 = new Web3(this.provider);
-      const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
+      const web3 = new Web3();
+      const walletAccount = await this.walletConnector.GetAccounts();
 
-      presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
-      await presaleContractInterface.methods.GetBNBContributedForAddress(this.id, this.account)
-          .call()
-          .then((response) => {
-            if (response == 0){
-              this.presale.UserContribution = 0;
-              this.presale.Roi = 0;
-            } else {
-              this.presale.UserContribution = web3.utils.fromWei(response);
-              this.getRoi();
-            }
-          })
-          .catch((e) => {
-            console.log('error:' + e);
-          });
+      if(!walletAccount){
+        this.presale.UserContribution = 0;
+        this.presale.Roi = 0;
+      } else {
+        await this.walletConnector.GetContribution(this.contractAbi, process.vue.VUE_APP_CONTRACT_ADDRESS, this.id, walletAccount).then((response) => {
+          this.presale.UserContribution = web3.utils.fromWei(response);
+          this.getRoi();
+        })
+        .catch((e) => {
+          console.log('error:' + e);
+        });
+      }
+
+      // const presaleContractAbi = this.contractAbi;
+      // const web3 = new Web3(this.provider);
+      // const presaleContractInterface = new web3.eth.Contract(presaleContractAbi);
+
+      // presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
+      // await presaleContractInterface.methods.GetBNBContributedForAddress(this.id, this.account)
+      //     .call()
+      //     .then((response) => {
+      //       if (response == 0){
+      //         this.presale.UserContribution = 0;
+      //         this.presale.Roi = 0;
+      //       } else {
+      //         this.presale.UserContribution = web3.utils.fromWei(response);
+      //         this.getRoi();
+      //       }
+      //     })
+      //     .catch((e) => {
+      //       console.log('error:' + e);
+      //     });
     },
     getSoftcapMet: async function() {
       const presaleContractAbi = this.contractAbi;

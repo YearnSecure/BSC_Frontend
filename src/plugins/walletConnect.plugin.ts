@@ -10,7 +10,7 @@ export default class WalletConnector {
     constructor(metaMaskProvider: any) {
         this.metamaskProvider = metaMaskProvider;
         this.tempWC = new WalletConnectProvider({
-            infuraId: process.env.VUE_APP_INFURA,
+            // infuraId: process.env.VUE_APP_INFURA,
             rpc: {
                 56: "https://bsc-dataseed.binance.org/",
                 97: "https://data-seed-prebsc-1-s1.binance.org:8545/",
@@ -21,9 +21,9 @@ export default class WalletConnector {
         this.walletConnectConnected = false;
     }
     // Returns bool of the connection MetaMask or WalletConnect
-    IsConnected() {
+    async IsConnected() {
         this.metamaskConnected = this.IsMetamaskConnected();
-        this.walletConnectConnected = this.IsWalletConnectConnected();
+        this.walletConnectConnected = await this.IsWalletConnectConnected();
         console.log('metamask connected: ' + this.metamaskConnected);
         console.log('wc connected: ' + this.walletConnectConnected);
         return this.metamaskConnected || this.walletConnectConnected;
@@ -45,10 +45,10 @@ export default class WalletConnector {
         return true;
     }
     // Check if WalletConnect is connected
-    IsWalletConnectConnected() {
+    async IsWalletConnectConnected() {
         const isConnected = this.tempWC.connector.connected;
         if(isConnected)
-            this.tempWC.enable()
+            await this.tempWC.enable()
                 .then(() => {
                     return isConnected;
                 });
@@ -74,8 +74,8 @@ export default class WalletConnector {
         } else if (this.walletConnectConnected){
             return new Web3(this.tempWC as any);
         }
-
-        return null;
+        return new Web3(new Web3.providers.HttpProvider('https://data-seed-prebsc-1-s1.binance.org:8545/'));
+        // return null;
     }
     // Returns the connected accounts
     async GetAccounts() {
@@ -106,7 +106,7 @@ export default class WalletConnector {
         }
     }
     // Disconnect the connected wallet
-    Disconnect() {
+    async Disconnect() {
         if(this.walletConnectConnected)
             return this.tempWC.disconnect();
         else if (this.metamaskConnected) {
@@ -115,7 +115,7 @@ export default class WalletConnector {
         }
 
         this.metamaskConnected = this.IsMetamaskConnected();
-        this.walletConnectConnected = this.IsWalletConnectConnected();
+        this.walletConnectConnected = await this.IsWalletConnectConnected();
 
         return null;
     }
@@ -145,6 +145,15 @@ export default class WalletConnector {
             const presaleContractInterface = new web3.eth.Contract(abi);
             presaleContractInterface.options.address = address;
             return await presaleContractInterface.methods.PresaleFinished(id).call({from: account});
+        }
+    }
+    async GetContribution(abi: any, address: string, id: any, account: any) {
+        const web3 = this.GetProvider();
+
+        if(web3 != null) {
+            const presaleContractInterface = new web3.eth.Contract(abi);
+            presaleContractInterface.options.address = address;
+            return await presaleContractInterface.methods.GetBNBContributedForAddress(id).call({from: account});
         }
     }
     async GetPresaleStarted(abi: any, address: string, id: any, account: any) {
