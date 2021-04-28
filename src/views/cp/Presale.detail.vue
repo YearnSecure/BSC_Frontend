@@ -82,6 +82,7 @@ import TeamInformation from '@/components/views/presale/TeamInformation'
 import TokenInformation from '@/components/views/presale/TokenInformation'
 import PresaleInformation from '@/components/views/presale/PresaleInformation'
 import TokenAllocations from '@/components/views/presale/TokenAllocations'
+import PresaleActions from '@/components/views/presale/PresaleActions'
 
 import Chart from '@/components/views/dashboard/presale/charts/Presale.Chart'
 import WalletConnector from "@/plugins/walletConnect.plugin";
@@ -98,6 +99,7 @@ export default {
     TokenInformation,
     PresaleInformation,
     TokenAllocations,
+    PresaleActions,
     Chart
   },
   data() {
