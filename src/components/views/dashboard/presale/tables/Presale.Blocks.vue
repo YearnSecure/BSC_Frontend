@@ -2,11 +2,26 @@
 <div>
       <h2 class="p-6 text-gray-500 text-xs font-medium uppercase tracking-wide">Presale list</h2>
       <div v-if="(presales.length > 0)">
-        <div class="grid grid-cols-4 gap-4 p-6 ">
+        <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-6 relative">
         <div v-for="(presale, key) in presales" :key="key">
-        
-        <div class="presale-blocks text-center p-6 rounded-lg">
-            
+        <div class="text-center p-6 rounded-lg static presale-blocks">
+            <div class="rounded-lg w-48 absolute top-0 fix-presale">
+            <div v-if="(presale.isFinished) == true">
+              <div class="bg-red-600 rounded-lg p-1 ">
+              <h2 class="font-bold text-white">Filled</h2>
+              </div>
+            </div>
+              <div v-if="(presale.IsStarted) == true">
+              <div class="bg-green-600 rounded-lg p-1">
+              <h2 class="font-bold text-white">Ongoing</h2>
+              </div>
+            </div>
+              <div v-if="(presale.isUpcoming) == true">
+              <div class="bg-blue-600 rounded-lg p-1">
+              <h2 class="font-bold text-white">Upcoming</h2>
+              </div>
+            </div>
+            </div>
             <div class="p-2 align-left text-left object-left content-left">
                  <img src="/assets/images/logo.svg" class="h-10 h-auto inline">
                   <span class="content-left text-left font-bold text-white text-xl p-2 w-3/4  align-middle"> {{ presale.name }}</span>
@@ -186,4 +201,9 @@ export default {
 .progress-bar {
     background-color:#059669 ;
 }
+
+.fix-presale {
+  margin-left: 80px;
+}
+
 </style>
