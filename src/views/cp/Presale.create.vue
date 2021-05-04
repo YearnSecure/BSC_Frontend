@@ -197,6 +197,7 @@ import Liquidity from '@/components/presale/Liquidity'
 import Tokenomics from '@/components/presale/Tokenomics'
 import Socials from '@/components/presale/Socials'
 import NotCompleted from '@/components/presale/NotCompleted'
+import WalletConnector from "@/plugins/walletConnect.plugin";
 import Web3 from "web3";
 
 export default {
@@ -339,6 +340,8 @@ export default {
   },
   mounted: async function () {
     this.$loading(true);
+    this.walletConnector = new WalletConnector(window.ethereum);
+    await this.initContract();
     if (this.provider === undefined) {
       this.isLoaded = true;
     }
@@ -353,6 +356,29 @@ export default {
     this.$loading(false);
   },
   methods: {
+    initContract: async function() {
+      // check connection
+      const isConnected = this.walletConnector.IsConnected();
+      if (isConnected) {
+        this.web3 = new Web3(this.provider);
+        this.contractInterface = new this.web3.eth.Contract(this.contractAbi);
+        this.contractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
+      } else {
+        this.web3 = this.walletConnector.GetProvider();
+        this.contractInterface = new this.web3.eth.Contract(this.contractAbi);
+        this.contractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
+      }
+      await this.loadAccounts();
+    },
+    loadAccounts: async function() {
+      const wallet = await this.walletConnector.GetAccounts();
+      if (wallet !== undefined) {
+        this.account = wallet[0];
+        this.$store.state.account = wallet[0];
+        this.chainId = await this.walletConnector.GetChainId();
+        this.isConnected = true;
+      }
+    },
     validSocials: function() {
       this.presaleIsValid = true;
     },
@@ -467,7 +493,7 @@ export default {
       }
 
       if (this.account !== null && this.account !== '') {
-        await this.sendPresaleToContract(presaleContractInterface, presaleDto);
+        await this.sendPresaleToContract(presaleDto);
       } else {
         this.$loading(false);
       }
@@ -565,8 +591,9 @@ export default {
 
       return tokenAllocations;
     },
-    sendPresaleToContract: async function(presaleContractInterface, presaleDto) {
-      await presaleContractInterface.methods.CreatePresale(presaleDto)
+    sendPresaleToContract: async function(presaleDto) {
+
+      await this.walletConnector.createPresale(this.account, process.env.VUE_APP_PRESALE_CONTRACT, this.contractAbi, presaleDto)
         .send({from: this.account})
         .then((response) => {
           if (response.status && response.blockHash !== '') {

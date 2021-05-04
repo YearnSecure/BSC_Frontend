@@ -283,4 +283,16 @@ async contributeTokens(id: any, account: string, amountOfTokens: any, address: s
         return await presaleContractInterface.methods.Contribute(id).send({from: account, value: web3.utils.toWei(amountOfTokens.toString())});
     }
 }
+
+async createPresale(account: string, address: string, abi: any, presaleData: any,) {
+    const web3 = this.GetProvider();
+    if(web3 != null) {
+        const presaleContractInterface = new web3.eth.Contract(abi);
+        presaleContractInterface.options.address = address;
+        await presaleContractInterface.methods.CreatePresale(presaleData)
+        .send({from: account});
+    }
+}
+
+
 }
