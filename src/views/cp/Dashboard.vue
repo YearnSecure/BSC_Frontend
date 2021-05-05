@@ -24,7 +24,6 @@
 <!--        <PreSales-->
 <!--            :presales="pinnedPresales"-->
 <!--            :options="options" />-->
-
         <PreSalesBlocks
             :presales="presales"
             @pinPresale="pinPresale"

@@ -258,7 +258,6 @@ export default {
       
       presaleContractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
       await this.walletConnector.GetPresaleData(this.contractAbi, this.id, process.env.VUE_APP_PRESALE_CONTRACT).then((response) => {
-          console.log(response);
           this.presale.isBurn = response.State.IsBurnUnsold;
           this.presale.Name = response.Info.Name;
           this.presale.StartDate = (parseInt(response.StartDate));
