@@ -6,17 +6,17 @@
         <a :href="switchPlatformUrl" class="py-2 px-3 bg-yellow-500 text-white cursor-pointer rounded hover:bg-yellow-600" target="_blank">ERC Chain</a>
       </div>
       <div class="flex-1 min-w-0 text-center">
-        <h1 class="text-lg font-medium leading-6 text-gray-900 dark:text-white sm:truncate">
+        <h1 class="grid gap-1 mt-3 text-lg font-medium leading-6 text-gray-900 dark:text-white sm:truncate">
           YSEC Token address: <a :href="`https://etherscan.io/address/${contractAddress}`" target="_blank" class="text-blue-500 hover:text-yellow-600 transiation duration-300">{{ contractAddress }}</a>
         </h1>
-        <h3 v-if="isConnected" class="text-sm font-medium leading-4 text-gray-900 dark:text-white sm:truncate">
-          You are connected: <a :href="`https://bscscan.com/address/${account}`" target="_blank" class="text-yellow-500 hover:text-blue-600 transiation duration-300">{{ account }}</a>
+        <h3 v-if="isConnected" class="grid gap-1 mt-3 text-sm font-medium leading-4 text-gray-900 dark:text-white sm:truncate">
+          You are connected: <a :href="`https://bscscan.com/address/${connectedWalletAddress}`" target="_blank" class="text-yellow-500 hover:text-blue-600 transiation duration-300">{{ connectedWalletAddress }}</a>
         </h3>
-        <h4 v-if="isConnected" class="text-xs font-medium leading-4 text-green-600 sm:truncate">
+        <h4 v-if="isConnected" class="grid gap-1 mt-3 text-xs font-medium leading-4 text-green-600 sm:truncate">
           <span v-if="chainId">{{ network }}</span>
         </h4>
       </div>
-      <div class="mt-4 flex sm:mt-0 sm:ml-4">
+      <div class="place-content-center mt-4 flex sm:mt-0 sm:ml-4">
         <div class="flex pl-1 pr-1">
           <a href="https://discord.com/invite/TZMF4jm" target="_blank" class="text-gray-400 hover:text-blue-400">
             <span class="sr-only">Discord</span>
@@ -56,32 +56,54 @@
             </svg>
           </a>
         </div>
-        <!-- <button type="button" class="order-0 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:order-1 sm:ml-3">
-          Create
-        </button> -->
+        <button v-if="!isConnected" type="button" v-on:click="toggleConnectWalletModal" class="order-0 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 sm:order-1 sm:ml-3">
+          Connect wallet
+        </button>
+        <button v-if="isConnected" type="button" class="order-0 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:order-1 sm:ml-3">
+          {{ truncateString(connectedWalletAddress, 12) }}
+        </button>
       </div>
     </div>
+    <ConnectWalletModal
+        v-if="showModal"
+        @connectMetaMask="connectMetaMask"
+        @connectWalletConnect="connectWalletConnect"
+        @toggleModal="toggleConnectWalletModal"/>
   </div>  
 </template>
 
 <script>
+import Web3 from "web3";
 import { mapGetters } from "vuex";
+import ConnectWalletModal from "@/components/modals/ConnectWallet";
+import WalletConnector from "@/plugins/walletConnect.plugin";
 
 export default {
   name: 'header.dashboard.components',
   props: {
     contractAddress: String,
-    isConnected: Boolean,
     account: String,
-    chainId: String
   },
-  data() {
-    return {
-      switchPlatformUrl: process.env.VUE_APP_ERC
-    }
+  components: {
+    ConnectWalletModal
   },
-  beforeMount: function(){
+  data:() => ({
+    switchPlatformUrl: process.env.VUE_APP_ERC,
+    web3: new Web3(window.ethereum),
+    tokenPrice: null,
+    connectedWalletAddress: null,
+    walletConnector: null,
+    isConnected: false,
+    chainId: null,
+    showModal: false,
+    showConnectedWalletModal: false,
+  }),
+  beforeMount: function() {
     this.$store.dispatch("initTheme");
+  },
+  mounted: async function() {
+    this.walletConnector = new WalletConnector(window.ethereum);
+    await this.initConnection();
   },
   computed: {
     ...mapGetters({ theme: "getTheme" }),
@@ -101,18 +123,72 @@ export default {
       return network;
     }
   },
+  methods: {
+    initConnection: async function() {
+      if(this.walletConnector.IsConnected()) {
+        await this.loadAccounts();
+      } else{
+        this.isConnected = false;
+      }
+    },
+    connectMetaMask: async function() {
+      this.walletConnector.ConnectMetaMask()
+        .then((response) => {
+          this.connectedWalletAddress = response[0];
+          this.$store.state.account =  response[0];
+          this.chainId = this.walletConnector.tempWC.chainId;
+          this.initConnection();
+          this.isConnected = true;
+        }).catch((e) => {
+        console.log(`Something went wrong:`, e);
+      }).finally(() => {
+        this.toggleConnectWalletModal();
+      });
+    },
+    connectWalletConnect: function() {
+      this.walletConnector.ConnectWalletConnect()
+          .then((response) => {
+            this.connectedWalletAddress = response[0];
+            this.$store.state.account = response[0];
+            this.chainId = this.walletConnector.tempWC.chainId;
+            this.isConnected = true;
+          }).catch((e) => {
+        console.log(`Something went wrong:`, e);
+      }).finally(() => {
+        this.toggleConnectWalletModal();
+      });
+    },
+    loadAccounts: async function() {
+      const wallet = await this.walletConnector.GetAccounts();
+      if (wallet !== undefined) {
+        this.connectedWalletAddress = wallet[0];
+        this.$store.state.account = wallet[0];
+        this.chainId = await this.walletConnector.GetChainId();
+        this.isConnected = true;
+      }
+    },
+    truncateString: function(str, num) {
+      if (str !== undefined) {
+        if (str.length <= num) {
+          return str
+        }
+        return str.slice(0, num) + '...'
+      }
+    },
+    setTheme: function() {
+      this.$store.dispatch("toggleTheme");
+    },
+    toggleConnectWalletModal: function() {
+      this.showModal = !this.showModal;
+    }
+  },
   watch: {
     theme(newTheme) {
       newTheme === "light"
-        ? document.querySelector("html").classList.remove("dark")
-        : document.querySelector("html").classList.add("dark");
+          ? document.querySelector("html").classList.remove("dark")
+          : document.querySelector("html").classList.add("dark");
     },
   },
-  methods: {
-    setTheme: function() {
-      this.$store.dispatch("toggleTheme");
-    }
-  }
 }
 </script>
 

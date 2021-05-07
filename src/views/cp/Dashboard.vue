@@ -6,7 +6,8 @@
             :contractAddress="contractAddress"
             :isConnected="isConnected"
             :account="account"
-            :chainId="chainId" />
+            :chainId="chainId"
+            @connectedWallet="connectedWallet"/>
 
         <AlertModal 
             v-if="showAlert"
@@ -67,6 +68,7 @@ export default {
       presales: [], // empty array
       presalesArray: [],
       showConnectionButton: false,
+      showWalletconnectButton: false,
       showDownloadButton: false,
       showCreatePresaleModal: true,
       alert: {
@@ -87,13 +89,13 @@ export default {
   },
   mounted: async function () {
     this.$loading(true);
-    if (this.provider.chainId !== '0x38') {
-      this.showError(
-          'Wrong network detection',
-          'It looks like you are connected to the wrong network. Please connect to Binance Smart Chain and refresh the page.',
-          false);
-      this.isLoaded = true;
-    }
+    // if (this.provider.chainId !== proccess.env.VUE_APP_CHAIN_ID) {
+    //   this.showError(
+    //       'Wrong network detection',
+    //       'It looks like you are connected to the wrong network. Please connect to Binance Smart Chain and refresh the page.',
+    //       false);
+    //   this.isLoaded = true;
+    // }
 
     if (!this.isLoaded) {
       // Detect provider
@@ -227,7 +229,7 @@ export default {
         this.showError(
           'No connections made',
           'Click the connect button to connect your MetaMask account',
-          true);
+          true, true);
       } else {
         this.$store.state.account = accounts[0];
         this.account = accounts[0];
@@ -256,11 +258,13 @@ export default {
       title, 
       msg, 
       showConnectButton = false,
+      showWalletconnectButton = false,
       showDownloadButton = false) {
       this.showAlert = !this.showAlert;
       this.alert.title = title
       this.alert.msg = msg;
       this.showConnectionButton = showConnectButton;
+      this.showWalletconnectButton = showWalletconnectButton;
       this.showDownloadButton = showDownloadButton;
     }
   },

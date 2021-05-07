@@ -101,7 +101,7 @@
 
           </div>
           <div class="mx-auto w-1/2 mt-4">
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid sm:grid-cols-1 lg:grid-cols-2 gap-4">
               <div>
                 <label class="inline-flex items-center mt-9">
                   <input type="radio"
@@ -125,7 +125,7 @@
           <div
             v-if="liquidity.lockedOrPermaBurn === '0'"
             class="block mx-auto w-1/2">
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid sm:grid-cols-1 lg:grid-cols-2 gap-4">
               <div>
                 <label class="inline-flex items-center mt-9">
                   <input
@@ -148,7 +148,7 @@
             </div>
           </div>
           <div class="block w-full" v-if="liquidity.timeLockedOrInterval === '0' && liquidity.lockedOrPermaBurn === '0'">
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid sm:grid-cols-1 lg:grid-cols-2 gap-4">
               <div class="col-span-1">
                 <label class="items-center">
                   <label
