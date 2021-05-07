@@ -83,7 +83,6 @@ export default {
   props: {
     contractAddress: String,
     account: String,
-    chainId: String
   },
   components: {
     ConnectWalletModal

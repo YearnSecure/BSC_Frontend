@@ -4,17 +4,13 @@
       <main v-if="isLoaded" class="flex-1 relative z-0 overflow-y-auto focus:outline-none" tabindex="0">
         <Header
             :contractAddress="contractAddress"
-            :isConnected="isConnected"
-            :account="account"
-            :chainId="chainId" />
+            :account="account" />
 
         <AlertModal
             v-if="showAlert"
             :alert="alert"
             :showConnectionButton="showConnectionButton"
-            :showDownloadButton="showDownloadButton"
-            @connectAccount="connectAccount"
-            @closeModal="closeModal" />
+            :showDownloadButton="showDownloadButton" />
 
         <PageTitle
             :title="title"
@@ -58,12 +54,12 @@
               @approveCall="approveCall"
               @transferTokens="transferTokens"
               @contributeTokens="contributeTokens"
-              @retrieveBNB="retrieveBNB"
+              @retrieveBNB="retrieve"
               @retrieveTokensOwner="retrieveTokensOwner"
               @transferTokensToLocks="transferTokensToLocks"
               @addLiquidity="addLiquidity"
               @claimTokens="claimTokens"
-              @distributeBNB="distributeBNB"
+              @distributeBNB="distribute"
             />
           </div>
         </div>
@@ -206,10 +202,12 @@ export default {
   mounted: async function () {
     this.$loading(true);
     this.walletConnector = new WalletConnector(window.ethereum);
+
     await this.initContract();
     await this.getPresaleData();
     await this.initTokenContract();
     await this.initDetailPage();
+
     this.isLoaded = true;
     this.$loading(false);
   },
@@ -219,13 +217,12 @@ export default {
       const isConnected = this.walletConnector.IsConnected();
       if (isConnected) {
         this.web3 = new Web3(this.provider);
-        this.contractInterface = new this.web3.eth.Contract(this.contractAbi);
-        this.contractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
       } else {
         this.web3 = this.walletConnector.GetProvider();
-        this.contractInterface = new this.web3.eth.Contract(this.contractAbi);
-        this.contractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
       }
+      this.contractInterface = new this.web3.eth.Contract(this.contractAbi);
+      this.contractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT_ETH;
+
       await this.loadAccounts();
     },
     initTokenContract: async function() {
@@ -234,22 +231,20 @@ export default {
       this.tokenInterface.options.address = this.presale.TokenAddress;
     },
     initDetailPage: async function() {
-      
       await this.getTokenTicker();
-      
       await this.getSoftcapMet();
       
       if (this.account !== "" && this.account.toLowerCase() === this.presale.TokenOwnerAddress.toLowerCase()){
         await this.getAllowance();
         await this.getContributedBNB();
       }
+
       if (parseInt(this.presale.CurrentStep) === 1){
         await this.getPresaleFinished();
         if (!this.presale.finished){
           await this.getPresaleStarted();
         }
       }
-      
       await this.getTokenAllocations();
       this.setProgressBar();
     },
@@ -285,11 +280,14 @@ export default {
       this.presale.TokenOwnerAddress = response.Addresses.TokenOwnerAddress;
       this.presale.BNBDistributable = (response.State.ContributedBNB - response.State.RetrievedBNBAmount) > 0;
       this.presale.TokenTimeLock = response.Addresses.TokenTimeLock;
+
       const presalePrice = this.web3.utils.fromWei(response.TokenPresaleAllocation)/this.web3.utils.fromWei(response.Hardcap);
       const listingPrice = this.web3.utils.fromWei(response.TokenLiqAmount) / ((response.LiqPercentage/100)*Number(this.web3.utils.fromWei(response.Hardcap)*0.95));
+
       this.presale.listingPrice =  (presalePrice/listingPrice).toFixed(2);
       const hardCapPercentage = Number(this.web3.utils.fromWei(response.Hardcap)) * 0.95;
       const toLiquidity = hardCapPercentage * ((1/100) * Number(response.LiqPercentage));
+
       this.presale.listingTokenPrice = (toLiquidity / Number(this.web3.utils.fromWei(response.TokenLiqAmount))).toFixed(5);
       //Current Presale Step
       this.presale.CurrentStep = response.State.Step;
@@ -313,6 +311,7 @@ export default {
       const tokenPresalePercentage = this.tokensInPresale / totalSupply * 100;
       this.presale.chartData.labels.push('Tokens in presale');
       this.presale.chartData.datasets[0].data.push(tokenPresalePercentage);
+
       const liquidityPercentage = this.liquidityTokens / totalSupply * 100;
       this.presale.chartData.labels.push('Token liquidity');
       this.presale.chartData.datasets[0].data.push(liquidityPercentage);
