@@ -123,7 +123,7 @@ export default {
       this.$emit('retrieveTokensOwner');
     },
     transferTokensToLocks: function() {
-      this.$emit('TransferTokensToLocks');
+      this.$emit('transferTokensToLocks');
     },
     addLiquidity: function() {
       this.$emit('addLiquidity');

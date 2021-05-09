@@ -216,7 +216,7 @@ export default class WalletConnector {
         if(web3 != null) {
             const presaleContractInterface = new web3.eth.Contract(abi);
             presaleContractInterface.options.address = address;
-            return await presaleContractInterface.methods.AddUniswapLiquidity(id).send({from: account});
+            return await presaleContractInterface.methods.AddLiquidity(id).send({from: account});
         }
     }
 
@@ -234,7 +234,7 @@ export default class WalletConnector {
         if(web3 != null) {
             const presaleContractInterface = new web3.eth.Contract(abi);
             presaleContractInterface.options.address = address;
-            return await presaleContractInterface.methods.DistributeEth(id).send({from: account});
+            return await presaleContractInterface.methods.DistributeBNB(id).send({from: account});
         }
     }
 
@@ -243,7 +243,7 @@ export default class WalletConnector {
         if(web3 != null) {
             const presaleContractInterface = new web3.eth.Contract(abi);
             presaleContractInterface.options.address = address;
-            return await presaleContractInterface.methods.RetrieveEth(id, account).send({from: account});
+            return await presaleContractInterface.methods.RetrieveBNB(id, account).send({from: account});
         }
     }
 
