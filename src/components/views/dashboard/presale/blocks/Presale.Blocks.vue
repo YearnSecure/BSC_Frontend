@@ -62,7 +62,7 @@
                 :style="percentage.width"
                 class="h-5 shadow-none progressbar flex flex-col text-center whitespace-nowrap text-white justify-center"
               >
-                <p class="text-white">{{presale.contributedEth/presale.hardcapInEth*100}}%</p>
+                <p class="text-white">{{(presale.contributedEth/presale.hardcapInEth*100).toFixed(2)}}%</p>
               </div>
                      
             </div>
@@ -70,7 +70,7 @@
             </div>
             <span class="truncate text-center text-sm text-gray-600">
               <p class="p-2">
-                {{ presale.contributedEth / presale.hardcapInEth * 100  }}% (Min {{presale.softcapInEth / presale.hardcapInEth * 100}}%) {{ presale.contributedEth }}/{{presale.hardcapInEth}} BNB
+                {{ (presale.contributedEth / presale.hardcapInEth * 100).toFixed(2) }}% (Min {{(presale.softcapInEth / presale.hardcapInEth * 100)}}%) {{ presale.contributedEth }}/{{presale.hardcapInEth}} BNB
               </p>
             </span>
             <div class="grid grid-cols-2 text-center pb-6">
@@ -86,6 +86,7 @@
               <div>
                 <label class="text-white">Connect</label>
                 <br />
+                <div class="inline" v-if="presale.website">
                 <a class="p-2" :href="presale.website">
                   <svg
                     fill="#f59e0b"
@@ -107,6 +108,8 @@
                     </g>
                   </svg>
                 </a>
+                </div>
+                <div class="inline" v-if="presale.telegram">
                 <a class="p-2" :href="presale.telegram">
                   <svg
                     fill="#f59e0b"
@@ -138,6 +141,7 @@
                     </g>
                   </svg>
                 </a>
+                </div>
               </div>
             </div>
             <div class="center">
