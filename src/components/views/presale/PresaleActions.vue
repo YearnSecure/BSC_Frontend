@@ -1,5 +1,5 @@
 <template>
-<div>
+<div v-if="this.account != 0">
   <div v-if="
     Number(presale.CurrentStep) === 0 &&
     account.toLowerCase() === presale.TokenOwnerAddress.toLowerCase() &&
