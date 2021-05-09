@@ -24,8 +24,7 @@
 <!--        <PreSales-->
 <!--            :presales="pinnedPresales"-->
 <!--            :options="options" />-->
-
-        <PreSalesTable
+        <PreSalesBlocks
             :presales="presales"
             @pinPresale="pinPresale"
         />
@@ -42,7 +41,8 @@ import AlertModal from '@/components/modals/Alert.modals'
 import Header from '@/components/Header'
 import PageTitle from '@/components/PageTitle'
 // import PreSales from '@/components/views/dashboard/presale/Presale.Dashboard'
-import PreSalesTable from '@/components/views/dashboard/presale/tables/Presale.Table'
+ //import PreSalesTable from '@/components/views/dashboard/presale/tables/Presale.Table'
+ import PreSalesBlocks from '@/components/views/dashboard/presale/tables/Presale.Blocks'
 import Web3 from "web3";
 
 export default {
@@ -52,7 +52,8 @@ export default {
     Header,
     PageTitle,
     // PreSales,
-    PreSalesTable,
+   // PreSalesTable,
+     PreSalesBlocks,
   },
   data() {
     return {
