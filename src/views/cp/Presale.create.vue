@@ -341,33 +341,32 @@ export default {
   mounted: async function () {
     this.$loading(true);
     this.walletConnector = new WalletConnector(window.ethereum);
-    await this.initContract();
-    if (this.provider === undefined) {
-      this.isLoaded = true;
+    await this.initConnection();
+
+    if (!this.isConnected) {
+      this.$notifications(
+          "Please connect your wallet",
+          "This page only works when you connect your wallet",
+          1, // error
+          true
+      );
     }
 
-    if (!this.isLoaded) {
-      // Detect provider
-      await this.detectProvider();
-      // Connect to your account
-      await this.currentAccount();
-      this.isLoaded = true;
-    }
+    this.isLoaded = true;
     this.$loading(false);
   },
   methods: {
-    initContract: async function() {
+    initConnection: async function() {
       // check connection
       const isConnected = this.walletConnector.IsConnected();
       if (isConnected) {
         this.web3 = new Web3(this.provider);
-        this.contractInterface = new this.web3.eth.Contract(this.contractAbi);
-        this.contractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
       } else {
         this.web3 = this.walletConnector.GetProvider();
-        this.contractInterface = new this.web3.eth.Contract(this.contractAbi);
-        this.contractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT;
       }
+      this.contractInterface = new this.web3.eth.Contract(this.contractAbi);
+      this.contractInterface.options.address = process.env.VUE_APP_PRESALE_CONTRACT_ETH;
+
       await this.loadAccounts();
     },
     loadAccounts: async function() {
@@ -592,13 +591,9 @@ export default {
       return tokenAllocations;
     },
     sendPresaleToContract: async function(presaleDto) {
-
-      await this.walletConnector.createPresale(this.account, process.env.VUE_APP_PRESALE_CONTRACT, this.contractAbi, presaleDto)
-        .send({from: this.account})
+      await this.walletConnector.createPresale(presaleDto, this.account, process.env.VUE_APP_PRESALE_CONTRACT, this.contractAbi)
         .then((response) => {
           if (response.status && response.blockHash !== '') {
-            this.key++; // update components
-
             this.$notifications(
                 'Presale successfully created',
                 `https://www.bscscan.com/tx/${response.transactionHash}`,
@@ -606,8 +601,6 @@ export default {
                 true);
 
             this.resetPage();
-
-            this.$loading(false);
           }
         })
         .catch((e) => {
@@ -616,59 +609,10 @@ export default {
               e.message,
               1, // error
               true);
-
+        }).finally(() => {
+          this.key++;
           this.$loading(false);
         });
-    },
-    detectProvider: async function () {
-      // Great change MetaMask is not installed
-      if (this.provider === undefined) {
-        return this.showError(
-            'unexpected error',
-            'It looks like the connection to the MetaMask wallet failed. Try connecting again.',
-            false,
-            true);
-      }
-
-      if (!this.provider.isMetaMask)
-        this.$notifications(
-            'METAMASK not connected',
-            'Please connect your METAMASK',
-            1, // error
-            true);
-    },
-    currentAccount: async function () {
-      // connect to MetaMask account
-      this.chainId = this.provider.chainId;
-      this.provider
-          .request({ method: 'eth_accounts' })
-          .then(this.handleAccountsChanged(this.provider._state.accounts))
-          .catch(() => {
-            // Some unexpected error.
-            // For backwards compatibility reasons, if no accounts are available,
-            // eth_accounts will return an empty array.
-            this.$notifications(
-                'METAMASK not connected',
-                'Please connect your METAMASK',
-                1, // error
-                true);
-          });
-    },
-    handleAccountsChanged: function (accounts) {
-      if (accounts !== null && accounts.length === 0) {
-        // MetaMask is locked or the user has not connected any accounts
-        this.isConnected = false;
-        this.$notifications(
-            'No connections made\'',
-            'Click the connect button to connect your MetaMask account',
-            1, // error
-            true);
-      } else {
-        this.$store.state.account = accounts[0];
-        this.account = accounts[0];
-        // show user that MetaMask is connected
-        this.isConnected = true;
-      }
     },
     selectDivideTokens: function() {
       if (this.divideTokens) {
