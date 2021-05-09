@@ -75,10 +75,15 @@
     </div>
   </div>
   <div v-if="Number(presale.CurrentStep) === 3 && !tokensClaimed">
-    <div class="block text-center mt-10">
+    <div class="block text-center mt-10 pr-6">
+      <button v-on:click="goBack()" class="py-2 p-4 mr-4 bg-yellow-500 text-white rounded-3xl">
+        Go Back
+      </button>
       <button v-on:click="claimTokens()" class="py-2 px-8 bg-yellow-500 text-white rounded-3xl">
         Claim Tokens
       </button>
+    </div>
+      <div class="block text-center mt-10">
     </div>
   </div>
   <div v-if="Number(presale.CurrentStep) === 3 && presale.BNBDistributable">
@@ -115,6 +120,9 @@ export default {
     contributeTokens: async function(contribution) {
       this.contribution = "";
       await this.$emit('contributeTokens', contribution);
+    },
+    goBack: function() {
+     this.$router.go(-1);
     },
     retrieveBNB: function() {
       this.$emit('retrieveBNB');

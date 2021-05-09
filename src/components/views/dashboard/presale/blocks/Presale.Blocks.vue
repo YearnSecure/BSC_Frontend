@@ -11,8 +11,10 @@
           <div class="p-6 rounded-lg static presale-blocks">
             <div class="rounded-lg w-48 m-auto text-center">
               <div v-if="presale.isFinished">
+                <div v-if="presale.contributedEth < presale.softcapInEth">
                 <div class="bg-red-600 rounded-lg p-1">
                   <h2 class="font-bold text-white">Failed</h2>
+                </div>
                 </div>
               </div>
               <div v-else-if="presale.isStarted">
@@ -25,9 +27,11 @@
                   <h2 class="font-bold text-white">Upcoming</h2>
                 </div>
               </div>
-                 <div v-else-if="presale.contributedEth === presale.hardcapInEth">
+               <div v-if="presale.contributedEth >= presale.softcapInEth">
+                 <div v-if="presale.isFinished">
                 <div class="bg-green-600 rounded-lg p-1">
                   <h2 class="font-bold text-white">Filled</h2>
+                </div>
                 </div>
               </div>
             </div>
