@@ -210,9 +210,13 @@ export default {
       await this.initTokenContract();
       await this.initDetailPage();
     } else {
+      await this.getPresaleData();
+      await this.initTokenContract();
+      await this.initDetailPage();
       this.$notifications(
           "Please connect your wallet",
-          "The detail page only works when you connect your wallet",
+          // "The detail page only works when you connect your wallet",
+          "Buttons on the detail page will only work when connected with a wallet",
           1, // error
           true
       );
@@ -244,7 +248,7 @@ export default {
       await this.getTokenTicker();
       await this.getSoftcapMet();
       await this.getContributedBNB();
-      
+
       if (this.account !== "" && this.account.toLowerCase() === this.presale.TokenOwnerAddress.toLowerCase()){
         await this.getAllowance();
       }
@@ -334,15 +338,20 @@ export default {
       this.presale.chartData.labels.push('Token liquidity');
       this.presale.chartData.datasets[0].data.push(liquidityPercentage);
     },
-    getContributedBNB: async function() {      
-      const response = await this.walletConnector.getContributedBNB(this.id, this.account, process.env.VUE_APP_PRESALE_CONTRACT, this.contractAbi);
-      if (parseInt(response) === 0){
+    getContributedBNB: async function() {
+      if (!this.account) {
         this.presale.UserContribution = 0;
         this.presale.Roi = 0;
       } else {
-        this.presale.UserContribution = this.web3.utils.fromWei(response);
-        await this.getRoi();
-      }
+        const response = await this.walletConnector.getContributedBNB(this.id, this.account, process.env.VUE_APP_PRESALE_CONTRACT, this.contractAbi);
+         if (parseInt(response) === 0){
+          this.presale.UserContribution = 0;
+          this.presale.Roi = 0;
+        } else {
+         this.presale.UserContribution = this.web3.utils.fromWei(response);
+         await this.getRoi();
+        }
+      }  
     },
     getTokenTicker: async function() {
       this.presale.TokenName = await this.walletConnector.getTokenTicker(this.presale.TokenAddress, this.tokenAbi).catch((e) => {

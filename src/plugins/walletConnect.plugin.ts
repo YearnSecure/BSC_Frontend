@@ -99,7 +99,13 @@ export default class WalletConnector {
             if (this.walletConnectConnected){
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment,@typescript-eslint/ban-ts-ignore
                 // @ts-ignore
-                return web3.currentProvider.chainId;
+                const currentId = web3.currentProvider.chainId
+
+                if (String(currentId).substr(0,2) != '0x') {
+                    return '0x'+String(currentId).substr(0,2);                    
+                } else {
+                    return currentId;
+                }
             } else if (this.metamaskConnected) {
                 return this.metamaskProvider.chainId;
             }
