@@ -1,20 +1,18 @@
 <template>
-  <div id="dashboard" v-if="isLoaded" :class="presales.length > 10 ? 'h-full' : 'h-screen'">
+  <div id="dashboard" v-if="isLoaded" :class="presales.length > 4 ? 'h-full' : 'h-screen'">
     <transition name="slide-fade">
       <main v-if="isLoaded" class="flex-1 relative z-0 overflow-y-auto focus:outline-none" tabindex="0">
         <Header 
             :contractAddress="contractAddress"
             :isConnected="isConnected"
             :account="account"
-            :chainId="chainId"
-            @connectedWallet="connectedWallet"/>
+            :chainId="chainId"/>
 
         <AlertModal 
             v-if="showAlert"
             :alert="alert"
             :showConnectionButton="showConnectionButton"
             :showDownloadButton="showDownloadButton"
-            @connectAccount="connectAccount"
             @closeModal="closeModal" />
 
         <PageTitle 
@@ -42,7 +40,7 @@ import Header from '@/components/Header'
 import PageTitle from '@/components/PageTitle'
 // import PreSales from '@/components/views/dashboard/presale/Presale.Dashboard'
  //import PreSalesTable from '@/components/views/dashboard/presale/tables/Presale.Table'
- import PreSalesBlocks from '@/components/views/dashboard/presale/tables/Presale.Blocks'
+ import PreSalesBlocks from '@/components/views/dashboard/presale/blocks/Presale.Blocks'
 import Web3 from "web3";
 
 export default {
@@ -90,28 +88,15 @@ export default {
   },
   mounted: async function () {
     this.$loading(true);
-    // if (this.provider.chainId !== proccess.env.VUE_APP_CHAIN_ID) {
-    //   this.showError(
-    //       'Wrong network detection',
-    //       'It looks like you are connected to the wrong network. Please connect to Binance Smart Chain and refresh the page.',
-    //       false);
-    //   this.isLoaded = true;
-    // }
-
-    if (!this.isLoaded) {
-      // Detect provider
-      await this.detectProvider();
-      // Connect to your account
-      await this.currentAccount();
-      this.isLoaded = true;
-    }
+    this.isLoaded = true;
 
     await this.getPresales();
-    this.$loading(false);
 
     const isMobile = ('ontouchstart' in document.documentElement && /mobi/i.test(navigator.userAgent));
     if (isMobile)
-      this.showError('Mobile not yet supported','For the best experience, please visit our website on a laptop')
+      this.showError('Mobile not yet supported','For the best experience, please visit our website on a laptop');
+
+    this.$loading(false);
   },
   methods: {
     getPresales: async function () {
@@ -193,66 +178,7 @@ export default {
 
       await this.setPinnedPresales();
     },
-    detectProvider: async function () {
-      // Great change MetaMask is not installed
-      if (this.provider === undefined) {
-        return this.showError(
-            'MetaMask is not installed.',
-            'It looks like the connection to the MetaMask wallet failed. Try connecting again.',
-            false,
-            true);
-      }
-
-      if (!this.provider.isMetaMask)
-        return this.showError(
-            'MetaMask connection failed.',
-            'It looks like the connection to the MetaMask wallet failed. Try connecting again.');
-    },
-    currentAccount: async function () {
-      // connect to MetaMask account
-      this.chainId = this.provider.chainId;
-      this.provider
-          .request({ method: 'eth_accounts' })
-          .then(this.handleAccountsChanged(this.provider._state.accounts))
-          .catch((err) => {
-            // Some unexpected error.
-            // For backwards compatibility reasons, if no accounts are available,
-            // eth_accounts will return an empty array.
-            this.showError(
-                'Unexpected error',
-                err);
-          });
-    },
-    handleAccountsChanged: function (accounts) {
-      if (accounts !== null && accounts.length === 0) {
-        // MetaMask is locked or the user has not connected any accounts
-        this.isConnected = false;
-        this.showError(
-          'No connections made',
-          'Click the connect button to connect your MetaMask account',
-          true, true);
-      } else {
-        this.$store.state.account = accounts[0];
-        this.account = accounts[0];
-        // show user that MetaMask is connected
-        this.isConnected = true;
-      }
-    },
-    connectAccount: function () {
-      this.provider
-        .request({ method: 'eth_requestAccounts' })
-        .then(this.handleAccountsChanged(this.provider._state.accounts))
-        .catch((err) => {
-          if (err.code === 4001) {
-            // EIP-1193 userRejectedRequest error
-            // If this happens, the user rejected the connection request.
-            this.showError('Please connect to MetaMask.', err.message);
-          } else {
-            this.showError('Something went wrong', err.message);
-          }
-        });
-    },
-    closeModal: function () { 
+    closeModal: function () {
       this.showAlert = !this.showAlert;
     },
     showError: function (
@@ -269,24 +195,6 @@ export default {
       this.showDownloadButton = showDownloadButton;
     }
   },
-  watch: {
-    provider: {
-      handler: function () {
-        if (
-          this.$store.getters.account === '' &&
-          this.provider._state.accounts.length > 0) {
-            this.$store.state.account = this.provider._state.accounts[0];
-            this.handleAccountsChanged(this.provider._state.accounts);
-          } else if (
-            this.$store.getters.account !== '' &&
-            this.provider._state.accounts.length === 0) {
-              this.$store.state.account = '';
-              this.handleAccountsChanged(this.provider._state.accounts);
-          }
-      },
-      deep: true
-    }
-  }
 }
 </script>
 

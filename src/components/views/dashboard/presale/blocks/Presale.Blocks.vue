@@ -1,8 +1,8 @@
 <template>
   <div>
-    <h2 class="p-6 text-gray-500 text-xs font-medium uppercase tracking-wide">
-      Presale list
-    </h2>
+    <div class="mt-8 sm:block pt-4 px-4 sm:px-6 lg:px-8">
+      <h2 class="text-gray-500 text-xs font-medium uppercase tracking-wide">Presale list</h2>
+    </div>
     <div v-if="this.allPresales.length > 0">
       <div
         class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-6 relative"
@@ -10,22 +10,22 @@
         <div v-for="(presale, key) in this.allPresales" :key="key">
           <div class="p-6 rounded-lg static presale-blocks">
             <div class="rounded-lg w-48 m-auto text-center">
-              <div v-if="presale.isFinished == true">
+              <div v-if="presale.isFinished">
                 <div class="bg-red-600 rounded-lg p-1">
                   <h2 class="font-bold text-white">Failed</h2>
                 </div>
               </div>
-              <div v-else-if="presale.isStarted == true">
+              <div v-else-if="presale.isStarted">
                 <div class="bg-green-600 rounded-lg p-1">
                   <h2 class="font-bold text-white">Ongoing</h2>
                 </div>
               </div>
-              <div v-else-if="presale.isUpcoming == true">
+              <div v-else-if="presale.isUpcoming">
                 <div class="bg-blue-600 rounded-lg p-1">
                   <h2 class="font-bold text-white">Upcoming</h2>
                 </div>
               </div>
-                 <div v-else-if="presale.contributedEth == presale.hardcapInEth">
+                 <div v-else-if="presale.contributedEth === presale.hardcapInEth">
                 <div class="bg-green-600 rounded-lg p-1">
                   <h2 class="font-bold text-white">Filled</h2>
                 </div>
@@ -48,7 +48,7 @@
             >
              <div :key="percentage.index" v-for="(percentage) in percentages">
          
-            <div v-if="percentage.index == presale.presaleId">
+            <div v-if="percentage.index === presale.presaleId">
              
              
             <div
@@ -148,6 +148,7 @@
         </div>
       </div>
     </div>
+    <img class="w-1/3 mx-auto mt-10" v-if="presales.length <= 0" src="/assets/images/empty-state.svg" />
   </div>
 </template>
 

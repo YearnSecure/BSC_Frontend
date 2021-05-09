@@ -6,37 +6,37 @@
         <div class="grid gap-1 mt-3">
           <div class="flex">
             <span class="text-gray-900 dark:text-white pr-5">Liquidity locked:</span>
-            <a href="#" class="text-blue-500">{{ presale.LiquidityLocked }}% of raised BNB</a>
+            <span class="text-blue-500">{{ presale.LiquidityLocked }}% of raised <span class="text-yellow-500">BNB</span></span>
           </div>
         </div>
         <div class="grid gap-1 mt-1">
           <div class="flex">
             <span class="text-gray-900 dark:text-white pr-5">Total tokens:</span>
-            <a href="#" class="text-blue-500">{{ presale.TotalSupply }} {{ presale.TokenName }}</a>
+            <span class="text-blue-500">{{ presale.TotalSupply }} <span class="text-yellow-500">{{ presale.TokenName }}</span></span>
           </div>
         </div>
         <div class="grid gap-1 mt-1">
           <div class="flex">
             <span class="text-gray-900 dark:text-white pr-5">Tokens in presale:</span>
-            <a href="#" class="text-blue-500">{{ presale.TokensInPresale }} {{ presale.TokenName }}</a>
+            <span class="text-blue-500">{{ presale.TokensInPresale }} <span class="text-yellow-500">{{ presale.TokenName }}</span></span>
           </div>
         </div>
         <div class="grid gap-1 mt-1">
           <div class="flex">
             <span class="text-gray-900 dark:text-white pr-5">Token Liquidity:</span>
-            <a href="#" class="text-blue-500">{{ presale.TokenLiquidity }} {{ presale.TokenName }}</a>
+            <span class="text-blue-500">{{ presale.TokenLiquidity }} <span class="text-yellow-500">{{ presale.TokenName }}</span></span>
           </div>
         </div>
         <div class="grid gap-1 mt-1">
           <div class="flex">
             <span class="text-gray-900 dark:text-white pr-5">Price per token:</span>
-            <a href="#" class="text-blue-500">{{ presale.TokenPrice }} BNB</a>
+            <span class="text-blue-500">{{ presale.TokenPrice }} <span class="text-yellow-500">BNB</span> </span>
           </div>
         </div>
         <div class="grid gap-1 mt-1">
           <div class="block">
             <span class="text-gray-900 block dark:text-white pr-5">Listing price per token is: </span>
-            <a href="#" class="block text-blue-500">{{ presale.listingTokenPrice }} (~ {{ presale.listingPrice }} times presale price)</a>
+            <span class="block text-blue-500">{{ presale.listingTokenPrice }} (~ {{ presale.listingPrice }} times presale price)</span>
           </div>
         </div>
       </div>
