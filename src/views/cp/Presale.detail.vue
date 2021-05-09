@@ -278,8 +278,8 @@ export default {
       this.presale.Name = response.Info.Name;
       this.presale.StartDate = (parseInt(response.StartDate));
       this.presale.EndDate = (parseInt(response.EndDate));
-      this.presale.Softcap = this.readableFormatNumbers(this.web3.utils.fromWei(response.Softcap));
-      this.presale.Hardcap = this.readableFormatNumbers(this.web3.utils.fromWei(response.Hardcap));
+      this.presale.Softcap = Number(this.web3.utils.fromWei(response.Softcap));
+      this.presale.Hardcap = Number(this.web3.utils.fromWei(response.Hardcap));
       this.presale.TokenAddress = response.Addresses.TokenAddress;
       this.presale.LiquidityLocked = response.LiqPercentage;
       this.totalSupply = this.web3.utils.fromWei(response.State.TotalTokenAmount);
