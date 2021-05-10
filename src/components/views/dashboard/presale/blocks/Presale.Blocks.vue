@@ -11,8 +11,10 @@
           <div class="p-6 rounded-lg static presale-blocks">
             <div class="rounded-lg w-48 m-auto text-center">
               <div v-if="presale.isFinished">
+                <div v-if="presale.contributedEth < presale.softcapInEth">
                 <div class="bg-red-600 rounded-lg p-1">
                   <h2 class="font-bold text-white">Failed</h2>
+                </div>
                 </div>
               </div>
               <div v-else-if="presale.isStarted">
@@ -25,9 +27,11 @@
                   <h2 class="font-bold text-white">Upcoming</h2>
                 </div>
               </div>
-                 <div v-else-if="presale.contributedEth === presale.hardcapInEth">
+               <div v-if="presale.contributedEth >= presale.softcapInEth">
+                 <div v-if="presale.isFinished">
                 <div class="bg-green-600 rounded-lg p-1">
                   <h2 class="font-bold text-white">Filled</h2>
+                </div>
                 </div>
               </div>
             </div>
@@ -58,7 +62,7 @@
                 :style="percentage.width"
                 class="h-5 shadow-none progressbar flex flex-col text-center whitespace-nowrap text-white justify-center"
               >
-                <p class="text-white">{{presale.contributedEth/presale.hardcapInEth*100}}%</p>
+                <p class="text-white">{{(presale.contributedEth/presale.hardcapInEth*100).toFixed(2)}}%</p>
               </div>
                      
             </div>
@@ -66,7 +70,7 @@
             </div>
             <span class="truncate text-center text-sm text-gray-600">
               <p class="p-2">
-                {{ presale.contributedEth / presale.hardcapInEth * 100  }}% (Min {{presale.softcapInEth / presale.hardcapInEth * 100}}%) {{ presale.contributedEth }}/{{presale.hardcapInEth}} BNB
+                {{ (presale.contributedEth / presale.hardcapInEth * 100).toFixed(2) }}% (Min {{(presale.softcapInEth / presale.hardcapInEth * 100)}}%) {{ presale.contributedEth }}/{{presale.hardcapInEth}} BNB
               </p>
             </span>
             <div class="grid grid-cols-2 text-center pb-6">
@@ -82,7 +86,8 @@
               <div>
                 <label class="text-white">Connect</label>
                 <br />
-                <a class="p-2" :href="presale.website">
+                <div class="inline" v-if="presale.website">
+                <a target="_blank" class="p-2" :href="presale.website">
                   <svg
                     fill="#f59e0b"
                     class="h-4 w-4 inline yellow"
@@ -103,7 +108,9 @@
                     </g>
                   </svg>
                 </a>
-                <a class="p-2" :href="presale.telegram">
+                </div>
+                <div class="inline" v-if="presale.telegram">
+                <a target="_blank" class="p-2" :href="presale.telegram">
                   <svg
                     fill="#f59e0b"
                     class="h-4 w-4 inline"
@@ -134,6 +141,7 @@
                     </g>
                   </svg>
                 </a>
+                </div>
               </div>
             </div>
             <div class="center">
@@ -156,6 +164,7 @@
 import WalletConnector from "@/plugins/walletConnect.plugin";
 import Web3 from "web3";
 import axios from 'axios'
+
 
 export default {
   name: "presale.blocks.presale.dashboard.views.components",
@@ -266,7 +275,7 @@ export default {
       this.$emit("pinPresale", presale);
     },
     formatDate: function (date) {
-      return new Date(date * 1000).toLocaleString();
+      return new Date(date * 1000).toLocaleTimeString([], { day: 'numeric',year: 'numeric', month: 'long', hour: '2-digit', minute:'2-digit'});
     },
   },
 };
