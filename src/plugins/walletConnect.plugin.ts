@@ -24,8 +24,8 @@ export default class WalletConnector {
     IsConnected() {
         this.metamaskConnected = this.IsMetamaskConnected();
         this.walletConnectConnected = this.IsWalletConnectConnected();
-        console.log('metamask connected: ' + this.metamaskConnected);
-        console.log('wc connected: ' + this.walletConnectConnected);
+        // console.log('metamask connected: ' + this.metamaskConnected);
+        // console.log('wc connected: ' + this.walletConnectConnected);
         return this.metamaskConnected || this.walletConnectConnected;
     }
     // Check if MetaMask is connected
@@ -102,7 +102,7 @@ export default class WalletConnector {
                 const currentId = web3.currentProvider.chainId
 
                 if (String(currentId).substr(0,2) != '0x') {
-                    return '0x'+String(currentId).substr(0,2);                    
+                    return parseInt(currentId, 16);                    
                 } else {
                     return currentId;
                 }

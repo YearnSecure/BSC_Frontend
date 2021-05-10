@@ -238,7 +238,7 @@ export default {
 
     handleView: function () {
       this.mobileView = window.innerWidth <= 990;
-      console.log(this.mobileView);
+      // console.log(this.mobileView);
       if (this.mobileView > 990) {
         this.showNav = false;
       }
