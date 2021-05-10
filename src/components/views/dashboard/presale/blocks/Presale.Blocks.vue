@@ -164,6 +164,7 @@
 import WalletConnector from "@/plugins/walletConnect.plugin";
 import Web3 from "web3";
 import axios from 'axios'
+import moment from 'moment';
 
 export default {
   name: "presale.blocks.presale.dashboard.views.components",
@@ -274,7 +275,9 @@ export default {
       this.$emit("pinPresale", presale);
     },
     formatDate: function (date) {
-      return new Date(date * 1000).toLocaleString();
+       const dateString = moment.unix(date).format("DD-MM-YYYY hh:mm");
+        
+      return dateString;
     },
   },
 };
