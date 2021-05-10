@@ -87,7 +87,7 @@
                 <label class="text-white">Connect</label>
                 <br />
                 <div class="inline" v-if="presale.website">
-                <a class="p-2" :href="presale.website">
+                <a target="_blank" class="p-2" :href="presale.website">
                   <svg
                     fill="#f59e0b"
                     class="h-4 w-4 inline yellow"
@@ -110,7 +110,7 @@
                 </a>
                 </div>
                 <div class="inline" v-if="presale.telegram">
-                <a class="p-2" :href="presale.telegram">
+                <a target="_blank" class="p-2" :href="presale.telegram">
                   <svg
                     fill="#f59e0b"
                     class="h-4 w-4 inline"
