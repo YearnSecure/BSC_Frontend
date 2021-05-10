@@ -38,9 +38,7 @@ import axios from 'axios'
 import AlertModal from '@/components/modals/Alert.modals'
 import Header from '@/components/Header'
 import PageTitle from '@/components/PageTitle'
-// import PreSales from '@/components/views/dashboard/presale/Presale.Dashboard'
- //import PreSalesTable from '@/components/views/dashboard/presale/tables/Presale.Table'
- import PreSalesBlocks from '@/components/views/dashboard/presale/blocks/Presale.Blocks'
+import PreSalesBlocks from '@/components/views/dashboard/presale/blocks/Presale.Blocks'
 import Web3 from "web3";
 
 export default {
@@ -91,10 +89,6 @@ export default {
     this.isLoaded = true;
 
     await this.getPresales();
-
-    // const isMobile = ('ontouchstart' in document.documentElement && /mobi/i.test(navigator.userAgent));
-    // if (isMobile)
-    //   this.showError('Mobile not yet supported','For the best experience, please visit our website on a laptop');
 
     this.$loading(false);
   },
