@@ -10,7 +10,6 @@ export default class WalletConnector {
     constructor(metaMaskProvider: any) {
         this.metamaskProvider = metaMaskProvider;
         this.tempWC = new WalletConnectProvider({
-            // infuraId: process.env.VUE_APP_INFURA,
             rpc: {
                 56: "https://bsc-dataseed.binance.org/",
                 97: "https://data-seed-prebsc-1-s1.binance.org:8545/",
@@ -37,10 +36,7 @@ export default class WalletConnector {
         if(!this.metamaskProvider.isConnected())
             return false;
 
-        if(this.metamaskProvider._state.accounts.length == 0)
-            return false;
-
-        return true;
+        return this.metamaskProvider._state.accounts.length != 0;
     }
     // Check if WalletConnect is connected
     IsWalletConnectConnected() {
@@ -67,9 +63,20 @@ export default class WalletConnector {
     }
     // Check which provider is connected
     GetProvider() {
-        if(this.metamaskConnected) {
+        if (this.metamaskConnected) {
             return new Web3(this.metamaskProvider);
-        } else if (this.walletConnectConnected){
+        } else if (this.walletConnectConnected) {
+            if (this.tempWC.wc.peerMeta && this.tempWC.wc.peerMeta.url === "https://trustwallet.com") {
+                this.tempWC.infuraId = "";
+                this.tempWC.rpcUrl = "https://data-seed-prebsc-1-s1.binance.org:8545/";
+                if (this.tempWC.http)
+                    this.tempWC.http.url = "https://data-seed-prebsc-1-s1.binance.org:8545/";
+                this.tempWC.rpc = {
+                    56: "https://bsc-dataseed.binance.org/",
+                    97: "https://data-seed-prebsc-1-s1.binance.org:8545/",
+                }
+            }
+
             return new Web3(this.tempWC as any);
         }
 
@@ -78,7 +85,7 @@ export default class WalletConnector {
     // Returns the connected accounts
     async GetAccounts() {
         const web3 = this.GetProvider();
-        if(web3 !== null)
+        if (web3 !== null)
         {
             if (this.walletConnectConnected){
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment,@typescript-eslint/ban-ts-ignore
@@ -92,26 +99,30 @@ export default class WalletConnector {
     // Returns the connected chainId
     async GetChainId() {
         const web3 = this.GetProvider();
-        if(web3 !== null)
+        if (web3 !== null)
         {
             if (this.walletConnectConnected){
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment,@typescript-eslint/ban-ts-ignore
                 // @ts-ignore
-                const currentId = web3.currentProvider.chainId
+                const currentId = web3.currentProvider.chainId;
 
+                console.log(`DEV walletConnect: ${currentId}`);
                 if (String(currentId).substr(0,2) != '0x') {
+                    console.log(`Substring function: '0x'${String(currentId).substr(0,2)}`);
                     return '0x'+String(currentId).substr(0,2);
                 } else {
+                    console.log(`Direct return: ${currentId}`);
                     return currentId;
                 }
             } else if (this.metamaskConnected) {
+                console.log(`DEV MetaMask: ${this.metamaskProvider.chainId}`);
                 return this.metamaskProvider.chainId;
             }
         }
     }
     // Disconnect the connected wallet
     Disconnect() {
-        if(this.walletConnectConnected)
+        if (this.walletConnectConnected)
             return this.tempWC.disconnect();
         else if (this.metamaskConnected) {
             this.metamaskProvider._state.isConnected = false;
@@ -127,7 +138,7 @@ export default class WalletConnector {
     // Contract Calls
     async getPresaleData(id: number, address: string, abi: any) {
         const web3 = this.GetProvider();
-        if(web3 != null) {
+        if (web3 !== null) {
             const presaleContractInterface = new web3.eth.Contract(abi);
             presaleContractInterface.options.address = address;
             return await presaleContractInterface.methods.Presales(id).call();
@@ -136,7 +147,7 @@ export default class WalletConnector {
 
     async getTokenAllocations(id: number, address: string, abi: any,) {
         const web3 = this.GetProvider();
-        if(web3 != null) {
+        if (web3 !== null) {
             const presaleContractInterface = new web3.eth.Contract(abi);
             presaleContractInterface.options.address = address;
             return await presaleContractInterface.methods.GetTokenAllocations(id).call();
@@ -145,7 +156,7 @@ export default class WalletConnector {
 
     async getContributedBNB(id: number, account: string, address: string, abi: any) {
         const web3 = this.GetProvider();
-        if(web3 != null) {
+        if (web3 != null) {
             const presaleContractInterface = new web3.eth.Contract(abi);
             presaleContractInterface.options.address = address;
             return await presaleContractInterface.methods.GetBNBContributedForAddress(id, account).call();
@@ -154,7 +165,7 @@ export default class WalletConnector {
 
     async getTokenTicker(tokenAddress: string, tokenAbi: any) {
         const web3 = this.GetProvider();
-        if(web3 != null) {
+        if (web3 !== null) {
             const tokenContractInterface = new web3.eth.Contract(tokenAbi);
             tokenContractInterface.options.address = tokenAddress;
             return await tokenContractInterface.methods.symbol().call();
@@ -163,7 +174,7 @@ export default class WalletConnector {
 
     async getRoi(id: number, account: string, address: string, abi: any) {
         const web3 = this.GetProvider();
-        if(web3 != null) {
+        if (web3 !== null) {
             const presaleContractInterface = new web3.eth.Contract(abi);
             presaleContractInterface.options.address = address;
             return await presaleContractInterface.methods.GetAmountOfTokensForAddress(id, account).call();
@@ -172,7 +183,7 @@ export default class WalletConnector {
 
     async getAllowance(account: string, address: string, tokenAddress: string, tokenAbi: any) {
         const web3 = this.GetProvider();
-        if(web3 != null) {
+        if (web3 !== null) {
             const tokenContractInterface = new web3.eth.Contract(tokenAbi);
             tokenContractInterface.options.address = tokenAddress;
             return await tokenContractInterface.methods.allowance(account, address).call();
@@ -181,7 +192,7 @@ export default class WalletConnector {
 
     async approveCall(account: string, address: string, totalTokens: any, tokenAddress: string, tokenAbi: any) {
         const web3 = this.GetProvider();
-        if(web3 != null) {
+        if (web3 !== null) {
             const tokenContractInterface = new web3.eth.Contract(tokenAbi);
             tokenContractInterface.options.address = tokenAddress;
             return await tokenContractInterface.methods.approve(address, totalTokens).send({from: account});
@@ -190,7 +201,7 @@ export default class WalletConnector {
 
     async transferTokens(id: any, account: string, address: string, abi: any) {
         const web3 = this.GetProvider();
-        if(web3 != null) {
+        if (web3 != null) {
             const presaleContractInterface = new web3.eth.Contract(abi);
             presaleContractInterface.options.address = address;
             return await presaleContractInterface.methods.TransferTokens(id).send({from: account});
@@ -199,7 +210,7 @@ export default class WalletConnector {
 
     async presaleFinished(id: any, account: string, address: string, abi: any) {
         const web3 = this.GetProvider();
-        if(web3 != null) {
+        if (web3 !== null) {
             const presaleContractInterface = new web3.eth.Contract(abi);
             presaleContractInterface.options.address = address;
             return await presaleContractInterface.methods.PresaleFinished(id).call({from: account});
@@ -208,7 +219,7 @@ export default class WalletConnector {
 
     async getPresaleStarted(id: any, account: string, address: string, abi: any) {
         const web3 = this.GetProvider();
-        if(web3 != null) {
+        if (web3 !== null) {
             const presaleContractInterface = new web3.eth.Contract(abi);
             presaleContractInterface.options.address = address;
             return await presaleContractInterface.methods.PresaleStarted(id).call({from: account});
@@ -217,7 +228,7 @@ export default class WalletConnector {
 
     async addLiquidity(id: any, account: string, address: string, abi: any) {
         const web3 = this.GetProvider();
-        if(web3 != null) {
+        if (web3 !== null) {
             const presaleContractInterface = new web3.eth.Contract(abi);
             presaleContractInterface.options.address = address;
             return await presaleContractInterface.methods.AddLiquidity(id).send({from: account});
@@ -226,7 +237,7 @@ export default class WalletConnector {
 
     async claimTokensAccount(id: any, account: string, address: string, abi: any) {
         const web3 = this.GetProvider();
-        if(web3 != null) {
+        if (web3 !== null) {
             const presaleContractInterface = new web3.eth.Contract(abi);
             presaleContractInterface.options.address = address;
             return await presaleContractInterface.methods.ClaimTokens(id).send({from: account});
@@ -235,7 +246,7 @@ export default class WalletConnector {
 
     async distribute(id: any, account: string, address: string, abi: any) {
         const web3 = this.GetProvider();
-        if(web3 != null) {
+        if (web3 !== null) {
             const presaleContractInterface = new web3.eth.Contract(abi);
             presaleContractInterface.options.address = address;
             return await presaleContractInterface.methods.DistributeBNB(id).send({from: account});
@@ -244,7 +255,7 @@ export default class WalletConnector {
 
     async retrieve(id: any, account: string, address: string, abi: any) {
         const web3 = this.GetProvider();
-        if(web3 != null) {
+        if (web3 !== null) {
             const presaleContractInterface = new web3.eth.Contract(abi);
             presaleContractInterface.options.address = address;
             return await presaleContractInterface.methods.RetrieveBNB(id, account).send({from: account});
@@ -253,7 +264,7 @@ export default class WalletConnector {
 
     async retrieveTokensOwner(id: any, account: string, address: string, abi: any) {
         const web3 = this.GetProvider();
-        if(web3 != null) {
+        if (web3 !== null) {
             const presaleContractInterface = new web3.eth.Contract(abi);
             presaleContractInterface.options.address = address;
             return await presaleContractInterface.methods.RetrieveTokens(id).send({from: account});
@@ -262,7 +273,7 @@ export default class WalletConnector {
 
     async transferTokensToLocks(id: any, account: string, address: string, abi: any) {
         const web3 = this.GetProvider();
-        if(web3 != null) {
+        if (web3 !== null) {
             const presaleContractInterface = new web3.eth.Contract(abi);
             presaleContractInterface.options.address = address;
             return await presaleContractInterface.methods.TransferTokensToLocks(id).send({from: account});
@@ -271,7 +282,7 @@ export default class WalletConnector {
 
     async getSoftcapMet(id: any, account: string, address: string, abi: any) {
         const web3 = this.GetProvider();
-        if(web3 != null) {
+        if (web3 !== null) {
             const presaleContractInterface = new web3.eth.Contract(abi);
             presaleContractInterface.options.address = address;
             return await presaleContractInterface.methods.SoftcapMet(id).call({from: account});
@@ -280,20 +291,21 @@ export default class WalletConnector {
 
     async contributeTokens(id: any, account: string, amountOfTokens: any, address: string, abi: any) {
         const web3 = this.GetProvider();
-        if(web3 != null) {
+        if (web3 !== null) {
             const presaleContractInterface = new web3.eth.Contract(abi);
             presaleContractInterface.options.address = address;
-            return await presaleContractInterface.methods.Contribute(id).send({from: account, value: web3.utils.toWei(amountOfTokens.toString())});
+            return await presaleContractInterface.methods.Contribute(id)
+                .send({from: account, value: web3.utils.toWei(amountOfTokens.toString())});
         }
     }
 
     async createPresale(dto: any, account: string, address: string, abi: any) {
         const web3 = this.GetProvider();
-        if(web3 != null) {
+        if (web3 !== null) {
             const presaleContractInterface = new web3.eth.Contract(abi);
             presaleContractInterface.options.address = address;
             await presaleContractInterface.methods.CreatePresale(dto)
-            .send({from: account});
+                .send({from: account});
         }
     }
 }
