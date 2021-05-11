@@ -2,10 +2,12 @@ import WalletConnectProvider from "@walletconnect/web3-provider";
 import Web3 from "web3";
 
 export default class WalletConnector {
-    private metamaskProvider: any
+    private metamaskProvider: any;
     private metamaskConnected: boolean;
     private walletConnectConnected: boolean;
-    private tempWC: WalletConnectProvider;
+    private readonly tempWC: WalletConnectProvider;
+
+    private chainId: any;
 
     constructor(metaMaskProvider: any) {
         this.metamaskProvider = metaMaskProvider;
@@ -16,6 +18,7 @@ export default class WalletConnector {
             },
         });
 
+        this.chainId = process.env.VUE_APP_NETWORK_ID;
         this.metamaskConnected = false;
         this.walletConnectConnected = false;
     }
@@ -104,11 +107,12 @@ export default class WalletConnector {
             if (this.walletConnectConnected){
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment,@typescript-eslint/ban-ts-ignore
                 // @ts-ignore
-                const currentId = web3.currentProvider.chainId;
+                const currentId = web3.currentProvider.chainId; //1
 
+                console.log(web3.currentProvider);
                 console.log(`DEV walletConnect: ${currentId}`);
                 if (String(currentId).substr(0,2) != '0x') {
-                    console.log(`Substring function: '0x'${String(currentId).substr(0,2)}`);
+                    console.log(`Substring function: 0x${String(currentId).substr(0,2)}`);
                     return '0x'+String(currentId).substr(0,2);
                 } else {
                     console.log(`Direct return: ${currentId}`);

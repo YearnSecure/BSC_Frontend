@@ -226,7 +226,9 @@ export default {
     toggleInitWalletconnection: function () {
       this.showModal = !this.showModal;
     },
-
+    toggleAlertModal: function() {
+      this.showAlert = !this.showAlert;
+    },
     truncateString: function (str, num) {
       if (str !== undefined) {
         if (str.length <= num) {
@@ -235,7 +237,6 @@ export default {
         return str.slice(0, num) + "...";
       }
     },
-
     handleView: function () {
       this.mobileView = window.innerWidth <= 990;
       // console.log(this.mobileView);
