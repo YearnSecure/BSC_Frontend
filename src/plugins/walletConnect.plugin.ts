@@ -71,6 +71,7 @@ export default class WalletConnector {
         } else if (this.walletConnectConnected) {
             if (this.tempWC.wc.peerMeta && this.tempWC.wc.peerMeta.url === "https://trustwallet.com") {
                 this.tempWC.infuraId = "";
+                this.tempWC.chainId = 56;
                 this.tempWC.rpcUrl = "https://data-seed-prebsc-1-s1.binance.org:8545/";
                 if (this.tempWC.http)
                     this.tempWC.http.url = "https://data-seed-prebsc-1-s1.binance.org:8545/";
@@ -110,7 +111,7 @@ export default class WalletConnector {
                 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
                 // @ts-ignore
                 if (web3.currentProvider.wc && web3.currentProvider.wc.peerMeta && web3.currentProvider.wc.peerMeta.url === "https://trustwallet.com") {
-                    currentId = '0x38';
+                    currentId = '0x56';
                 } else {
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment,@typescript-eslint/ban-ts-ignore
                     // @ts-ignore
