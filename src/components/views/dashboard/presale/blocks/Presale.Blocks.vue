@@ -18,7 +18,7 @@
                 </div>
               </div>
               <div v-else-if="presale.isStarted">
-                <div class="bg-green-600 rounded-lg p-1">
+                <div class="bg-yellow-500 rounded-lg p-1">
                   <h2 class="font-bold text-white">Ongoing</h2>
                 </div>
               </div>
