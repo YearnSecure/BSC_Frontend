@@ -104,10 +104,18 @@ export default class WalletConnector {
         const web3 = this.GetProvider();
         if (web3 !== null)
         {
-            if (this.walletConnectConnected){
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment,@typescript-eslint/ban-ts-ignore
+            if (this.walletConnectConnected) {
+                let currentId = "";
+
+                // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
                 // @ts-ignore
-                const currentId = web3.currentProvider.chainId; //1
+                if (web3.currentProvider.wc && web3.currentProvider.wc.peerMeta && web3.currentProvider.wc.peerMeta.url === "https://trustwallet.com") {
+                    currentId = '0x38';
+                } else {
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment,@typescript-eslint/ban-ts-ignore
+                    // @ts-ignore
+                    currentId = web3.currentProvider.chainId;
+                }
 
                 console.log(web3.currentProvider);
                 console.log(`DEV walletConnect: ${currentId}`);
