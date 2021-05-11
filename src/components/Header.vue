@@ -22,7 +22,10 @@
         </div>
       </a>
     </div>
-    <Navigation v-if="!mobileView" />
+    <Navigation
+        v-if="!mobileView"
+        :contractAddress="contractAddress"
+        :account="account"/>
     <div class="m-auto w-full text-center" v-if="mobileView">
       <button
         v-if="!isConnected"
@@ -76,8 +79,8 @@ import Web3 from "web3";
 
 export default {
   props: {
-    contractAddress: String,
     account: String,
+    contractAddress: String
   },
   components: {
     InitConnectWalletModal,
