@@ -73,7 +73,7 @@ export default class WalletConnector {
             if (this.tempWC.wc.peerMeta && this.tempWC.wc.peerMeta.url === "https://trustwallet.com") {
                 this.tempWC.infuraId = "";
                 this.tempWC.chainId = 56;
-                this.tempWC.createSession({ chainId: 56 });
+                // this.tempWC.createSession({ chainId: 56 });
                 this.tempWC.rpcUrl = "https://data-seed-prebsc-1-s1.binance.org:8545/";
                 if (this.tempWC.http)
                     this.tempWC.http.url = "https://data-seed-prebsc-1-s1.binance.org:8545/";
