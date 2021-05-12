@@ -12,6 +12,7 @@ export default class WalletConnector {
     constructor(metaMaskProvider: any) {
         this.metamaskProvider = metaMaskProvider;
         this.tempWC = new WalletConnectProvider({
+            chainId: 56,
             rpc: {
                 56: "https://bsc-dataseed.binance.org/",
                 97: "https://data-seed-prebsc-1-s1.binance.org:8545/",
