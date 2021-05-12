@@ -12,7 +12,7 @@ export default class WalletConnector {
     constructor(metaMaskProvider: any) {
         this.metamaskProvider = metaMaskProvider;
         this.tempWC = new WalletConnectProvider({
-            chainId: 56,
+            chainId: 97,
             rpc: {
                 56: "https://bsc-dataseed.binance.org/",
                 97: "https://data-seed-prebsc-1-s1.binance.org:8545/",
@@ -72,8 +72,7 @@ export default class WalletConnector {
         } else if (this.walletConnectConnected) {
             if (this.tempWC.wc.peerMeta && this.tempWC.wc.peerMeta.url === "https://trustwallet.com") {
                 this.tempWC.infuraId = "";
-                this.tempWC.chainId = 56;
-                // this.tempWC.createSession({ chainId: 56 });
+                this.tempWC.chainId = 97;
                 this.tempWC.rpcUrl = "https://data-seed-prebsc-1-s1.binance.org:8545/";
                 if (this.tempWC.http)
                     this.tempWC.http.url = "https://data-seed-prebsc-1-s1.binance.org:8545/";
