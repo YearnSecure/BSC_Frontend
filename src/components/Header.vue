@@ -1,27 +1,47 @@
 <template>
   <div id="app">
-    <NavigationMobile v-if="showNav" />
+    <a @click="showNav = !showNav">
+      <div id="navigation-icon" class="inline" v-if="mobileView">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-12 w-12 m-4"
+          fill="#f59e0b"
+          viewBox="0 0 24 24"
+          stroke="#f59e0b"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16M4 18h16"
+          />
+        </svg>
+      </div>
+    </a>
 
-    <div class="content inline" :class="{ open: showNav }">
-      <a @click="showNav = !showNav">
-        <div id="navigation-icon" class="inline" v-if="mobileView">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-12 w-12 m-4"
-            fill="#f59e0b"
-            viewBox="0 0 24 24"
-            stroke="#f59e0b"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-          </svg>
-        </div>
+    <div class="sidenav bg-yellow-500" :class="{ open: showNav }">
+      <div class="w-full">
+      <a @click="showNav = !showNav" class="closebtn">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6 mt-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+  
       </a>
+            <NavigationMobile v-if="showNav" />
+      </div>
     </div>
+
     <Navigation v-if="!mobileView" />
     <div class="m-auto w-full text-center" v-if="mobileView">
       <button
@@ -238,7 +258,6 @@ export default {
 
     handleView: function () {
       this.mobileView = window.innerWidth <= 990;
-      console.log(this.mobileView);
       if (this.mobileView > 990) {
         this.showNav = false;
       }
@@ -246,6 +265,7 @@ export default {
   },
   created() {
     this.handleView();
+    window.addEventListener("resize", this.handleView);
   },
 
   watch: {
@@ -259,14 +279,45 @@ export default {
 </script>
 
 <style lang="scss">
-.content {
-  padding: 20px;
-  transition: 2s transform cubic-bezier(0, 0.12, 0.14, 1);
-}
 
 .open {
-  transform: translateX(200px);
-  transition: 1s;
+  width: 250px !important;
+  transition: width 1s;
+}
+
+
+.sidenav {
+  height: 100%;
+  position: fixed;
+  z-index: 1;
+  width: 0;
+  top: 0;
   left: 0;
+  // background-color: #f59e0b;
+  overflow-x: hidden;
+  padding-top: 60px;
+  transition: 1s;
+}
+
+.sidenav a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 25px;
+  color: white;
+  display: block;
+  transition: 0.3s;
+  font-weight: bold;
+}
+
+.sidenav a:hover {
+  color: #f59e0b;
+}
+
+.sidenav .closebtn {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
 }
 </style>
